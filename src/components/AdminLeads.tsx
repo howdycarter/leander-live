@@ -36,7 +36,7 @@ import { Lock } from "lucide-react";
 
 /* ------------------------------------------------------------------ */
 /* Mini-CRM (shadcn): lead pipeline board + businesses.                 */
-/* Gated by ADMIN_KEY. Route: #admin/leads (hash route via SPA fallback)*/
+/* Gated by ADMIN_KEY. Route: /admin/leads (SPA fallback serves index.html). */
 /* Proper per-user auth (Convex Auth) is the post-hackathon follow-up. */
 /* ------------------------------------------------------------------ */
 

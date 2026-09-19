@@ -34,7 +34,7 @@ businesses) buy into a lead pipeline that routes community demand to them.
   realtime tier. Setup: `PHONE_BOT_SETUP.md`.
 - **Lead pipeline + mini-CRM** — `businessLeads` carries source
   (form/chat/phone), status (`new → contacted → qualified → sold → closed`),
-  assigned business, sale price, notes. `#admin/leads` route (hash route):
+  assigned business, sale price, notes. `/admin/leads` route (SPA fallback):
   pipeline board with stage columns, lead detail Sheet (move stage, assign to a
   business, mark sold with price, notes), `businesses` table with vertical
   matching so leads route to the right business. Gated by `ADMIN_KEY`
@@ -133,7 +133,7 @@ _TODO — record <3 min clickthrough before Sep 22, 12:00 PM PT._ Shot list in
   steps ($200 hard limit, $50 alert).
 - **2026-09-19** — Lead pipeline + mini-CRM: `businessLeads` extended (source,
   status, assigned business, sale price, notes), `businesses` table with
-  vertical matching, `convex/crm.ts` (`ADMIN_KEY`-gated), `#admin/leads`
+  vertical matching, `convex/crm.ts` (`ADMIN_KEY`-gated), ``/admin/leads``
   pipeline board + lead detail + businesses tab. Subtle howdycarter.com
   cross-promo (footer, About, one business-section card).
 - **2026-09-19** — Color correction + design system rebuild: discarded the

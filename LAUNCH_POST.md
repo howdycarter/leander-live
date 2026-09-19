@@ -44,6 +44,6 @@ Live: <URL> | Code: github.com/howdycarter/leander-live
 2. (0:30) Submit an event → shows as pending
 3. (0:50) Get reminders form → success
 4. (1:10) Chat widget: qualify + capture a lead conversationally
-5. (1:40) #admin/leads: move a lead through the pipeline, assign to a business
+5. (1:40) /admin/leads: move a lead through the pipeline, assign to a business
 6. (2:10) Phone bot: call the number, get qualified (record the agent audio)
 7. (2:40) Architecture slide: Convex + Firecrawl + AgentMail + OpenAI + Twilio

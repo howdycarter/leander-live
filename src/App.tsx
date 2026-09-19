@@ -776,11 +776,22 @@ function CrossPromoCard() {
 /* ---------------- app ---------------- */
 
 export default function App() {
-  const [isAdminRoute, setIsAdminRoute] = useState(() => window.location.hash === "#admin/leads");
+  const [isAdminRoute, setIsAdminRoute] = useState(() =>
+    window.location.pathname === "/admin/leads" ||
+    window.location.hash === "#admin/leads",
+  );
   useEffect(() => {
-    const onHash = () => setIsAdminRoute(window.location.hash === "#admin/leads");
-    window.addEventListener("hashchange", onHash);
-    return () => window.removeEventListener("hashchange", onHash);
+    const onChange = () =>
+      setIsAdminRoute(
+        window.location.pathname === "/admin/leads" ||
+          window.location.hash === "#admin/leads",
+      );
+    window.addEventListener("hashchange", onChange);
+    window.addEventListener("popstate", onChange);
+    return () => {
+      window.removeEventListener("hashchange", onChange);
+      window.removeEventListener("popstate", onChange);
+    };
   }, []);
   if (isAdminRoute) return <AdminLeads />;
 
