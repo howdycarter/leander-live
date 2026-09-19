@@ -9,7 +9,7 @@ until Chris says so.
 - [ ] **Public GitHub repo** — https://github.com/howdycarter/leander-live ✅ (public)
 - [ ] **Live `*.convex.site` URL** — blocked on `npx convex login` (needs Chris)
 - [ ] **Build log** — `hackathon.md` in repo ✅ (keep updating)
-- [ ] **Under-3-minute demo video** — shot list in `LAUNCH_POST.md`; not recorded
+- [x] **Under-3-minute demo video** — recorded 2026-09-19: `demo/leander-live-demo.mp4` (82s, narrated). Beats: event feed + Music filter, submit-event moderation, reminder signup with SMS opt-in, architecture slide.
 - [ ] **Sponsor tags** — all three sponsors do real work:
   - OpenAI: event blurbs (`summarize.ts`), chat bot + lead extraction (`chat.ts`),
     voice agent (Realtime via `voice-bridge/`) ✅ code-complete, key-gated
