@@ -8,7 +8,7 @@ import { AdminLeads } from "./components/AdminLeads";
 import { AccountButton, SignInDialog } from "./components/Auth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge, badgeVariants } from "@/components/ui/badge";
+import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
@@ -207,13 +207,14 @@ function Header({ onSubmit, onSignIn }: { onSubmit: () => void; onSignIn: () => 
           <a href="#jobs" className="text-[#4a3d2f] hover:text-[#b5431f]">
             Jobs
           </a>
-          <button
+          <Button
             type="button"
+            variant="ghost"
             onClick={onSubmit}
-            className="text-[#4a3d2f] hover:text-[#b5431f]"
+            className="h-auto p-0 text-[15px] font-medium text-[#4a3d2f] hover:bg-transparent hover:text-[#b5431f]"
           >
             Submit Event
-          </button>
+          </Button>
           <a href="#businesses" className="text-[#4a3d2f] hover:text-[#b5431f]">
             Community
           </a>
@@ -527,22 +528,23 @@ function EventCard({
   );
 }
 
-/* Filter pill built on the shadcn Badge system: a real <button> with
-   badgeVariants driving the active (default) / inactive (outline) look. */
+/* Filter pill built on the shadcn Button primitive: the default (active) /
+   outline (inactive) variants carry the color story, with pill overrides
+   for the mockup look (rounded-full, auto height, cream-theme borders). */
 function FilterPill({
   active,
   className,
   ...props
 }: ButtonHTMLAttributes<HTMLButtonElement> & { active: boolean }) {
   return (
-    <button
+    <Button
       type="button"
+      variant={active ? "default" : "outline"}
       aria-pressed={active}
       className={cn(
-        badgeVariants({ variant: active ? "default" : "outline" }),
-        "cursor-pointer rounded-full px-4 py-2 text-sm font-medium",
+        "h-auto cursor-pointer rounded-full border border-transparent px-4 py-2 text-sm font-medium hover:bg-primary/80",
         !active &&
-          "border-[#eadbc3] bg-white text-[#4a3d2f] hover:border-[#db5a1e] hover:text-[#b5431f]",
+          "border-[#eadbc3] bg-white text-[#4a3d2f] shadow-none hover:border-[#db5a1e] hover:bg-white hover:text-[#b5431f]",
         className,
       )}
       {...props}
