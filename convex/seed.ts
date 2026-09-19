@@ -1,4 +1,4 @@
-import { internalMutation } from "./_generated/server";
+import { internalMutation, mutation } from "./_generated/server";
 
 /**
  * Idempotent seed of Leander's anchor annual events.
@@ -8,7 +8,8 @@ import { internalMutation } from "./_generated/server";
  * Run once after deploy:
  *   npx convex run seed:seedAnchorEvents
  */
-export const seedAnchorEvents = internalMutation({
+export const seedAnchorEvents = mutation({
+  // TEMPORARY: public for one-time prod seeding 2026-09-19; revert to internalMutation after.
   args: {},
   handler: async (ctx) => {
     const existing = await ctx.db.query("events").take(1);
@@ -25,6 +26,7 @@ export const seedAnchorEvents = internalMutation({
         venue: "Lakewood Park Sculpture Trail",
         url: "https://visitleandertx.com/",
         category: "Community" as const,
+        image: "/images/event-night-market.jpg",
       },
       {
         title: "Floating Pumpkin Patch",
@@ -34,6 +36,7 @@ export const seedAnchorEvents = internalMutation({
         venue: "Robin Bledsoe Park Pool",
         url: "https://visitleandertx.com/",
         category: "Family" as const,
+        image: "/images/event-kids-craft.jpg",
       },
       {
         title: "Tricks and Treats Spooktacular",
@@ -43,6 +46,7 @@ export const seedAnchorEvents = internalMutation({
         venue: "Devine Lake Park",
         url: "https://visitleandertx.com/",
         category: "Family" as const,
+        image: "/images/event-movie-night.jpg",
       },
       {
         title: "Veterans Day Ceremony",
@@ -52,6 +56,7 @@ export const seedAnchorEvents = internalMutation({
         venue: "Veterans Park",
         url: "https://www.leandertx.gov/",
         category: "Community" as const,
+        image: "/images/event-farmers-market.jpg",
       },
       {
         title: "Old Town Christmas Festival",
@@ -61,6 +66,7 @@ export const seedAnchorEvents = internalMutation({
         venue: "Historic Old Town Leander",
         url: "https://visitleandertx.com/",
         category: "Community" as const,
+        image: "/images/event-night-market.jpg",
       },
       {
         title: "Devine Lake Kite Festival",
@@ -70,6 +76,7 @@ export const seedAnchorEvents = internalMutation({
         venue: "Devine Lake Park",
         url: "https://visitleandertx.com/",
         category: "Outdoors" as const,
+        image: "/images/event-sunrise-yoga.jpg",
       },
       {
         title: "Old Town Street Festival",
@@ -79,6 +86,7 @@ export const seedAnchorEvents = internalMutation({
         venue: "Historic Old Town Leander",
         url: "https://visitleandertx.com/",
         category: "Community" as const,
+        image: "/images/event-music-park.jpg",
       },
       {
         title: "Liberty Fest",
@@ -88,6 +96,7 @@ export const seedAnchorEvents = internalMutation({
         venue: "Devine Lake Park",
         url: "https://visitleandertx.com/",
         category: "Community" as const,
+        image: "/images/event-food-truck.jpg",
       },
     ];
 

@@ -34,6 +34,8 @@ export default defineSchema({
     startsAt: v.number(), // unix ms
     venue: v.string(),
     category: v.optional(categoryValidator),
+    // Optional photo path (e.g. "/images/event-music-park.jpg") shown on the event card.
+    image: v.optional(v.string()),
     source: sourceValidator,
     url: v.optional(v.string()),
     status: statusValidator,

@@ -9,7 +9,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogContent,
@@ -26,20 +25,25 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import {
+  ArrowRight,
   BookOpen,
   Building2,
   CalendarDays,
+  Clock,
+  Compass,
+  Heart,
+  House,
+  Leaf,
   MapPin,
+  Menu,
   Music,
   Search,
-  Sparkles,
   TreePine,
+  User,
   Users,
   UtensilsCrossed,
-  Heart,
-  Plus,
-  Info,
   Bell,
+  Plus,
   Send,
   type LucideIcon,
 } from "lucide-react";
@@ -71,16 +75,26 @@ const BUSINESS_INTERESTS = ["Featured listing", "Buy leads", "Sponsored event"] 
 const DATE_FILTERS = ["All", "Today", "This Weekend", "This Month"] as const;
 type DateFilter = (typeof DATE_FILTERS)[number];
 
-/* Category accents sampled from the real City of Leander logo palette. */
+/* Category badge accents sampled from the approved mockups. */
 const CATEGORY_STYLE: Record<string, { label: string; color: string; soft: string; Icon: LucideIcon }> = {
-  Music: { label: "Music", color: "#215ba3", soft: "#e3edf9", Icon: Music },
-  "Food & Drink": { label: "Food & Drink", color: "#a97e1f", soft: "#f9efcf", Icon: UtensilsCrossed },
-  Family: { label: "Family", color: "#47704c", soft: "#e6efe4", Icon: Users },
-  Outdoors: { label: "Outdoors", color: "#6d7f3c", soft: "#eef1dd", Icon: TreePine },
-  Learn: { label: "Learning", color: "#4982c1", soft: "#e6eff9", Icon: BookOpen },
-  Community: { label: "Community", color: "#1e3a6e", soft: "#e2e8f4", Icon: Building2 },
+  Music: { label: "Music", color: "#c93a3a", soft: "#fbe7e7", Icon: Music },
+  "Food & Drink": { label: "Food & Drink", color: "#d97a1f", soft: "#fceedb", Icon: UtensilsCrossed },
+  Family: { label: "Family", color: "#7c5cd6", soft: "#ece5fa", Icon: Users },
+  Outdoors: { label: "Outdoors", color: "#7a8f3c", soft: "#ebf1da", Icon: TreePine },
+  Learn: { label: "Learning", color: "#2f7fd0", soft: "#e2eefb", Icon: BookOpen },
+  Community: { label: "Community", color: "#4c8c4a", soft: "#e6f2e3", Icon: Leaf },
 };
-const DEFAULT_CATEGORY = { label: "Community", color: "#1e3a6e", soft: "#e2e8f4", Icon: Sparkles };
+const DEFAULT_CATEGORY = { label: "Community", color: "#4c8c4a", soft: "#e6f2e3", Icon: Leaf };
+
+/* Photo shown on an event card: the event's own image, else a category fallback. */
+const CATEGORY_IMAGE: Record<string, string> = {
+  Music: "/images/event-music-park.jpg",
+  "Food & Drink": "/images/event-food-truck.jpg",
+  Family: "/images/event-kids-craft.jpg",
+  Outdoors: "/images/event-sunrise-yoga.jpg",
+  Learn: "/images/event-resume-workshop.jpg",
+  Community: "/images/event-night-market.jpg",
+};
 
 /* ---------------- helpers ---------------- */
 
@@ -146,29 +160,85 @@ const SMS_COPY =
 
 /* ---------------- header / hero / footer ---------------- */
 
+function BrandLockup({ iconClass = "h-12 w-12" }: { iconClass?: string }) {
+  return (
+    <a href="#top" className="flex items-center gap-3" aria-label="Leander Live home">
+      <img
+        src="/logo-icon.png"
+        alt="Leander Live logo"
+        className={cn(iconClass, "rounded-2xl shadow-sm")}
+      />
+      <span className="leading-tight">
+        <span className="font-display block text-[26px] font-bold text-[#b5431f]">
+          Leander Live
+        </span>
+        <span className="block whitespace-nowrap text-xs text-[#6b5d4f]">
+          Events. People. A Stronger Leander.
+        </span>
+      </span>
+    </a>
+  );
+}
+
 function Header({ onSubmit }: { onSubmit: () => void }) {
   return (
-    <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4">
-        <a href="#top" className="flex items-center gap-3" aria-label="Leander Live home">
-          <img src="/logo.png" alt="Leander Live logo" className="h-10 w-10 rounded-lg" />
-          <span className="leading-tight">
-            <span className="font-display block text-xl font-bold">Leander Live</span>
-            <span className="block text-xs text-muted-foreground">
-              Events. People. A Stronger Leander.
-            </span>
-          </span>
-        </a>
-        <nav className="hidden items-center gap-6 text-sm font-medium md:flex" aria-label="Primary">
-          <a href="#events" className="text-muted-foreground hover:text-foreground">Events</a>
-          <a href="#reminders" className="text-muted-foreground hover:text-foreground">Reminders</a>
-          <a href="#businesses" className="text-muted-foreground hover:text-foreground">For Businesses</a>
-          <a href="#about" className="text-muted-foreground hover:text-foreground">About</a>
+    <header className="sticky top-0 z-40 border-b border-[#eadbc3] bg-cream/95 backdrop-blur supports-[backdrop-filter]:bg-cream/80">
+      <div className="mx-auto flex min-h-[76px] max-w-6xl items-center justify-between gap-4 px-4 py-2">
+        <BrandLockup />
+        <nav className="hidden items-center gap-7 whitespace-nowrap text-[15px] font-medium lg:flex" aria-label="Primary">
+          <a
+            href="#events"
+            className="text-[#b5431f] underline decoration-2 underline-offset-8"
+            aria-current="page"
+          >
+            Events
+          </a>
+          <a href="#events" className="text-[#4a3d2f] hover:text-[#b5431f]">
+            Calendar
+          </a>
+          <button
+            type="button"
+            onClick={onSubmit}
+            className="text-[#4a3d2f] hover:text-[#b5431f]"
+          >
+            Submit Event
+          </button>
+          <a href="#businesses" className="text-[#4a3d2f] hover:text-[#b5431f]">
+            Community
+          </a>
+          <a href="#about" className="text-[#4a3d2f] hover:text-[#b5431f]">
+            About
+          </a>
         </nav>
-        <Button size="sm" className="whitespace-nowrap" onClick={onSubmit}>
-          <Plus className="h-4 w-4" /> Submit Event
-        </Button>
+        <div className="flex items-center gap-2">
+          <a
+            href="#events"
+            aria-label="Search events"
+            className="hidden h-10 w-10 items-center justify-center rounded-full border border-[#eadbc3] bg-white text-[#4a3d2f] hover:text-[#b5431f] sm:flex"
+          >
+            <Search className="h-4 w-4" />
+          </a>
+          <Button onClick={onSubmit} className="hidden rounded-full px-5 sm:inline-flex">
+            <Plus className="h-4 w-4" /> Submit Event
+          </Button>
+          <a
+            href="#reminders"
+            aria-label="Get event reminders"
+            className="hidden h-10 w-10 items-center justify-center rounded-full border border-[#eadbc3] bg-white text-[#4a3d2f] hover:text-[#b5431f] sm:flex"
+          >
+            <User className="h-4 w-4" />
+          </a>
+          <p className="font-script hidden -rotate-3 whitespace-nowrap text-[22px] leading-none text-[#c05a1e] xl:block">
+            Good Things Happen Here
+            <Heart className="ml-1 inline h-4 w-4 fill-current" aria-hidden="true" />
+          </p>
+        </div>
       </div>
+      <div
+        aria-hidden="true"
+        className="h-14 w-full bg-cover bg-center md:h-[72px]"
+        style={{ backgroundImage: "url(/images/skyline-strip.jpg)" }}
+      />
     </header>
   );
 }
@@ -176,30 +246,39 @@ function Header({ onSubmit }: { onSubmit: () => void }) {
 function Hero() {
   return (
     <section aria-label="Welcome" className="px-4 pt-6">
-      <div className="relative mx-auto max-w-6xl overflow-hidden rounded-2xl bg-gradient-to-br from-primary via-[#1a4a86] to-secondary px-6 py-14 text-white md:px-12 md:py-20">
-        <div
-          className="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full bg-accent/30 blur-2xl"
-          aria-hidden="true"
+      <div className="relative mx-auto max-w-6xl overflow-hidden rounded-2xl text-white">
+        <img
+          src="/images/hero-concert.jpg"
+          alt="Golden-hour community concert in Leander"
+          className="absolute inset-0 h-full w-full object-cover"
         />
         <div
-          className="pointer-events-none absolute -bottom-20 -left-10 h-56 w-56 rounded-full bg-white/10 blur-2xl"
+          className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/35 to-black/10"
           aria-hidden="true"
         />
-        <Badge variant="accent" className="mb-4">
-          All Aboard Leander.
-        </Badge>
-        <h1 className="font-display max-w-2xl text-4xl font-bold leading-tight md:text-5xl">
-          Real Events. A Stronger Community.
-        </h1>
-        <p className="mt-4 max-w-xl text-white/85">
-          Discover local events, support local people, and be part of what makes
-          Leander home.
+        <div className="relative max-w-2xl px-6 py-16 md:px-12 md:py-24">
+          <h1 className="font-display text-5xl font-bold leading-tight md:text-6xl">
+            Leander Live
+          </h1>
+          <p className="mt-3 text-xl font-semibold text-white/95 md:text-2xl">
+            Real Events. A Stronger Community.
+          </p>
+          <p className="mt-4 max-w-xl text-white/85">
+            Discover local events, support local people, and be part of what makes
+            Leander home.
+          </p>
+          <Button asChild size="lg" className="mt-8 rounded-full px-7">
+            <a href="#events">
+              Explore Events <ArrowRight className="h-4 w-4" />
+            </a>
+          </Button>
+        </div>
+        <p className="font-script absolute right-10 top-1/2 hidden -translate-y-1/2 rotate-2 text-right text-[32px] leading-snug text-white/95 md:block">
+          Local People
+          <br />
+          Brighter Tomorrows
+          <Heart className="ml-2 inline h-5 w-5 fill-current" aria-hidden="true" />
         </p>
-        <Button asChild size="lg" variant="secondary" className="mt-6 bg-white text-primary hover:bg-white/90">
-          <a href="#events">
-            <CalendarDays className="h-4 w-4" /> Explore Events
-          </a>
-        </Button>
       </div>
     </section>
   );
@@ -207,26 +286,28 @@ function Hero() {
 
 function Footer() {
   return (
-    <footer className="mt-16 border-t bg-muted/40">
-      <div className="mx-auto flex max-w-6xl flex-col gap-8 px-4 py-10 md:flex-row md:items-start md:justify-between">
-        <div>
-          <div className="flex items-center gap-3">
-            <img src="/logo.png" alt="Leander Live logo" className="h-9 w-9 rounded-lg" />
-            <span className="font-display text-lg font-bold">Leander Live</span>
+    <footer className="mt-16 border-t border-[#eadbc3] bg-[#fff6ea]">
+      <div className="mx-auto flex max-w-6xl flex-col items-center gap-6 px-4 py-10 md:flex-row md:justify-between">
+        <BrandLockup iconClass="h-11 w-11" />
+        <p className="text-center text-xs font-medium tracking-[0.22em] text-[#6b5d4f]">
+          SMALL TOWN SPIRIT. A BRIGHTER TOMORROW.{" "}
+          <Heart className="inline h-3.5 w-3.5 fill-[#c05a1e] text-[#c05a1e]" aria-hidden="true" />
+        </p>
+        <div className="flex items-center gap-6">
+          <nav className="flex items-center gap-5 text-sm font-medium" aria-label="Footer">
+            <a href="#events" className="text-[#4a3d2f] hover:text-[#b5431f]">Events</a>
+            <a href="#about" className="text-[#4a3d2f] hover:text-[#b5431f]">About</a>
+            <a href="#businesses" className="text-[#4a3d2f] hover:text-[#b5431f]">For Organizers</a>
+            <a href="#reminders" className="text-[#4a3d2f] hover:text-[#b5431f]">Contact</a>
+          </nav>
+          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm font-medium text-[#4a3d2f] md:justify-end">
+            <a href="#top" className="hover:text-[#b5431f]">Facebook</a>
+            <a href="#top" className="hover:text-[#b5431f]">Instagram</a>
+            <a href="#top" className="hover:text-[#b5431f]">YouTube</a>
           </div>
-          <p className="mt-2 text-sm font-medium text-secondary">All Aboard Leander.</p>
-          <p className="mt-1 text-xs text-muted-foreground">
-            The Leander Live tagline — our invitation, not the city's motto.
-          </p>
         </div>
-        <nav className="grid grid-cols-2 gap-x-12 gap-y-2 text-sm" aria-label="Footer">
-          <a href="#events" className="text-muted-foreground hover:text-foreground">Events</a>
-          <a href="#reminders" className="text-muted-foreground hover:text-foreground">Reminders</a>
-          <a href="#businesses" className="text-muted-foreground hover:text-foreground">For Businesses</a>
-          <a href="#about" className="text-muted-foreground hover:text-foreground">About</a>
-        </nav>
       </div>
-      <Separator />
+      <Separator className="bg-[#eadbc3]" />
       <p className="mx-auto max-w-6xl px-4 py-4 text-xs text-muted-foreground">
         Built for the Convex All Gas Hackathon.{" "}
         <a href="https://howdycarter.com" target="_blank" rel="noopener noreferrer" className="font-semibold text-primary hover:underline">
@@ -238,19 +319,62 @@ function Footer() {
   );
 }
 
-function TabBar({ onSubmit }: { onSubmit: () => void }) {
+const TABS = [
+  { id: "home", label: "Home", href: "#top", Icon: House },
+  { id: "events", label: "Events", href: "#events", Icon: CalendarDays },
+  { id: "explore", label: "Explore", href: "#events", Icon: Compass },
+  { id: "saved", label: "Saved", href: "#events", Icon: Heart },
+  { id: "more", label: "More", href: "#about", Icon: Menu },
+] as const;
+
+function TabBar({
+  savedOnly,
+  onToggleSaved,
+}: {
+  savedOnly: boolean;
+  onToggleSaved: () => void;
+}) {
+  const [active, setActive] = useState<string>("home");
   return (
-    <div className="fixed inset-x-0 bottom-0 z-40 border-t bg-background/95 backdrop-blur md:hidden">
-      <nav className="grid grid-cols-3 py-2" aria-label="Mobile">
-        <a href="#events" className="flex flex-col items-center gap-1 py-1 text-xs font-medium text-muted-foreground">
-          <CalendarDays className="h-5 w-5" /> Events
-        </a>
-        <button type="button" onClick={onSubmit} className="flex flex-col items-center gap-1 py-1 text-xs font-medium text-primary">
-          <Plus className="h-5 w-5" /> Submit
-        </button>
-        <a href="#about" className="flex flex-col items-center gap-1 py-1 text-xs font-medium text-muted-foreground">
-          <Info className="h-5 w-5" /> About
-        </a>
+    <div className="fixed inset-x-0 bottom-0 z-40 border-t border-[#eadbc3] bg-cream/95 backdrop-blur md:hidden">
+      <nav className="grid grid-cols-5 py-2" aria-label="Mobile">
+        {TABS.map(({ id, label, href, Icon }) => {
+          const isActive = id === "saved" ? savedOnly : active === id && !savedOnly;
+          if (id === "saved") {
+            return (
+              <button
+                key={id}
+                type="button"
+                onClick={() => {
+                  onToggleSaved();
+                  setActive("saved");
+                }}
+                aria-pressed={savedOnly}
+                className={cn(
+                  "flex flex-col items-center gap-1 py-1 text-xs font-medium",
+                  isActive ? "text-[#c05a1e]" : "text-muted-foreground",
+                )}
+              >
+                <Icon className={cn("h-5 w-5", savedOnly && "fill-current")} />
+                {label}
+              </button>
+            );
+          }
+          return (
+            <a
+              key={id}
+              href={href}
+              onClick={() => setActive(id)}
+              className={cn(
+                "flex flex-col items-center gap-1 py-1 text-xs font-medium",
+                isActive ? "text-[#c05a1e]" : "text-muted-foreground",
+              )}
+            >
+              <Icon className="h-5 w-5" />
+              {label}
+            </a>
+          );
+        })}
       </nav>
     </div>
   );
@@ -261,6 +385,51 @@ function TabBar({ onSubmit }: { onSubmit: () => void }) {
 type EventsResult = ReturnType<typeof useQuery<typeof api.events.listUpcoming>>;
 type EventItem = NonNullable<EventsResult>[number];
 
+function CategoryBadge({ event, className }: { event: EventItem; className?: string }) {
+  const style = CATEGORY_STYLE[event.category ?? ""] ?? DEFAULT_CATEGORY;
+  const Icon = style.Icon;
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold",
+        className,
+      )}
+      style={{ backgroundColor: style.soft, color: style.color }}
+    >
+      <Icon className="h-3.5 w-3.5" aria-hidden="true" />
+      {style.label}
+    </span>
+  );
+}
+
+function SaveButton({
+  saved,
+  onToggleSaved,
+  className,
+}: {
+  saved: boolean;
+  onToggleSaved: () => void;
+  className?: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onToggleSaved}
+      aria-pressed={saved}
+      aria-label={saved ? "Remove from saved" : "Save this event"}
+      className={cn(
+        "flex h-9 w-9 items-center justify-center rounded-full transition-colors",
+        saved
+          ? "text-[#c05a1e]"
+          : "text-[#b09a7d] hover:text-[#c05a1e]",
+        className,
+      )}
+    >
+      <Heart className={cn("h-5 w-5", saved && "fill-current")} />
+    </button>
+  );
+}
+
 function EventCard({
   event,
   saved,
@@ -270,58 +439,81 @@ function EventCard({
   saved: boolean;
   onToggleSaved: () => void;
 }) {
-  const style = CATEGORY_STYLE[event.category ?? ""] ?? DEFAULT_CATEGORY;
-  const Icon = style.Icon;
+  const img = event.image ?? CATEGORY_IMAGE[event.category ?? ""] ?? CATEGORY_IMAGE.Community;
+  const title = event.url ? (
+    <a href={event.url} target="_blank" rel="noreferrer" className="hover:text-[#b5431f] hover:underline">
+      {event.title}
+    </a>
+  ) : (
+    event.title
+  );
   return (
-    <Card className="flex flex-col overflow-hidden">
-      <div className="relative flex h-28 items-center justify-center" style={{ background: style.color }}>
-        <Icon className="h-10 w-10 text-white/90" aria-hidden="true" />
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={onToggleSaved}
-          aria-pressed={saved}
-          aria-label={saved ? "Remove from saved" : "Save this event"}
-          className="absolute right-2 top-2 h-8 w-8 rounded-full bg-white/20 text-white hover:bg-white/30 hover:text-white"
-        >
-          <Heart className={cn("h-4 w-4", saved && "fill-current")} />
-        </Button>
-        <Badge
-          className="absolute left-3 top-3 border-0"
-          style={{ backgroundColor: style.soft, color: style.color }}
-        >
-          {style.label}
-        </Badge>
+    <Card className="flex flex-col overflow-hidden border-[#eadbc3]">
+      {/* Desktop: vertical card */}
+      <div className="hidden flex-col sm:flex sm:flex-1">
+        <div className="relative h-44 shrink-0 overflow-hidden">
+          <img src={img} alt="" loading="lazy" className="h-full w-full object-cover" />
+          <CategoryBadge
+            event={event}
+            className="absolute bottom-0 right-4 translate-y-1/2 shadow-sm"
+          />
+        </div>
+        <div className="relative flex flex-1 flex-col p-4 pt-6">
+          <h3 className="text-[17px] font-bold leading-snug">{title}</h3>
+          <div className="mt-3 flex flex-col gap-1.5 text-sm text-[#5c4f40]">
+            <span className="flex items-center gap-2">
+              <CalendarDays className="h-4 w-4 shrink-0 text-[#a08b6d]" />
+              {formatDate(event.startsAt)}
+            </span>
+            <span className="flex items-center gap-2">
+              <Clock className="h-4 w-4 shrink-0 text-[#a08b6d]" />
+              {formatTime(event.startsAt)}
+            </span>
+            <span className="flex items-center gap-2">
+              <MapPin className="h-4 w-4 shrink-0 text-[#a08b6d]" />
+              {event.venue}
+            </span>
+          </div>
+          <SaveButton
+            saved={saved}
+            onToggleSaved={onToggleSaved}
+            className="absolute bottom-3 right-3"
+          />
+        </div>
       </div>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-lg leading-snug">{event.title}</CardTitle>
-        <CardDescription className="flex flex-col gap-1 pt-1">
-          <span className="flex items-center gap-1.5">
-            <CalendarDays className="h-3.5 w-3.5" /> {formatDate(event.startsAt)} · {formatTime(event.startsAt)}
-          </span>
-          <span className="flex items-center gap-1.5">
-            <MapPin className="h-3.5 w-3.5" /> {event.venue}
-          </span>
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="flex flex-1 flex-col gap-2">
-        {event.blurb && (
-          <p className="rounded-md bg-accent/25 px-3 py-2 text-sm">
-            <Sparkles className="mr-1 inline h-3.5 w-3.5 text-[#a97e1f]" />
-            <strong>Why go:</strong> {event.blurb}
-          </p>
-        )}
-        <p className="text-sm text-muted-foreground">{event.description}</p>
-        <div className="mt-auto pt-2">
-          {event.url && (
-            <Button asChild variant="link" className="h-auto p-0">
-              <a href={event.url} target="_blank" rel="noreferrer">
-                Details <Send className="h-3 w-3" />
-              </a>
-            </Button>
+      {/* Mobile: horizontal card */}
+      <div className="flex gap-3 p-3 sm:hidden">
+        <img
+          src={img}
+          alt=""
+          loading="lazy"
+          className="h-28 w-28 shrink-0 rounded-xl object-cover"
+        />
+        <div className="min-w-0 flex-1">
+          <div className="flex items-start justify-between gap-2">
+            <h3 className="text-[15px] font-bold leading-snug">{title}</h3>
+            <CategoryBadge event={event} className="shrink-0 px-2 py-0.5 text-[11px]" />
+          </div>
+          <div className="mt-1.5 flex flex-col gap-1 text-[13px] text-[#5c4f40]">
+            <span className="flex items-center gap-1.5">
+              <CalendarDays className="h-3.5 w-3.5 shrink-0 text-[#a08b6d]" />
+              {formatDate(event.startsAt)}
+            </span>
+            <span className="flex items-center gap-1.5">
+              <Clock className="h-3.5 w-3.5 shrink-0 text-[#a08b6d]" />
+              {formatTime(event.startsAt)}
+            </span>
+            <span className="flex items-center gap-1.5">
+              <MapPin className="h-3.5 w-3.5 shrink-0 text-[#a08b6d]" />
+              <span className="truncate">{event.venue}</span>
+            </span>
+          </div>
+          {event.description && (
+            <p className="mt-1 truncate text-xs text-muted-foreground">{event.description}</p>
           )}
         </div>
-      </CardContent>
+        <SaveButton saved={saved} onToggleSaved={onToggleSaved} className="self-center" />
+      </div>
     </Card>
   );
 }
@@ -333,6 +525,7 @@ function FeedFilters({
   setDateFilter,
   category,
   setCategory,
+  onSubmit,
 }: {
   query: string;
   setQuery: (v: string) => void;
@@ -340,44 +533,88 @@ function FeedFilters({
   setDateFilter: (v: DateFilter) => void;
   category: string;
   setCategory: (v: string) => void;
+  onSubmit: () => void;
 }) {
+  const pill = (isActive: boolean) =>
+    cn(
+      "rounded-full px-4 py-2 text-sm font-medium transition-colors",
+      isActive
+        ? "bg-primary text-primary-foreground shadow-sm"
+        : "border border-[#eadbc3] bg-white text-[#4a3d2f] hover:border-[#db5a1e] hover:text-[#b5431f]",
+    );
   return (
     <div className="mb-6 flex flex-col gap-3">
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input
           type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search events, places, or categories…"
           aria-label="Search events"
-          className="pl-9"
+          className="h-12 rounded-full border-[#eadbc3] bg-white pl-11"
         />
       </div>
-      <div className="flex flex-wrap gap-2" role="group" aria-label="Filter by date">
+
+      <Button onClick={onSubmit} className="h-12 rounded-full text-base font-semibold md:hidden">
+        <Plus className="h-5 w-5 rounded-full bg-white/25" /> Submit Event
+        <ArrowRight className="h-4 w-4" />
+      </Button>
+
+      {/* Desktop filter row */}
+      <div className="hidden items-center gap-2 md:flex" role="group" aria-label="Filter events">
         {DATE_FILTERS.map((f) => (
-          <Button
+          <button
             key={f}
-            size="sm"
-            variant={dateFilter === f ? "default" : "outline"}
+            type="button"
             onClick={() => setDateFilter(f)}
             aria-pressed={dateFilter === f}
+            className={pill(dateFilter === f)}
           >
             {f}
-          </Button>
+          </button>
         ))}
+        <Separator orientation="vertical" className="mx-2 h-6 bg-[#eadbc3]" />
+        <Select value={category} onValueChange={setCategory}>
+          <SelectTrigger
+            aria-label="Filter by category"
+            className="h-10 w-auto gap-2 rounded-full border-[#eadbc3] bg-white px-4 text-sm font-medium text-[#4a3d2f]"
+          >
+            <SelectValue>{category === "All" ? "All Categories" : category}</SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            {["All", ...CATEGORIES].map((c) => (
+              <SelectItem key={c} value={c}>
+                {c === "All" ? "All Categories" : c === "Learn" ? "Learning" : c}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <a
+          href="#events"
+          aria-label="Jump to events"
+          className="flex h-10 w-10 items-center justify-center rounded-full border border-[#eadbc3] bg-white text-[#4a3d2f] hover:text-[#b5431f]"
+        >
+          <CalendarDays className="h-4 w-4" />
+        </a>
       </div>
-      <div className="flex flex-wrap gap-2" role="group" aria-label="Filter by category">
+
+      {/* Mobile category pills */}
+      <div
+        className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 md:hidden"
+        role="group"
+        aria-label="Filter by category"
+      >
         {["All", ...CATEGORIES].map((c) => (
-          <Button
+          <button
             key={c}
-            size="sm"
-            variant={category === c ? "secondary" : "outline"}
+            type="button"
             onClick={() => setCategory(c)}
             aria-pressed={category === c}
+            className={cn(pill(category === c), "shrink-0")}
           >
             {c === "Learn" ? "Learning" : c}
-          </Button>
+          </button>
         ))}
       </div>
     </div>
@@ -804,6 +1041,7 @@ function Site() {
   const [query, setQuery] = useState("");
   const [dateFilter, setDateFilter] = useState<DateFilter>("All");
   const [category, setCategory] = useState<string>("All");
+  const [savedOnly, setSavedOnly] = useState(false);
   const [saved, setSaved] = useState<Set<string>>(() => {
     try {
       const raw = localStorage.getItem("leander-live:saved");
@@ -818,12 +1056,23 @@ function Site() {
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return (events ?? []).filter((e) => {
+      if (savedOnly && !saved.has(e._id)) return false;
       if (category !== "All" && (e.category ?? "") !== category) return false;
       if (!inRange(e.startsAt, dateFilter, now)) return false;
       if (q && !`${e.title} ${e.venue} ${e.description}`.toLowerCase().includes(q)) return false;
       return true;
     });
-  }, [events, query, dateFilter, category, now]);
+  }, [events, query, dateFilter, category, now, saved, savedOnly]);
+
+  const hasFilters =
+    savedOnly || dateFilter !== "All" || category !== "All" || query.trim() !== "";
+
+  function clearFilters() {
+    setQuery("");
+    setDateFilter("All");
+    setCategory("All");
+    setSavedOnly(false);
+  }
 
   function toggleSaved(id: string) {
     setSaved((prev) => {
@@ -846,7 +1095,20 @@ function Site() {
 
       <main className="mx-auto max-w-6xl px-4">
         <section id="events" aria-label="Events" className="pt-10">
-          <h2 className="font-display mb-4 text-3xl font-bold">Featured Events</h2>
+          <div className="mb-4 flex items-end justify-between gap-4">
+            <h2 className="font-display text-3xl font-bold">
+              {savedOnly ? "Saved Events" : "Featured Events"}
+            </h2>
+            {hasFilters && (
+              <button
+                type="button"
+                onClick={clearFilters}
+                className="shrink-0 text-sm font-semibold text-[#b5431f] hover:underline"
+              >
+                View All Events <ArrowRight className="inline h-3.5 w-3.5" />
+              </button>
+            )}
+          </div>
           <FeedFilters
             query={query}
             setQuery={setQuery}
@@ -854,6 +1116,7 @@ function Site() {
             setDateFilter={setDateFilter}
             category={category}
             setCategory={setCategory}
+            onSubmit={() => setModalOpen(true)}
           />
           {events === undefined ? (
             <p className="text-muted-foreground">Loading events…</p>
@@ -861,21 +1124,23 @@ function Site() {
             <>
               <p className="mb-4 text-sm text-muted-foreground">
                 {filtered.length === 1 ? "1 event" : `${filtered.length} events`}
-                {dateFilter !== "All" || category !== "All" || query.trim()
-                  ? " matching your filters"
-                  : " upcoming"}
+                {hasFilters ? " matching your filters" : " upcoming"}
               </p>
               {filtered.length === 0 ? (
                 <Card>
                   <CardContent className="pt-6">
-                    <h3 className="font-semibold">No events match those filters</h3>
+                    <h3 className="font-semibold">
+                      {savedOnly ? "No saved events yet" : "No events match those filters"}
+                    </h3>
                     <p className="text-sm text-muted-foreground">
-                      Try widening the dates or categories — or submit the event yourself.
+                      {savedOnly
+                        ? "Tap the heart on any event to save it here."
+                        : "Try widening the dates or categories — or submit the event yourself."}
                     </p>
                   </CardContent>
                 </Card>
               ) : (
-                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
                   {filtered.map((event) => (
                     <EventCard
                       key={event._id}
@@ -927,7 +1192,7 @@ function Site() {
         <SubmitDialogContent />
       </Dialog>
       <ChatWidget />
-      <TabBar onSubmit={() => setModalOpen(true)} />
+      <TabBar savedOnly={savedOnly} onToggleSaved={() => setSavedOnly((v) => !v)} />
     </div>
   );
 }

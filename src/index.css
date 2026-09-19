@@ -1,45 +1,43 @@
 @import "tailwindcss";
 
 /*
- * Leander Live design tokens — sampled 2026-09-19 from the OFFICIAL
- * City of Leander header logo (leandertx.gov/ImageRepository/Document?documentID=71),
- * not from the ChatGPT mockups. See SOURCES.md.
- *
- * Dominant sampled colors:
- *   hill green  #47704c   river blue #215ba3   star gold #deae49
- *   olive       #7d8f45   sky blue   #4982c1   deep navy #022d82
- * The city is mid brand-definition (CivicBrand, 2025–2026); these reflect the
- * current official art and may change when the new identity lands.
+ * Leander Live design tokens — driven by Chris's approved mockups
+ * (design/desktop-mockup.png, design/mobile-mockup.png): warm cream
+ * surfaces, burnt-orange brand color, serif display type, handwritten
+ * script accents. The earlier City-of-Leander-logo sampling is kept in
+ * SOURCES.md for reference.
  */
 
 @theme {
-  --color-background: #fbfcfa;
-  --color-foreground: #1e2b22;
+  --color-background: #fdf8f0;
+  --color-foreground: #2b2118;
 
   --color-card: #ffffff;
-  --color-card-foreground: #1e2b22;
+  --color-card-foreground: #2b2118;
 
   --color-popover: #ffffff;
-  --color-popover-foreground: #1e2b22;
+  --color-popover-foreground: #2b2118;
 
-  --color-primary: #215ba3;
+  --color-primary: #db5a1e;
   --color-primary-foreground: #ffffff;
 
   --color-secondary: #47704c;
   --color-secondary-foreground: #ffffff;
 
   --color-accent: #deae49;
-  --color-accent-foreground: #1e2b22;
+  --color-accent-foreground: #2b2118;
 
-  --color-muted: #edf1e9;
-  --color-muted-foreground: #5c6b60;
+  --color-muted: #f4eada;
+  --color-muted-foreground: #7a6a58;
 
   --color-destructive: #a33b1f;
   --color-destructive-foreground: #ffffff;
 
-  --color-border: #dce3d6;
-  --color-input: #c7d2c0;
-  --color-ring: #215ba3;
+  --color-border: #eadbc3;
+  --color-input: #d8c6a8;
+  --color-ring: #db5a1e;
+
+  --color-cream: #fffbf3;
 
   --radius-lg: 0.9rem;
   --radius-md: 0.65rem;
@@ -47,6 +45,7 @@
 
   --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-display: Georgia, "Times New Roman", serif;
+  --font-script: "Caveat", "Segoe Script", cursive;
 }
 
 @layer base {
@@ -67,4 +66,8 @@
 
 @utility font-display {
   font-family: var(--font-display);
+}
+
+@utility font-script {
+  font-family: var(--font-script);
 }
