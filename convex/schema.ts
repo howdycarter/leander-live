@@ -24,6 +24,16 @@ export const categoryValidator = v.union(
   v.literal("Community"),
 );
 
+/** Job types shown as filter chips on the jobs board. */
+export const jobTypeValidator = v.union(
+  v.literal("full-time"),
+  v.literal("part-time"),
+  v.literal("contract"),
+  v.literal("temporary"),
+);
+
+export type JobType = Infer<typeof jobTypeValidator>;
+
 export type Category = Infer<typeof categoryValidator>;
 
 export default defineSchema({
@@ -126,4 +136,20 @@ export default defineSchema({
     savedEventIds: v.array(v.id("events")),
     updatedAt: v.number(),
   }).index("by_userId", ["userId"]),
+
+  // Jobs board: local job listings (community-submitted or Firecrawl-ingested).
+  jobs: defineTable({
+    title: v.string(),
+    company: v.string(),
+    location: v.string(),
+    type: jobTypeValidator,
+    payRange: v.optional(v.string()),
+    description: v.string(),
+    applyUrl: v.string(),
+    source: v.union(v.literal("community"), v.literal("crawl")),
+    featured: v.boolean(), // paid placement flag (monetization hook)
+    status: statusValidator, // "pending" | "approved" | "rejected"
+    submittedAt: v.number(),
+    expiresAt: v.optional(v.number()), // unix ms; hidden once past
+  }).index("by_status", ["status"]),
 });

@@ -32,13 +32,14 @@ import {
 import { Separator } from "@/components/ui/separator";
 import {
   ArrowRight,
+  ArrowUpRight,
   Bell,
   BookOpen,
+  Briefcase,
   Building2,
   CalendarDays,
   CircleCheck,
   Clock,
-  Compass,
   Heart,
   House,
   Leaf,
@@ -48,6 +49,7 @@ import {
   Plus,
   Search,
   Send,
+  Star,
   TreePine,
   Users,
   UtensilsCrossed,
@@ -202,6 +204,9 @@ function Header({ onSubmit, onSignIn }: { onSubmit: () => void; onSignIn: () => 
           <a href="#events" className="text-[#4a3d2f] hover:text-[#b5431f]">
             Calendar
           </a>
+          <a href="#jobs" className="text-[#4a3d2f] hover:text-[#b5431f]">
+            Jobs
+          </a>
           <button
             type="button"
             onClick={onSubmit}
@@ -299,6 +304,7 @@ function Footer() {
         <div className="flex items-center gap-6">
           <nav className="flex items-center gap-5 text-sm font-medium" aria-label="Footer">
             <a href="#events" className="text-[#4a3d2f] hover:text-[#b5431f]">Events</a>
+            <a href="#jobs" className="text-[#4a3d2f] hover:text-[#b5431f]">Jobs</a>
             <a href="#about" className="text-[#4a3d2f] hover:text-[#b5431f]">About</a>
             <a href="#businesses" className="text-[#4a3d2f] hover:text-[#b5431f]">For Organizers</a>
             <a href="#reminders" className="text-[#4a3d2f] hover:text-[#b5431f]">Contact</a>
@@ -326,7 +332,7 @@ function Footer() {
 const TABS = [
   { id: "home", label: "Home", href: "#top", Icon: House },
   { id: "events", label: "Events", href: "#events", Icon: CalendarDays },
-  { id: "explore", label: "Explore", href: "#events", Icon: Compass },
+  { id: "jobs", label: "Jobs", href: "#jobs", Icon: Briefcase },
   { id: "saved", label: "Saved", href: "#events", Icon: Heart },
   { id: "more", label: "More", href: "#about", Icon: Menu },
 ] as const;
@@ -752,6 +758,424 @@ function SubmitDialogContent() {
         </form>
       )}
     </DialogContent>
+  );
+}
+
+/* ---------------- jobs board ---------------- */
+
+const JOB_TYPES = ["full-time", "part-time", "contract", "temporary"] as const;
+
+const JOB_TYPE_LABEL: Record<string, string> = {
+  "full-time": "Full-time",
+  "part-time": "Part-time",
+  contract: "Contract",
+  temporary: "Temporary",
+};
+
+/* Job-type badge accents (same soft-pill language as the event categories). */
+const JOB_TYPE_STYLE: Record<string, { color: string; soft: string }> = {
+  "full-time": { color: "#2f7fd0", soft: "#e2eefb" },
+  "part-time": { color: "#7c5cd6", soft: "#ece5fa" },
+  contract: { color: "#d97a1f", soft: "#fceedb" },
+  temporary: { color: "#7a8f3c", soft: "#ebf1da" },
+};
+
+type JobsResult = ReturnType<typeof useQuery<typeof api.jobs.listJobs>>;
+type JobItem = NonNullable<JobsResult>[number];
+
+function JobTypeBadge({ type }: { type: string }) {
+  const style = JOB_TYPE_STYLE[type] ?? JOB_TYPE_STYLE["full-time"];
+  return (
+    <Badge
+      className="gap-1 rounded-full px-2.5 py-0.5"
+      style={{ backgroundColor: style.soft, color: style.color }}
+    >
+      <Briefcase className="h-3 w-3" aria-hidden="true" />
+      {JOB_TYPE_LABEL[type] ?? type}
+    </Badge>
+  );
+}
+
+function FeaturedJobBadge() {
+  return (
+    <Badge className="gap-1 rounded-full bg-accent px-2.5 py-0.5 text-accent-foreground">
+      <Star className="h-3 w-3" aria-hidden="true" />
+      Featured
+    </Badge>
+  );
+}
+
+function PayBadge({ payRange }: { payRange: string }) {
+  return (
+    <Badge variant="outline" className="rounded-full px-2.5 py-0.5">
+      {payRange}
+    </Badge>
+  );
+}
+
+function JobCard({ job, onSelect }: { job: JobItem; onSelect: () => void }) {
+  return (
+    <Card
+      className="flex cursor-pointer flex-col transition-shadow hover:shadow-md"
+      onClick={onSelect}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onSelect();
+        }
+      }}
+      role="button"
+      tabIndex={0}
+      aria-label={`${job.title} at ${job.company} — view details`}
+    >
+      <CardHeader className="pb-2">
+        <div className="flex flex-wrap items-center gap-1.5">
+          {job.featured && <FeaturedJobBadge />}
+          <JobTypeBadge type={job.type} />
+          {job.payRange && <PayBadge payRange={job.payRange} />}
+        </div>
+        <CardTitle className="pt-1.5 font-display text-xl leading-snug">
+          {job.title}
+        </CardTitle>
+        <CardDescription className="flex items-center gap-1.5">
+          <Building2 className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+          {job.company}
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="flex-1">
+        <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
+          <MapPin className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+          {job.location}
+        </p>
+        <p className="mt-2 line-clamp-3 text-sm">{job.description}</p>
+      </CardContent>
+      <CardFooter>
+        <span className="inline-flex items-center gap-1 text-sm font-semibold text-[#b5431f]">
+          View details &amp; apply <ArrowRight className="h-3.5 w-3.5" />
+        </span>
+      </CardFooter>
+    </Card>
+  );
+}
+
+function JobDetailContent({ job }: { job: JobItem }) {
+  return (
+    <DialogContent className="max-h-[85vh] overflow-y-auto">
+      <DialogHeader>
+        <div className="flex flex-wrap items-center gap-1.5 pb-1">
+          {job.featured && <FeaturedJobBadge />}
+          <JobTypeBadge type={job.type} />
+          {job.payRange && <PayBadge payRange={job.payRange} />}
+        </div>
+        <DialogTitle className="font-display text-2xl">{job.title}</DialogTitle>
+        <DialogDescription asChild>
+          <div className="flex flex-col gap-1 pt-1">
+            <span className="flex items-center gap-1.5">
+              <Building2 className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+              {job.company}
+            </span>
+            <span className="flex items-center gap-1.5">
+              <MapPin className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+              {job.location}
+            </span>
+          </div>
+        </DialogDescription>
+      </DialogHeader>
+      <p className="whitespace-pre-line text-sm leading-relaxed">{job.description}</p>
+      <Button asChild className="w-full">
+        <a href={job.applyUrl} target="_blank" rel="noopener noreferrer">
+          Apply now <ArrowUpRight className="h-4 w-4" />
+        </a>
+      </Button>
+      <p className="-mt-2 text-center text-xs text-muted-foreground">
+        You&rsquo;ll apply on the employer&rsquo;s site.
+      </p>
+    </DialogContent>
+  );
+}
+
+function PostJobDialogContent() {
+  const submit = useMutation(api.jobs.submitJob);
+  const [title, setTitle] = useState("");
+  const [company, setCompany] = useState("");
+  const [location, setLocation] = useState("Leander, TX");
+  const [type, setType] = useState<string>("full-time");
+  const [payRange, setPayRange] = useState("");
+  const [description, setDescription] = useState("");
+  const [applyUrl, setApplyUrl] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [sent, setSent] = useState(false);
+  const [sending, setSending] = useState(false);
+
+  function reset() {
+    setTitle("");
+    setCompany("");
+    setLocation("Leander, TX");
+    setType("full-time");
+    setPayRange("");
+    setDescription("");
+    setApplyUrl("");
+    setError(null);
+  }
+
+  async function handleSubmit(e: FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setSending(true);
+    try {
+      await submit({
+        title,
+        company,
+        location,
+        type: type as (typeof JOB_TYPES)[number],
+        payRange: payRange.trim() || undefined,
+        description,
+        applyUrl,
+      });
+      setSent(true);
+      reset();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong.");
+    } finally {
+      setSending(false);
+    }
+  }
+
+  return (
+    <DialogContent className="max-h-[85vh] overflow-y-auto">
+      <DialogHeader>
+        <DialogTitle>Post a job</DialogTitle>
+        <DialogDescription>
+          Job posts are reviewed before they appear on the board.
+        </DialogDescription>
+      </DialogHeader>
+      {sent ? (
+        <div className="flex flex-col items-start gap-4 py-2">
+          <Alert>
+            <CircleCheck className="h-4 w-4 text-secondary" />
+            <AlertDescription>
+              Thanks — your job was submitted and is pending review.
+            </AlertDescription>
+          </Alert>
+          <Button variant="outline" onClick={() => setSent(false)}>
+            Post another
+          </Button>
+        </div>
+      ) : (
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="grid gap-2">
+              <Label htmlFor="job-title">Job title</Label>
+              <Input
+                id="job-title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                maxLength={120}
+                required
+                placeholder="Line Cook"
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="job-company">Company</Label>
+              <Input
+                id="job-company"
+                value={company}
+                onChange={(e) => setCompany(e.target.value)}
+                maxLength={120}
+                required
+                placeholder="Main Street Diner"
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="grid gap-2">
+              <Label htmlFor="job-location">Location</Label>
+              <Input
+                id="job-location"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                maxLength={160}
+                required
+                placeholder="Leander, TX"
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label>Job type</Label>
+              <Select value={type} onValueChange={setType}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {JOB_TYPES.map((t) => (
+                    <SelectItem key={t} value={t}>
+                      {JOB_TYPE_LABEL[t]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="grid gap-2">
+              <Label htmlFor="job-pay">Pay range (optional)</Label>
+              <Input
+                id="job-pay"
+                value={payRange}
+                onChange={(e) => setPayRange(e.target.value)}
+                maxLength={80}
+                placeholder="$16–$19/hr"
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="job-apply">Apply link</Label>
+              <Input
+                id="job-apply"
+                type="url"
+                value={applyUrl}
+                onChange={(e) => setApplyUrl(e.target.value)}
+                required
+                placeholder="https://…"
+              />
+            </div>
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="job-desc">Description</Label>
+            <Textarea
+              id="job-desc"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              rows={4}
+              required
+              placeholder="What does the role involve? Any requirements?"
+            />
+          </div>
+          <div className="flex items-start gap-3 rounded-lg border border-dashed p-3">
+            <Checkbox id="job-featured" disabled />
+            <div className="grid gap-1">
+              <Label htmlFor="job-featured" className="text-muted-foreground">
+                Feature this job — coming soon
+              </Label>
+              <p className="text-xs text-muted-foreground">
+                Paid featured placement is on the way. Posting is free for now.
+              </p>
+            </div>
+          </div>
+          {error && (
+            <Alert variant="destructive">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+          <Button type="submit" disabled={sending}>
+            {sending ? "Posting…" : "Post job"}
+          </Button>
+        </form>
+      )}
+    </DialogContent>
+  );
+}
+
+function JobsBoard() {
+  const jobs = useQuery(api.jobs.listJobs, {});
+  const [typeFilter, setTypeFilter] = useState<string>("All");
+  const [postOpen, setPostOpen] = useState(false);
+  const [selected, setSelected] = useState<JobItem | null>(null);
+
+  const filtered = useMemo(
+    () => (jobs ?? []).filter((j) => typeFilter === "All" || j.type === typeFilter),
+    [jobs, typeFilter],
+  );
+
+  return (
+    <div>
+      <div className="mb-4 flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h2 className="font-display text-3xl font-bold">Leander Jobs</h2>
+          <p className="mt-1 text-muted-foreground">
+            Local work, right here in town — posted by Leander employers.
+          </p>
+        </div>
+        <Button onClick={() => setPostOpen(true)} className="rounded-full">
+          <Plus className="h-4 w-4" /> Post a job
+        </Button>
+      </div>
+
+      <div className="mb-5 flex flex-wrap items-center gap-3">
+        <Label htmlFor="job-type-filter" className="text-sm font-medium">
+          Job type
+        </Label>
+        <Select value={typeFilter} onValueChange={setTypeFilter}>
+          <SelectTrigger id="job-type-filter" className="w-44">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="All">All types</SelectItem>
+            {JOB_TYPES.map((t) => (
+              <SelectItem key={t} value={t}>
+                {JOB_TYPE_LABEL[t]}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {typeFilter !== "All" && (
+          <Button
+            variant="link"
+            onClick={() => setTypeFilter("All")}
+            className="h-auto px-0 text-sm font-semibold text-[#b5431f]"
+          >
+            Clear filter
+          </Button>
+        )}
+      </div>
+
+      {jobs === undefined ? (
+        <div
+          className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3"
+          aria-label="Loading jobs"
+        >
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="flex flex-col gap-3">
+              <Skeleton className="h-5 w-3/4" />
+              <Skeleton className="h-4 w-1/2" />
+              <Skeleton className="h-16 w-full" />
+            </div>
+          ))}
+        </div>
+      ) : filtered.length === 0 ? (
+        <Card>
+          <CardContent className="pt-6">
+            <h3 className="font-semibold">No jobs here yet</h3>
+            <p className="text-sm text-muted-foreground">
+              {typeFilter !== "All"
+                ? "Try a different job type — or post the opening yourself."
+                : "Be the first to post a local opening."}
+            </p>
+          </CardContent>
+        </Card>
+      ) : (
+        <>
+          <p className="mb-4 text-sm text-muted-foreground">
+            {filtered.length === 1 ? "1 opening" : `${filtered.length} openings`}
+          </p>
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {filtered.map((job) => (
+              <JobCard key={job._id} job={job} onSelect={() => setSelected(job)} />
+            ))}
+          </div>
+        </>
+      )}
+
+      <Dialog open={postOpen} onOpenChange={setPostOpen}>
+        <PostJobDialogContent />
+      </Dialog>
+      <Dialog
+        open={selected !== null}
+        onOpenChange={(open) => {
+          if (!open) setSelected(null);
+        }}
+      >
+        {selected && <JobDetailContent job={selected} />}
+      </Dialog>
+    </div>
   );
 }
 
@@ -1367,6 +1791,10 @@ function Site() {
               )}
             </>
           )}
+        </section>
+
+        <section id="jobs" aria-label="Jobs" className="pt-14">
+          <JobsBoard />
         </section>
 
         <section id="reminders" aria-label="Get reminders" className="pt-14">
