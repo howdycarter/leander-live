@@ -55,3 +55,8 @@ _TODO — record <3 min clickthrough before Sep 22, 12:00 PM PT._
   the making." footer), and `convex/seed.ts` with 8 verified anchor annual
   events (ArtFest, Floating Pumpkin Patch, Spooktacular, Veterans Day,
   Old Town Christmas, Kite Festival, Old Town Street Festival, Liberty Fest).
+- **2026-09-19** — Repo public at https://github.com/howdycarter/leander-live.
+  Linear: CHR-1470 (parent, done) → CHR-1471…CHR-1478. `tsc --noEmit` clean
+  except `./_generated/*` (produced by `npx convex dev` after login).
+  BLOCKED: `npx convex login` needs an interactive terminal (browser OAuth) —
+  Chris runs it, then `npm run deploy`.
