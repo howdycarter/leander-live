@@ -1,4 +1,4 @@
-import { internalMutation, mutation } from "./_generated/server";
+import { mutation } from "./_generated/server";
 
 /**
  * Idempotent seed of Leander's anchor annual events.
