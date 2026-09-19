@@ -1,6 +1,7 @@
 import { mutation } from "./_generated/server";
 import { internal } from "./_generated/api";
 import { v } from "convex/values";
+import type { Id } from "./_generated/dataModel";
 import { categoryValidator } from "./schema";
 
 /**
@@ -19,7 +20,7 @@ export const adminUpsertCrawled = mutation({
     category: v.optional(categoryValidator),
     url: v.optional(v.string()),
   },
-  handler: async (ctx, args) => {
+  handler: async (ctx, args): Promise<{ eventId: Id<"events"> | null }> => {
     const { eventId } = await ctx.runMutation(internal.events.upsertCrawled, {
       title: args.title,
       description: args.description,
