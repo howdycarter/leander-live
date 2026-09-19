@@ -1,4 +1,4 @@
-import { mutation } from "./_generated/server";
+import { internalMutation } from "./_generated/server";
 
 /**
  * Idempotent seed of Leander's anchor annual events.
@@ -8,8 +8,7 @@ import { mutation } from "./_generated/server";
  * Run once after deploy:
  *   npx convex run seed:seedAnchorEvents
  */
-export const seedAnchorEvents = mutation({
-  // TEMPORARY: public for one-time prod seeding 2026-09-19; revert to internalMutation after.
+export const seedAnchorEvents = internalMutation({
   args: {},
   handler: async (ctx) => {
     const existing = await ctx.db.query("events").take(1);
