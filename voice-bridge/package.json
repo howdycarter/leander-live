@@ -1,0 +1,1 @@
+{"dependencies":{"ws":"^8.18.0"},"description":"Twilio Media Streams <-> OpenAI Realtime voice bridge for Leander Live's phone bot.","engines":{"node":">=18"},"main":"server.mjs","name":"leander-live-voice-bridge","private":true,"scripts":{"start":"node server.mjs"},"type":"module","version":"1.0.0"}

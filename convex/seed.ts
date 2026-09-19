@@ -24,6 +24,7 @@ export const seedAnchorEvents = internalMutation({
         startsAt: Date.UTC(2026, 9, 3, 15, 0), // Sat Oct 3, 2026, 10am CT
         venue: "Lakewood Park Sculpture Trail",
         url: "https://visitleandertx.com/",
+        category: "Community" as const,
       },
       {
         title: "Floating Pumpkin Patch",
@@ -32,6 +33,7 @@ export const seedAnchorEvents = internalMutation({
         startsAt: Date.UTC(2026, 9, 17, 15, 0), // Sat Oct 17, 2026, 10am CT
         venue: "Robin Bledsoe Park Pool",
         url: "https://visitleandertx.com/",
+        category: "Family" as const,
       },
       {
         title: "Tricks and Treats Spooktacular",
@@ -40,6 +42,7 @@ export const seedAnchorEvents = internalMutation({
         startsAt: Date.UTC(2026, 9, 24, 22, 0), // Sat Oct 24, 2026, 5pm CT
         venue: "Devine Lake Park",
         url: "https://visitleandertx.com/",
+        category: "Family" as const,
       },
       {
         title: "Veterans Day Ceremony",
@@ -48,6 +51,7 @@ export const seedAnchorEvents = internalMutation({
         startsAt: Date.UTC(2026, 10, 11, 17, 0), // Wed Nov 11, 2026, 11am CT
         venue: "Veterans Park",
         url: "https://www.leandertx.gov/",
+        category: "Community" as const,
       },
       {
         title: "Old Town Christmas Festival",
@@ -56,6 +60,7 @@ export const seedAnchorEvents = internalMutation({
         startsAt: Date.UTC(2026, 11, 5, 16, 0), // Sat Dec 5, 2026, 10am CT
         venue: "Historic Old Town Leander",
         url: "https://visitleandertx.com/",
+        category: "Community" as const,
       },
       {
         title: "Devine Lake Kite Festival",
@@ -64,6 +69,7 @@ export const seedAnchorEvents = internalMutation({
         startsAt: Date.UTC(2027, 4, 1, 15, 0), // Sat May 1, 2027, 10am CT
         venue: "Devine Lake Park",
         url: "https://visitleandertx.com/",
+        category: "Outdoors" as const,
       },
       {
         title: "Old Town Street Festival",
@@ -72,6 +78,7 @@ export const seedAnchorEvents = internalMutation({
         startsAt: Date.UTC(2027, 5, 5, 14, 0), // Sat Jun 5, 2027, 9am CT
         venue: "Historic Old Town Leander",
         url: "https://visitleandertx.com/",
+        category: "Community" as const,
       },
       {
         title: "Liberty Fest",
@@ -80,6 +87,7 @@ export const seedAnchorEvents = internalMutation({
         startsAt: Date.UTC(2027, 6, 3, 23, 0), // Sat Jul 3, 2027, 6pm CT
         venue: "Devine Lake Park",
         url: "https://visitleandertx.com/",
+        category: "Community" as const,
       },
     ];
 

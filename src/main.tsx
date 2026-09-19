@@ -9,19 +9,26 @@ const convexUrl = import.meta.env.VITE_CONVEX_URL as string | undefined;
 function MissingConfig() {
   return (
     <div className="page">
-      <header className="hero">
-        <h1>Leander Live</h1>
-        <p>What's happening in Leander, TX.</p>
+      <header className="site-header">
+        <div className="site-header-inner">
+          <a className="brand" href="#top" aria-label="Leander Live home">
+            <img src="/logo.png" alt="Leander Live logo" />
+            <span>
+              <span className="wordmark">Leander Live</span>
+              <span className="tagline">Events. People. A Stronger Leander.</span>
+            </span>
+          </a>
+        </div>
       </header>
-      <main className="feed">
-        <div className="card">
-          <h2>Backend not connected yet</h2>
-          <p>
+      <section className="section">
+        <div className="form-card">
+          <h3>Backend not connected yet</h3>
+          <p className="section-lead">
             <code>VITE_CONVEX_URL</code> is not set. Run{" "}
             <code>npx convex dev</code> once, then restart the dev server.
           </p>
         </div>
-      </main>
+      </section>
     </div>
   );
 }
