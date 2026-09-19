@@ -10,7 +10,7 @@ import { internalAction } from "./_generated/server";
  */
 export const crawlLeander = internalAction({
   args: {},
-  handler: async (ctx): Promise<{ ok: boolean; inserted: number; reason?: string }> => {
+  handler: async (_ctx): Promise<{ ok: boolean; inserted: number; reason?: string }> => {
     const apiKey = process.env.FIRECRAWL_API_KEY;
     if (!apiKey) {
       console.log("FIRECRAWL_API_KEY not set — skipping crawl.");
