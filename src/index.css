@@ -60,7 +60,9 @@
   }
   section[id],
   footer[id] {
-    scroll-margin-top: 84px;
+    /* Must clear the sticky header (nav bar + skyline strip ≈ 149px desktop / 133px mobile)
+       so anchor jumps from the nav don't hide section headings behind it. */
+    scroll-margin-top: 160px;
   }
 }
 
