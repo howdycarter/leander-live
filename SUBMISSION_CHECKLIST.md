@@ -20,7 +20,9 @@ until Chris says so.
 ## Before submitting
 
 1. `npx convex login` (Chris, interactive) → `npx convex dev` → real codegen
-2. Set env keys: `FIRECRAWL_API_KEY`, `AGENTMAIL_*`, `OPENAI_API_KEY`, `ADMIN_KEY`
+2. Set env keys: `FIRECRAWL_API_KEY`, `AGENTMAIL_*`, `OPENAI_API_KEY`, `ADMIN_KEY`,
+   `TWILIO_AUTH_TOKEN`, `TWILIO_STREAM_URL`, `TWILIO_PUBLIC_URL`, `LEAD_INGEST_SECRET`
+   (see PHONE_BOT_SETUP.md)
 3. `npm run deploy` → verify live URL → `VITE_CONVEX_URL` → seed events
 4. Record demo video (<3 min)
 5. Chris approves launch copy (LAUNCH_POST.md) — optional social proof
