@@ -4,7 +4,9 @@ import { api } from "../../convex/_generated/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { MessageCircle, X, Send } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { MessageCircle, X, Send, CircleCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /* ------------------------------------------------------------------ */
@@ -81,7 +83,12 @@ export function ChatWidget() {
       {open && (
         <Card className="absolute bottom-16 right-0 flex h-[480px] max-h-[calc(100vh-220px)] w-[min(360px,calc(100vw-2rem))] flex-col overflow-hidden shadow-xl">
           <CardHeader className="flex flex-row items-center gap-3 bg-primary p-4 text-primary-foreground">
-            <img src="/logo.png" alt="" aria-hidden="true" className="h-8 w-8 rounded-md" />
+            <Avatar className="h-8 w-8 rounded-md">
+              <AvatarImage src="/logo.png" alt="Leander Live" />
+              <AvatarFallback className="rounded-md bg-white/20 text-xs font-bold text-primary-foreground">
+                LL
+              </AvatarFallback>
+            </Avatar>
             <div className="flex-1 leading-tight">
               <CardTitle className="text-base text-primary-foreground">Leander Live</CardTitle>
               <p className="text-xs text-primary-foreground/80">Typically replies instantly</p>
@@ -118,9 +125,12 @@ export function ChatWidget() {
           </CardContent>
           <div className="border-t p-3">
             {done ? (
-              <p className="py-2 text-center font-semibold text-secondary">
-                You're all set — we'll be in touch! 🎉
-              </p>
+              <Alert className="border-secondary/30 bg-secondary/10">
+                <CircleCheck className="h-4 w-4 text-secondary" />
+                <AlertDescription className="font-semibold text-secondary">
+                  You're all set — we'll be in touch! 🎉
+                </AlertDescription>
+              </Alert>
             ) : (
               <form
                 className="flex gap-2"

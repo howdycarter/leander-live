@@ -32,6 +32,8 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Lock } from "lucide-react";
 
 /* ------------------------------------------------------------------ */
@@ -138,7 +140,11 @@ export function AdminLeads() {
           Lock
         </Button>
       </div>
-      {err && <p className="mb-4 text-sm font-medium text-destructive">{err}</p>}
+      {err && (
+        <Alert variant="destructive" className="mb-4">
+          <AlertDescription>{err}</AlertDescription>
+        </Alert>
+      )}
       <Tabs defaultValue="pipeline">
         <TabsList>
           <TabsTrigger value="pipeline">Pipeline</TabsTrigger>
@@ -176,7 +182,14 @@ function PipelineBoard({
 }) {
   const leads = useQuery(api.crm.listLeads, { adminKey }) as Lead[] | undefined;
 
-  if (leads === undefined) return <p className="text-muted-foreground">Loading leads…</p>;
+  if (leads === undefined)
+    return (
+      <div className="flex flex-col gap-2" aria-label="Loading leads">
+        <Skeleton className="h-12 w-full" />
+        <Skeleton className="h-12 w-full" />
+        <Skeleton className="h-12 w-2/3" />
+      </div>
+    );
   if (leads === null) {
     onError("Not authorized — check the admin key.");
     return <p className="text-destructive">Could not load leads.</p>;
@@ -413,7 +426,11 @@ function BusinessesTab({ adminKey, onError }: { adminKey: string; onError: (msg:
         </CardContent>
       </Card>
       {businesses === undefined ? (
-        <p className="text-muted-foreground">Loading…</p>
+        <div className="flex flex-col gap-2" aria-label="Loading businesses">
+          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-10 w-1/2" />
+        </div>
       ) : (
         <Card>
           <Table>

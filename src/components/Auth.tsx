@@ -19,6 +19,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 
 function GoogleMark({ className }: { className?: string }) {
@@ -128,20 +129,25 @@ export function AccountButton({ onSignIn }: { onSignIn: () => void }) {
   const viewer = useQuery(api.profiles.viewer);
   const { signOut } = useAuthActions();
 
-  const circle =
-    "flex h-10 w-10 items-center justify-center rounded-full border border-[#eadbc3] bg-white text-[#4a3d2f] transition-colors hover:border-[#db5a1e] hover:text-[#b5431f]";
+  const circleClass =
+    "h-10 w-10 rounded-full border border-[#eadbc3] bg-white text-[#4a3d2f] hover:border-[#db5a1e] hover:text-[#b5431f]";
 
   if (isLoading || (isAuthenticated && viewer === undefined)) {
-    return (
-      <span className={cn(circle, "animate-pulse")} aria-label="Checking sign-in status" />
-    );
+    return <Skeleton className="h-10 w-10 rounded-full" aria-label="Checking sign-in status" />;
   }
 
   if (!isAuthenticated || !viewer) {
     return (
-      <button type="button" onClick={onSignIn} aria-label="Sign in" className={circle}>
+      <Button
+        type="button"
+        variant="outline"
+        size="icon"
+        onClick={onSignIn}
+        aria-label="Sign in"
+        className={circleClass}
+      >
         <User className="h-4 w-4" />
-      </button>
+      </Button>
     );
   }
 
@@ -150,16 +156,18 @@ export function AccountButton({ onSignIn }: { onSignIn: () => void }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button
+        <Button
           type="button"
+          variant="default"
+          size="icon"
           aria-label={`Account: ${viewer.name ?? viewer.email ?? "signed in"}`}
           className={cn(
-            circle,
+            circleClass,
             "border-[#db5a1e] bg-[#db5a1e] font-display text-lg font-bold text-white hover:bg-[#b5431f] hover:text-white",
           )}
         >
           {initial}
-        </button>
+        </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-60 border-[#eadbc3] bg-[#fffdf8]">
         <DropdownMenuLabel className="font-normal">

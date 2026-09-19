@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type ButtonHTMLAttributes, type FormEvent } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { useConvexAuth } from "@convex-dev/auth/react";
 import { api } from "../convex/_generated/api";
@@ -7,7 +7,10 @@ import { ChatWidget } from "./components/ChatWidget";
 import { AdminLeads } from "./components/AdminLeads";
 import { AccountButton, SignInDialog } from "./components/Auth";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge, badgeVariants } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -29,9 +32,11 @@ import {
 import { Separator } from "@/components/ui/separator";
 import {
   ArrowRight,
+  Bell,
   BookOpen,
   Building2,
   CalendarDays,
+  CircleCheck,
   Clock,
   Compass,
   Heart,
@@ -40,13 +45,12 @@ import {
   MapPin,
   Menu,
   Music,
+  Plus,
   Search,
+  Send,
   TreePine,
   Users,
   UtensilsCrossed,
-  Bell,
-  Plus,
-  Send,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -213,13 +217,16 @@ function Header({ onSubmit, onSignIn }: { onSubmit: () => void; onSignIn: () => 
           </a>
         </nav>
         <div className="flex items-center gap-2">
-          <a
-            href="#events"
-            aria-label="Search events"
-            className="hidden h-10 w-10 items-center justify-center rounded-full border border-[#eadbc3] bg-white text-[#4a3d2f] hover:text-[#b5431f] sm:flex"
+          <Button
+            asChild
+            variant="outline"
+            size="icon"
+            className="hidden h-10 w-10 rounded-full border-[#eadbc3] bg-white text-[#4a3d2f] hover:text-[#b5431f] sm:inline-flex"
           >
-            <Search className="h-4 w-4" />
-          </a>
+            <a href="#events" aria-label="Search events">
+              <Search className="h-4 w-4" />
+            </a>
+          </Button>
           <Button onClick={onSubmit} className="hidden rounded-full px-5 sm:inline-flex">
             <Plus className="h-4 w-4" /> Submit Event
           </Button>
@@ -337,39 +344,39 @@ function TabBar({
       <nav className="grid grid-cols-5 py-2" aria-label="Mobile">
         {TABS.map(({ id, label, href, Icon }) => {
           const isActive = id === "saved" ? savedOnly : active === id && !savedOnly;
+          const itemClass = cn(
+            "h-auto flex-col gap-1 rounded-none py-1 text-xs font-medium [&_svg]:size-5",
+            isActive ? "text-[#c05a1e]" : "text-muted-foreground",
+          );
+          const content = (
+            <>
+              <Icon className={cn("h-5 w-5", id === "saved" && savedOnly && "fill-current")} />
+              {label}
+            </>
+          );
           if (id === "saved") {
             return (
-              <button
+              <Button
                 key={id}
                 type="button"
+                variant="ghost"
                 onClick={() => {
                   onToggleSaved();
                   setActive("saved");
                 }}
                 aria-pressed={savedOnly}
-                className={cn(
-                  "flex flex-col items-center gap-1 py-1 text-xs font-medium",
-                  isActive ? "text-[#c05a1e]" : "text-muted-foreground",
-                )}
+                className={itemClass}
               >
-                <Icon className={cn("h-5 w-5", savedOnly && "fill-current")} />
-                {label}
-              </button>
+                {content}
+              </Button>
             );
           }
           return (
-            <a
-              key={id}
-              href={href}
-              onClick={() => setActive(id)}
-              className={cn(
-                "flex flex-col items-center gap-1 py-1 text-xs font-medium",
-                isActive ? "text-[#c05a1e]" : "text-muted-foreground",
-              )}
-            >
-              <Icon className="h-5 w-5" />
-              {label}
-            </a>
+            <Button key={id} variant="ghost" asChild className={itemClass}>
+              <a href={href} onClick={() => setActive(id)}>
+                {content}
+              </a>
+            </Button>
           );
         })}
       </nav>
@@ -386,16 +393,13 @@ function CategoryBadge({ event, className }: { event: EventItem; className?: str
   const style = CATEGORY_STYLE[event.category ?? ""] ?? DEFAULT_CATEGORY;
   const Icon = style.Icon;
   return (
-    <span
-      className={cn(
-        "inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold",
-        className,
-      )}
+    <Badge
+      className={cn("gap-1.5 rounded-full px-3 py-1", className)}
       style={{ backgroundColor: style.soft, color: style.color }}
     >
       <Icon className="h-3.5 w-3.5" aria-hidden="true" />
       {style.label}
-    </span>
+    </Badge>
   );
 }
 
@@ -409,21 +413,21 @@ function SaveButton({
   className?: string;
 }) {
   return (
-    <button
+    <Button
       type="button"
+      variant="ghost"
+      size="icon"
       onClick={onToggleSaved}
       aria-pressed={saved}
       aria-label={saved ? "Remove from saved" : "Save this event"}
       className={cn(
-        "flex h-9 w-9 items-center justify-center rounded-full transition-colors",
-        saved
-          ? "text-[#c05a1e]"
-          : "text-[#b09a7d] hover:text-[#c05a1e]",
+        "rounded-full [&_svg]:size-5",
+        saved ? "text-[#c05a1e]" : "text-[#b09a7d] hover:text-[#c05a1e]",
         className,
       )}
     >
       <Heart className={cn("h-5 w-5", saved && "fill-current")} />
-    </button>
+    </Button>
   );
 }
 
@@ -455,9 +459,11 @@ function EventCard({
             className="absolute bottom-0 right-4 translate-y-1/2 shadow-sm"
           />
         </div>
-        <div className="relative flex flex-1 flex-col p-4 pt-6">
-          <h3 className="text-[17px] font-bold leading-snug">{title}</h3>
-          <div className="mt-3 flex flex-col gap-1.5 text-sm text-[#5c4f40]">
+        <CardHeader className="px-4 pb-1 pt-6">
+          <CardTitle className="text-[17px] font-bold leading-snug">{title}</CardTitle>
+        </CardHeader>
+        <CardContent className="flex-1 px-4 py-0">
+          <div className="flex flex-col gap-1.5 text-sm text-[#5c4f40]">
             <span className="flex items-center gap-2">
               <CalendarDays className="h-4 w-4 shrink-0 text-[#a08b6d]" />
               {formatDate(event.startsAt)}
@@ -471,15 +477,13 @@ function EventCard({
               {event.venue}
             </span>
           </div>
-          <SaveButton
-            saved={saved}
-            onToggleSaved={onToggleSaved}
-            className="absolute bottom-3 right-3"
-          />
-        </div>
+        </CardContent>
+        <CardFooter className="justify-end px-3 pb-3 pt-1">
+          <SaveButton saved={saved} onToggleSaved={onToggleSaved} />
+        </CardFooter>
       </div>
       {/* Mobile: horizontal card */}
-      <div className="flex gap-3 p-3 sm:hidden">
+      <CardContent className="flex gap-3 p-3 sm:hidden">
         <img
           src={img}
           alt=""
@@ -488,7 +492,7 @@ function EventCard({
         />
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-2">
-            <h3 className="text-[15px] font-bold leading-snug">{title}</h3>
+            <CardTitle className="text-[15px] font-bold leading-snug">{title}</CardTitle>
             <CategoryBadge event={event} className="shrink-0 px-2 py-0.5 text-[11px]" />
           </div>
           <div className="mt-1.5 flex flex-col gap-1 text-[13px] text-[#5c4f40]">
@@ -506,12 +510,37 @@ function EventCard({
             </span>
           </div>
           {event.description && (
-            <p className="mt-1 truncate text-xs text-muted-foreground">{event.description}</p>
+            <CardDescription className="mt-1 truncate text-xs">
+              {event.description}
+            </CardDescription>
           )}
         </div>
         <SaveButton saved={saved} onToggleSaved={onToggleSaved} className="self-center" />
-      </div>
+      </CardContent>
     </Card>
+  );
+}
+
+/* Filter pill built on the shadcn Badge system: a real <button> with
+   badgeVariants driving the active (default) / inactive (outline) look. */
+function FilterPill({
+  active,
+  className,
+  ...props
+}: ButtonHTMLAttributes<HTMLButtonElement> & { active: boolean }) {
+  return (
+    <button
+      type="button"
+      aria-pressed={active}
+      className={cn(
+        badgeVariants({ variant: active ? "default" : "outline" }),
+        "cursor-pointer rounded-full px-4 py-2 text-sm font-medium",
+        !active &&
+          "border-[#eadbc3] bg-white text-[#4a3d2f] hover:border-[#db5a1e] hover:text-[#b5431f]",
+        className,
+      )}
+      {...props}
+    />
   );
 }
 
@@ -532,13 +561,6 @@ function FeedFilters({
   setCategory: (v: string) => void;
   onSubmit: () => void;
 }) {
-  const pill = (isActive: boolean) =>
-    cn(
-      "rounded-full px-4 py-2 text-sm font-medium transition-colors",
-      isActive
-        ? "bg-primary text-primary-foreground shadow-sm"
-        : "border border-[#eadbc3] bg-white text-[#4a3d2f] hover:border-[#db5a1e] hover:text-[#b5431f]",
-    );
   return (
     <div className="mb-6 flex flex-col gap-3">
       <div className="relative">
@@ -561,15 +583,9 @@ function FeedFilters({
       {/* Desktop filter row */}
       <div className="hidden items-center gap-2 md:flex" role="group" aria-label="Filter events">
         {DATE_FILTERS.map((f) => (
-          <button
-            key={f}
-            type="button"
-            onClick={() => setDateFilter(f)}
-            aria-pressed={dateFilter === f}
-            className={pill(dateFilter === f)}
-          >
+          <FilterPill key={f} active={dateFilter === f} onClick={() => setDateFilter(f)}>
             {f}
-          </button>
+          </FilterPill>
         ))}
         <Separator orientation="vertical" className="mx-2 h-6 bg-[#eadbc3]" />
         <Select value={category} onValueChange={setCategory}>
@@ -587,13 +603,16 @@ function FeedFilters({
             ))}
           </SelectContent>
         </Select>
-        <a
-          href="#events"
-          aria-label="Jump to events"
-          className="flex h-10 w-10 items-center justify-center rounded-full border border-[#eadbc3] bg-white text-[#4a3d2f] hover:text-[#b5431f]"
+        <Button
+          asChild
+          variant="outline"
+          size="icon"
+          className="h-10 w-10 rounded-full border-[#eadbc3] bg-white text-[#4a3d2f] hover:text-[#b5431f]"
         >
-          <CalendarDays className="h-4 w-4" />
-        </a>
+          <a href="#events" aria-label="Jump to events">
+            <CalendarDays className="h-4 w-4" />
+          </a>
+        </Button>
       </div>
 
       {/* Mobile category pills */}
@@ -603,15 +622,14 @@ function FeedFilters({
         aria-label="Filter by category"
       >
         {["All", ...CATEGORIES].map((c) => (
-          <button
+          <FilterPill
             key={c}
-            type="button"
+            active={category === c}
             onClick={() => setCategory(c)}
-            aria-pressed={category === c}
-            className={cn(pill(category === c), "shrink-0")}
+            className="shrink-0"
           >
             {c === "Learn" ? "Learning" : c}
-          </button>
+          </FilterPill>
         ))}
       </div>
     </div>
@@ -674,7 +692,12 @@ function SubmitDialogContent() {
       </DialogHeader>
       {sent ? (
         <div className="flex flex-col items-start gap-4 py-2">
-          <p>🎉 Got it — your event was submitted and is pending review.</p>
+          <Alert>
+            <CircleCheck className="h-4 w-4 text-secondary" />
+            <AlertDescription>
+              🎉 Got it — your event was submitted and is pending review.
+            </AlertDescription>
+          </Alert>
           <Button variant="outline" onClick={() => setSent(false)}>
             Submit another
           </Button>
@@ -718,7 +741,11 @@ function SubmitDialogContent() {
               <Input id="ev-url" type="url" value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://…" />
             </div>
           </div>
-          {error && <p className="text-sm font-medium text-destructive">{error}</p>}
+          {error && (
+            <Alert variant="destructive">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
           <Button type="submit" disabled={sending}>
             {sending ? "Submitting…" : "Submit event"}
           </Button>
@@ -777,7 +804,12 @@ function RemindersForm() {
       <CardContent>
         {done ? (
           <div className="flex flex-col items-start gap-4">
-            <p>🎉 You're in! Watch for Leander events coming your way.</p>
+            <Alert>
+              <CircleCheck className="h-4 w-4 text-secondary" />
+              <AlertDescription>
+                🎉 You're in! Watch for Leander events coming your way.
+              </AlertDescription>
+            </Alert>
             <Button variant="outline" onClick={() => setDone(false)}>Add another person</Button>
           </div>
         ) : (
@@ -813,7 +845,11 @@ function RemindersForm() {
               <span>{SMS_COPY}</span>
             </label>
             <p className="text-xs text-muted-foreground">{PRIVACY_NOTE}</p>
-            {error && <p className="text-sm font-medium text-destructive">{error}</p>}
+            {error && (
+              <Alert variant="destructive">
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
             <Button type="submit" disabled={sending}>
               {sending ? "Signing you up…" : "Sign me up"}
             </Button>
@@ -876,10 +912,13 @@ function BusinessForm() {
       <CardContent>
         {done ? (
           <div className="flex flex-col items-start gap-4">
-            <p>
-              🎉 Thanks, {doneName.contact ? doneName.contact.split(" ")[0] : "there"}! We'll be in
-              touch about <strong>{doneName.business}</strong> soon.
-            </p>
+            <Alert>
+              <CircleCheck className="h-4 w-4 text-secondary" />
+              <AlertDescription>
+                🎉 Thanks, {doneName.contact ? doneName.contact.split(" ")[0] : "there"}! We'll be in
+                touch about <strong>{doneName.business}</strong> soon.
+              </AlertDescription>
+            </Alert>
             <Button variant="outline" onClick={() => setDone(false)}>Submit another business</Button>
           </div>
         ) : (
@@ -930,7 +969,11 @@ function BusinessForm() {
               </div>
             </div>
             <p className="text-xs text-muted-foreground">{PRIVACY_NOTE}</p>
-            {error && <p className="text-sm font-medium text-destructive">{error}</p>}
+            {error && (
+              <Alert variant="destructive">
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
             <Button type="submit" disabled={sending}>
               {sending ? "Sending…" : "Get in touch"}
             </Button>
@@ -1259,13 +1302,13 @@ function Site() {
               {savedOnly ? "Saved Events" : "Featured Events"}
             </h2>
             {hasFilters && (
-              <button
-                type="button"
+              <Button
+                variant="link"
                 onClick={clearFilters}
-                className="shrink-0 text-sm font-semibold text-[#b5431f] hover:underline"
+                className="h-auto shrink-0 px-0 text-sm font-semibold text-[#b5431f]"
               >
-                View All Events <ArrowRight className="inline h-3.5 w-3.5" />
-              </button>
+                View All Events <ArrowRight className="h-3.5 w-3.5" />
+              </Button>
             )}
           </div>
           <FeedFilters
@@ -1278,7 +1321,19 @@ function Site() {
             onSubmit={() => setModalOpen(true)}
           />
           {events === undefined ? (
-            <p className="text-muted-foreground">Loading events…</p>
+            <div
+              className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4"
+              aria-label="Loading events"
+            >
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="flex flex-col gap-3">
+                  <Skeleton className="h-44 w-full rounded-xl" />
+                  <Skeleton className="h-5 w-3/4" />
+                  <Skeleton className="h-4 w-1/2" />
+                  <Skeleton className="h-4 w-2/3" />
+                </div>
+              ))}
+            </div>
           ) : (
             <>
               <p className="mb-4 text-sm text-muted-foreground">
