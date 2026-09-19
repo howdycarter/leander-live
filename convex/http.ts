@@ -2,8 +2,12 @@ import { httpRouter } from "convex/server";
 import { httpAction } from "./_generated/server";
 import { registerStaticRoutes } from "@convex-dev/static-hosting";
 import { components, internal } from "./_generated/api";
+import { auth } from "./auth";
 
 const http = httpRouter();
+
+// Convex Auth: OAuth sign-in/sign-out/callback routes under /api/auth/*.
+auth.addHttpRoutes(http);
 
 /**
  * AgentMail inbound webhook: organizers email event submissions to the

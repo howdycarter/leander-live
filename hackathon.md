@@ -91,8 +91,9 @@ ingestion/summarizer skip; phone webhook returns 503).
 
 ## Live URL
 
-_TODO — after `npx convex login` + `npm run deploy`:_
-`https://<deployment>.convex.site`
+`https://adventurous-ostrich-311.convex.site`
+
+_Deployed 2026-09-19 via `npm run deploy` (Convex backend + static hosting). Backend data verified live (events:listUpcoming returns seeded events)._
 
 ## Demo video
 

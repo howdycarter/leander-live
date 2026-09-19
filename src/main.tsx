@@ -1,6 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { ConvexProvider, ConvexReactClient } from "convex/react";
+import { ConvexReactClient } from "convex/react";
+import { ConvexAuthProvider } from "@convex-dev/auth/react";
 import App from "./App";
 import "./index.css";
 
@@ -36,9 +37,9 @@ function MissingConfig() {
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     {convexUrl ? (
-      <ConvexProvider client={new ConvexReactClient(convexUrl)}>
+      <ConvexAuthProvider client={new ConvexReactClient(convexUrl)}>
         <App />
-      </ConvexProvider>
+      </ConvexAuthProvider>
     ) : (
       <MissingConfig />
     )}

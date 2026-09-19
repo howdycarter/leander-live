@@ -1,8 +1,11 @@
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { useMutation, useQuery } from "convex/react";
+import { useConvexAuth } from "@convex-dev/auth/react";
 import { api } from "../convex/_generated/api";
+import type { Id } from "../convex/_generated/dataModel";
 import { ChatWidget } from "./components/ChatWidget";
 import { AdminLeads } from "./components/AdminLeads";
+import { AccountButton, SignInDialog } from "./components/Auth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -39,7 +42,6 @@ import {
   Music,
   Search,
   TreePine,
-  User,
   Users,
   UtensilsCrossed,
   Bell,
@@ -180,7 +182,7 @@ function BrandLockup({ iconClass = "h-12 w-12" }: { iconClass?: string }) {
   );
 }
 
-function Header({ onSubmit }: { onSubmit: () => void }) {
+function Header({ onSubmit, onSignIn }: { onSubmit: () => void; onSignIn: () => void }) {
   return (
     <header className="sticky top-0 z-40 border-b border-[#eadbc3] bg-cream/95 backdrop-blur supports-[backdrop-filter]:bg-cream/80">
       <div className="mx-auto flex min-h-[76px] max-w-6xl items-center justify-between gap-4 px-4 py-2">
@@ -221,13 +223,7 @@ function Header({ onSubmit }: { onSubmit: () => void }) {
           <Button onClick={onSubmit} className="hidden rounded-full px-5 sm:inline-flex">
             <Plus className="h-4 w-4" /> Submit Event
           </Button>
-          <a
-            href="#reminders"
-            aria-label="Get event reminders"
-            className="hidden h-10 w-10 items-center justify-center rounded-full border border-[#eadbc3] bg-white text-[#4a3d2f] hover:text-[#b5431f] sm:flex"
-          >
-            <User className="h-4 w-4" />
-          </a>
+          <AccountButton onSignIn={onSignIn} />
           <p className="font-script hidden -rotate-3 whitespace-nowrap text-[22px] leading-none text-[#c05a1e] xl:block">
             Good Things Happen Here
             <Heart className="ml-1 inline h-4 w-4 fill-current" aria-hidden="true" />
@@ -299,6 +295,7 @@ function Footer() {
             <a href="#about" className="text-[#4a3d2f] hover:text-[#b5431f]">About</a>
             <a href="#businesses" className="text-[#4a3d2f] hover:text-[#b5431f]">For Organizers</a>
             <a href="#reminders" className="text-[#4a3d2f] hover:text-[#b5431f]">Contact</a>
+            <a href="/privacy" className="text-[#4a3d2f] hover:text-[#b5431f]">Privacy</a>
           </nav>
           <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm font-medium text-[#4a3d2f] md:justify-end">
             <a href="#top" className="hover:text-[#b5431f]">Facebook</a>
@@ -989,8 +986,126 @@ function About() {
   );
 }
 
-function CrossPromoCard() {
+function PrivacyPage() {
   return (
+    <div className="flex min-h-screen flex-col bg-cream text-[#2e2620]">
+      <div className="mx-auto w-full max-w-6xl px-4 py-4">
+        <BrandLockup />
+      </div>
+      <main className="mx-auto w-full max-w-3xl flex-1 px-4 pb-16">
+        <p className="font-script text-[28px] text-[#c05a1e]">Good Things Happen Here</p>
+        <h1 className="font-display mt-2 text-4xl font-bold text-[#b5431f]">
+          Privacy Policy
+        </h1>
+        <p className="mt-2 text-sm text-[#6b5d4f]">Effective September 19, 2026</p>
+
+        <div className="prose-cream mt-8 space-y-6 text-[15px] leading-relaxed">
+          <p>
+            Leander Live is a community events board for Leander, Texas. This policy
+            explains what information we collect and how we use it. In short: we use
+            your info only for event updates and local business inquiries — never
+            sold, never shared.
+          </p>
+
+          <section>
+            <h2 className="font-display text-xl font-bold text-[#b5431f]">
+              Information we collect
+            </h2>
+            <ul className="mt-2 list-disc space-y-2 pl-5">
+              <li>
+                <strong>Account info.</strong> If you sign in with Google, we receive
+                your name, email address, and profile photo from Google so we can
+                identify your account.
+              </li>
+              <li>
+                <strong>Saved events.</strong> Events you heart are stored so they
+                follow you across devices. If you're signed out, they're kept in your
+                browser's local storage; if you're signed in, they're synced to your
+                account.
+              </li>
+              <li>
+                <strong>Event submissions &amp; inquiries.</strong> When you submit an
+                event or contact us as a local business, we collect whatever details
+                you provide (name, email, event info) so we can review and publish
+                your listing.
+              </li>
+              <li>
+                <strong>Text reminders.</strong> If you opt in, we collect your phone
+                number to send event reminders. Message and data rates may apply; reply
+                STOP to opt out at any time.
+              </li>
+            </ul>
+          </section>
+
+          <section>
+            <h2 className="font-display text-xl font-bold text-[#b5431f]">
+              How we use it
+            </h2>
+            <p>
+              We use your information to run Leander Live: keeping you signed in,
+              syncing your saved events, publishing events you submit, and sending
+              reminders you asked for. We do not sell your personal information, and
+              we do not share it with third parties for their own marketing.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="font-display text-xl font-bold text-[#b5431f]">
+              Third-party services
+            </h2>
+            <p>
+              Sign-in is handled by Google under{" "}
+              <a
+                href="https://policies.google.com/privacy"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-semibold text-[#b5431f] hover:underline"
+              >
+                Google's Privacy Policy
+              </a>
+              . Our app hosting and database are provided by Convex. Text reminders,
+              when enabled, are delivered through our messaging provider.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="font-display text-xl font-bold text-[#b5431f]">
+              Your choices
+            </h2>
+            <ul className="mt-2 list-disc space-y-2 pl-5">
+              <li>Unsave events any time by tapping the heart again.</li>
+              <li>Sign out any time from the account menu.</li>
+              <li>Reply STOP to any text reminder to opt out.</li>
+              <li>
+                Ask us to delete your account data by contacting us (see below).
+              </li>
+            </ul>
+          </section>
+
+          <section>
+            <h2 className="font-display text-xl font-bold text-[#b5431f]">Contact</h2>
+            <p>
+              Leander Live was designed and built by{" "}
+              <a
+                href="https://howdycarter.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-semibold text-[#b5431f] hover:underline"
+              >
+                Howdy Carter
+              </a>
+              . Questions about this policy? Reach out through the Contact section on
+              our homepage.
+            </p>
+          </section>
+        </div>
+      </main>
+      <Footer />
+    </div>
+  );
+}
+
+function CrossPromoCard() {  return (
     <Card className="border-dashed border-accent bg-accent/10">
       <CardHeader>
         <CardTitle className="text-lg">Want a website that turns visitors into customers?</CardTitle>
@@ -1013,16 +1128,18 @@ function CrossPromoCard() {
 /* ---------------- app ---------------- */
 
 export default function App() {
-  const [isAdminRoute, setIsAdminRoute] = useState(() =>
-    window.location.pathname === "/admin/leads" ||
-    window.location.hash === "#admin/leads",
-  );
+  const getRoute = () => {
+    if (
+      window.location.pathname === "/admin/leads" ||
+      window.location.hash === "#admin/leads"
+    )
+      return "admin";
+    if (window.location.pathname === "/privacy") return "privacy";
+    return "site";
+  };
+  const [route, setRoute] = useState(getRoute);
   useEffect(() => {
-    const onChange = () =>
-      setIsAdminRoute(
-        window.location.pathname === "/admin/leads" ||
-          window.location.hash === "#admin/leads",
-      );
+    const onChange = () => setRoute(getRoute());
     window.addEventListener("hashchange", onChange);
     window.addEventListener("popstate", onChange);
     return () => {
@@ -1030,7 +1147,8 @@ export default function App() {
       window.removeEventListener("popstate", onChange);
     };
   }, []);
-  if (isAdminRoute) return <AdminLeads />;
+  if (route === "admin") return <AdminLeads />;
+  if (route === "privacy") return <PrivacyPage />;
 
   return <Site />;
 }
@@ -1038,6 +1156,7 @@ export default function App() {
 function Site() {
   const events = useQuery(api.events.listUpcoming, { limit: 50 });
   const [modalOpen, setModalOpen] = useState(false);
+  const [signInOpen, setSignInOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [dateFilter, setDateFilter] = useState<DateFilter>("All");
   const [category, setCategory] = useState<string>("All");
@@ -1050,6 +1169,12 @@ function Site() {
       return new Set();
     }
   });
+
+  // Signed-in users sync saved events to their profile (Convex Auth).
+  const { isAuthenticated } = useConvexAuth();
+  const serverSaved = useQuery(api.profiles.getSaved);
+  const serverToggleSaved = useMutation(api.profiles.toggleSaved);
+  const serverMergeSaved = useMutation(api.profiles.mergeSaved);
 
   const now = useMemo(() => new Date(), []);
 
@@ -1086,11 +1211,45 @@ function Site() {
       }
       return next;
     });
+    // Persist server-side when signed in (guests stay local-only).
+    if (isAuthenticated) {
+      serverToggleSaved({ eventId: id as Id<"events"> }).catch(() => {});
+    }
   }
+
+  // On sign-in: merge guest (localStorage) saves into the server profile
+  // once, then adopt the server list as the source of truth.
+  const mergedRef = useRef(false);
+  useEffect(() => {
+    if (!isAuthenticated) {
+      mergedRef.current = false;
+      return;
+    }
+    if (mergedRef.current || serverSaved === undefined) return;
+    mergedRef.current = true;
+    let guestIds: string[] = [];
+    try {
+      const raw = localStorage.getItem("leander-live:saved");
+      guestIds = raw ? (JSON.parse(raw) as string[]) : [];
+    } catch {
+      /* ignore */
+    }
+    serverMergeSaved({ eventIds: guestIds as Id<"events">[] }).catch(() => {});
+  }, [isAuthenticated, serverSaved, serverMergeSaved]);
+
+  useEffect(() => {
+    if (!isAuthenticated || !mergedRef.current || serverSaved === undefined) return;
+    setSaved(new Set(serverSaved));
+    try {
+      localStorage.setItem("leander-live:saved", JSON.stringify(serverSaved));
+    } catch {
+      /* ignore */
+    }
+  }, [isAuthenticated, serverSaved]);
 
   return (
     <div className="min-h-screen pb-20 md:pb-0" id="top">
-      <Header onSubmit={() => setModalOpen(true)} />
+      <Header onSubmit={() => setModalOpen(true)} onSignIn={() => setSignInOpen(true)} />
       <Hero />
 
       <main className="mx-auto max-w-6xl px-4">
@@ -1193,6 +1352,7 @@ function Site() {
       </Dialog>
       <ChatWidget />
       <TabBar savedOnly={savedOnly} onToggleSaved={() => setSavedOnly((v) => !v)} />
+      <SignInDialog open={signInOpen} onOpenChange={setSignInOpen} />
     </div>
   );
 }

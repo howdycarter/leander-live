@@ -1,5 +1,6 @@
 import { defineSchema, defineTable } from "convex/server";
 import { v, type Infer } from "convex/values";
+import { authTables } from "@convex-dev/auth/server";
 
 export const sourceValidator = v.union(
   v.literal("community"), // submitted via the web form
@@ -114,4 +115,15 @@ export default defineSchema({
     createdAt: v.number(),
     updatedAt: v.number(),
   }).index("by_sessionId", ["sessionId"]),
+
+  // Convex Auth tables (users, sessions, accounts, …).
+  ...authTables,
+
+  // Per-user profile: saved events sync across devices once signed in.
+  // Guests keep using localStorage; on sign-in we merge guest saves here.
+  profiles: defineTable({
+    userId: v.id("users"),
+    savedEventIds: v.array(v.id("events")),
+    updatedAt: v.number(),
+  }).index("by_userId", ["userId"]),
 });
