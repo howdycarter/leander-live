@@ -133,7 +133,8 @@ export function EventsPage() {
   const savedOnly = searchParams.get("saved") === "1";
 
   const events = useQuery(api.events.listUpcoming, { limit: 50 });
-  const [query, setQuery] = useState("");
+  // Concept-page search links here with ?q= — honor it on first load.
+  const [query, setQuery] = useState(() => searchParams.get("q") ?? "");
   const [dateFilter, setDateFilter] = useState<DateFilter>("All");
   const [category, setCategory] = useState<string>("All");
 
