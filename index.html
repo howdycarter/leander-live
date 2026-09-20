@@ -16,6 +16,29 @@
       name="description"
       content="A real-time community events board for Leander, Texas. Browse local events or submit your own."
     />
+    <link rel="canonical" href="https://leanderlive.com/" />
+    <script>
+      // Canonical host enforcement: the Convex deployment URL must never be
+      // discoverable or shareable. Browsers landing on *.convex.site are
+      // moved to leanderlive.com, preserving path/query/hash.
+      // Server routes (/api/*) are excluded so OAuth callbacks and webhooks
+      // keep working on the deployment host.
+      (function () {
+        try {
+          if (
+            /\.convex\.site$/.test(location.hostname) &&
+            location.pathname.indexOf("/api/") !== 0
+          ) {
+            location.replace(
+              "https://leanderlive.com" +
+                location.pathname +
+                location.search +
+                location.hash
+            );
+          }
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
