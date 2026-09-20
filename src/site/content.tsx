@@ -1020,6 +1020,21 @@ export function RemindersForm() {
               </div>
             </div>
             <p className="text-xs text-muted-foreground">{PRIVACY_NOTE}</p>
+            <label className="flex cursor-pointer items-start gap-2 rounded-md border px-3 py-2 text-sm hover:bg-muted/50">
+              <Checkbox
+                checked={smsOptIn}
+                onCheckedChange={(v) => setSmsOptIn(v === true)}
+                className="mt-0.5"
+                aria-label="Text me event reminders"
+              />
+              <span>
+                Text me reminders too
+                <span className="block text-xs text-muted-foreground">
+                  I agree to receive automated text messages from Leander Live at the number
+                  above. Message &amp; data rates may apply. Reply STOP to opt out.
+                </span>
+              </span>
+            </label>
             {error && (
               <Alert variant="destructive">
                 <AlertDescription>{error}</AlertDescription>
