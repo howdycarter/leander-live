@@ -151,7 +151,7 @@ function Footer() {
       </div>
       <Separator className="bg-[#eadbc3]" />
       <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-1.5 px-4 py-4 text-xs text-muted-foreground sm:flex-row">
-        <p>© 2026 Leander Live · Built for the Convex All Gas Hackathon.</p>
+        <p>© 2026 Leander Live · Built for the Leander community.</p>
         <p>
           Built by{" "}
           <a

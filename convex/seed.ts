@@ -25,7 +25,7 @@ export const seedAnchorEvents = internalMutation({
         venue: "Lakewood Park Sculpture Trail",
         url: "https://visitleandertx.com/",
         category: "Community" as const,
-        image: "/images/event-night-market.jpg",
+        image: "/images/real/artfest.jpg",
       },
       {
         title: "Floating Pumpkin Patch",
@@ -35,7 +35,7 @@ export const seedAnchorEvents = internalMutation({
         venue: "Robin Bledsoe Park Pool",
         url: "https://visitleandertx.com/",
         category: "Family" as const,
-        image: "/images/event-kids-craft.jpg",
+        image: "/images/real/floating-pumpkin-patch.jpg",
       },
       {
         title: "Tricks and Treats Spooktacular",
@@ -65,7 +65,7 @@ export const seedAnchorEvents = internalMutation({
         venue: "Historic Old Town Leander",
         url: "https://visitleandertx.com/",
         category: "Community" as const,
-        image: "/images/event-night-market.jpg",
+        image: "/images/real/old-town-christmas.jpg",
       },
       {
         title: "Devine Lake Kite Festival",
@@ -75,7 +75,7 @@ export const seedAnchorEvents = internalMutation({
         venue: "Devine Lake Park",
         url: "https://visitleandertx.com/",
         category: "Outdoors" as const,
-        image: "/images/event-sunrise-yoga.jpg",
+        image: "/images/real/kite-festival.jpg",
       },
       {
         title: "Old Town Street Festival",
@@ -85,7 +85,7 @@ export const seedAnchorEvents = internalMutation({
         venue: "Historic Old Town Leander",
         url: "https://visitleandertx.com/",
         category: "Community" as const,
-        image: "/images/event-music-park.jpg",
+        image: "/images/real/old-town-street-festival.jpg",
       },
       {
         title: "Liberty Fest",
@@ -95,7 +95,7 @@ export const seedAnchorEvents = internalMutation({
         venue: "Devine Lake Park",
         url: "https://visitleandertx.com/",
         category: "Community" as const,
-        image: "/images/event-food-truck.jpg",
+        image: "/images/real/liberty-fest.jpg",
       },
     ];
 

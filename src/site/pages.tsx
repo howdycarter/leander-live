@@ -26,8 +26,8 @@ function Hero() {
     <section aria-label="Welcome" className="px-4 pt-6">
       <div className="relative mx-auto max-w-6xl overflow-hidden rounded-2xl text-white">
         <img
-          src="/images/hero-concert.jpg"
-          alt="Golden-hour community concert in Leander"
+          src="/images/real/hero-concert-real.jpg"
+          alt="Fireworks over Liberty Fest at Devine Lake Park, Leander"
           className="absolute inset-0 h-full w-full object-cover"
         />
         <div
