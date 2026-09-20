@@ -7,18 +7,23 @@ import {
 import { v, type GenericId } from "convex/values";
 import { categoryValidator, statusValidator, type Category } from "./schema";
 
-/** Real-time feed: approved, upcoming events, soonest first. */
+/** Real-time feed: approved, upcoming events, soonest first (featured first). */
 export const listUpcoming = query({
   args: { limit: v.optional(v.number()) },
   handler: async (ctx, args) => {
     const now = Date.now();
-    return await ctx.db
+    const events = await ctx.db
       .query("events")
       .withIndex("by_status_startsAt", (q) =>
         q.eq("status", "approved").gte("startsAt", now),
       )
       .order("asc")
       .take(args.limit ?? 50);
+    // Paid placement: featured events (featuredUntil in the future) pin to top,
+    // preserving chronological order within each group.
+    const featured = events.filter((e) => (e.featuredUntil ?? 0) > now);
+    const rest = events.filter((e) => (e.featuredUntil ?? 0) <= now);
+    return [...featured, ...rest];
   },
 });
 
@@ -261,5 +266,34 @@ export const recordWebhookEvent = internalMutation({
       receivedAt: Date.now(),
     });
     return { isNew: true };
+  },
+});
+
+/**
+ * Sponsored placement: pin an event to the top of listings until `until`
+ * (unix ms). Pass 0/null to remove the feature. Admin-gated via ADMIN_KEY —
+ * run from the Convex dashboard when a sponsor pays.
+ */
+export const setFeatured = mutation({
+  args: {
+    adminKey: v.string(),
+    id: v.id("events"),
+    until: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    const expected = process.env.ADMIN_KEY;
+    if (!expected || args.adminKey !== expected) {
+      throw new Error("Not authorized.");
+    }
+    const event = await ctx.db.get(args.id);
+    if (!event) throw new Error("Event not found.");
+    const until = args.until ?? 0;
+    if (until !== 0 && !(until > Date.now())) {
+      throw new Error("featuredUntil must be in the future (or 0 to unfeature).");
+    }
+    await ctx.db.patch(args.id, {
+      featuredUntil: until === 0 ? undefined : until,
+    });
+    return { ok: true };
   },
 });

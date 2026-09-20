@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
@@ -376,5 +376,133 @@ export function NotFoundPage() {
         </CardContent>
       </Card>
     </main>
+  );
+}
+
+/* ---------------- advertise ---------------- */
+
+import { Badge } from "@/components/ui/badge";
+import { Check } from "lucide-react";
+import { AD_PACKAGES, SERVICE_LEAD_STEPS, formatPrice, type AdPackage } from "./monetization";
+import { trackEvent } from "./analytics";
+
+function PackageCard({ pkg, onInterested }: { pkg: AdPackage; onInterested: (pkg: AdPackage) => void }) {
+  const live = pkg.stripeUrl.length > 0;
+  return (
+    <Card className="flex flex-col">
+      <CardContent className="flex flex-1 flex-col gap-4 p-6">
+        <div>
+          <h3 className="font-display text-xl font-bold">{pkg.name}</h3>
+          <p className="mt-1 text-sm text-muted-foreground">{pkg.tagline}</p>
+        </div>
+        <p className="font-display text-4xl font-black text-[#b5431f]">
+          ${pkg.price}
+          <span className="text-base font-semibold text-muted-foreground">{pkg.cadence}</span>
+        </p>
+        <ul className="flex flex-col gap-2 text-sm">
+          {pkg.features.map((f) => (
+            <li key={f} className="flex items-start gap-2">
+              <Check className="mt-0.5 h-4 w-4 shrink-0 text-secondary" />
+              <span>{f}</span>
+            </li>
+          ))}
+        </ul>
+        <div className="mt-auto pt-2">
+          <Button
+            className="w-full rounded-full"
+            onClick={() => {
+              if (live) {
+                trackEvent("stripe_checkout_started", { package: pkg.id, price: pkg.price });
+                window.open(pkg.stripeUrl, "_blank", "noopener");
+              } else {
+                trackEvent("advertise_cta_clicked", { package: pkg.id });
+                onInterested(pkg);
+              }
+            }}
+          >
+            {pkg.cta} <ArrowRight className="h-4 w-4" />
+          </Button>
+          {!live && (
+            <p className="mt-2 text-center text-xs text-muted-foreground">
+              Checkout opens soon — reserve your spot below.
+            </p>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+export function AdvertisePage() {
+  const formRef = useRef<HTMLDivElement>(null);
+  const [selectedPkg, setSelectedPkg] = useState<string | null>(null);
+
+  function scrollToForm(pkg: AdPackage) {
+    setSelectedPkg(pkg.id);
+    formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  return (
+    <>
+      <PageHero
+        eyebrow="For Leander businesses"
+        title="Get found by the whole town."
+        subtitle="Featured placements and AI-qualified service leads — priced for local businesses, not agencies."
+      >
+        <div className="mt-6 flex flex-wrap gap-3">
+          <Badge className="bg-white/15 text-white hover:bg-white/25">13 upcoming events</Badge>
+          <Badge className="bg-white/15 text-white hover:bg-white/25">19 local jobs</Badge>
+          <Badge className="bg-white/15 text-white hover:bg-white/25">One community board</Badge>
+        </div>
+      </PageHero>
+
+      <main className="mx-auto max-w-6xl px-4 py-12">
+        <div className="grid gap-6 md:grid-cols-2">
+          {AD_PACKAGES.map((pkg) => (
+            <PackageCard key={pkg.id} pkg={pkg} onInterested={scrollToForm} />
+          ))}
+        </div>
+
+        <section className="mt-16">
+          <p className="text-xs font-bold uppercase tracking-[0.25em] text-[#c05a1e]">
+            Service leads
+          </p>
+          <h2 className="font-display mt-2 text-3xl font-bold">
+            Neighbors ask. AI qualifies. You get the job.
+          </h2>
+          <p className="mt-2 max-w-2xl text-muted-foreground">
+            Our chat talks to residents around the clock. When someone needs a
+            plumber, an HVAC tech, or a lawn crew, we capture the details and
+            route the qualified lead to you — {formatPrice(AD_PACKAGES[3])}, or own
+            your trade exclusively for $299/mo.
+          </p>
+          <div className="mt-6 grid gap-4 md:grid-cols-3">
+            {SERVICE_LEAD_STEPS.map((s, i) => (
+              <Card key={s.title}>
+                <CardContent className="p-6">
+                  <p className="font-display text-3xl font-black text-[#b5431f]">{i + 1}</p>
+                  <h3 className="mt-2 font-semibold">{s.title}</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">{s.body}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </section>
+
+        <section ref={formRef} className="mt-16 scroll-mt-24">
+          <div className="max-w-2xl">
+            <h2 className="font-display text-3xl font-bold">Reserve your spot</h2>
+            <p className="mt-2 text-muted-foreground">
+              {selectedPkg
+                ? `You picked ${AD_PACKAGES.find((p) => p.id === selectedPkg)?.name} — tell us about your business and we'll get you set up.`
+                : "Tell us about your business and what you want — we'll get you set up personally."}
+            </p>
+            <div className="mt-6">
+              <BusinessForm />
+            </div>
+          </div>
+        </section>
+      </main>
+    </>
   );
 }

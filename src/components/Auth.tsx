@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useAuthActions, useConvexAuth } from "@convex-dev/auth/react";
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
+import { trackEvent } from "../site/analytics";
 import { User, LogOut } from "lucide-react";
 import {
   Dialog,
@@ -65,6 +66,7 @@ export function SignInDialog({
 
   function start(provider: "google" | "apple") {
     setPending(provider);
+    trackEvent("sign_in_started", { provider });
     // Redirects to the provider; Convex handles the OAuth callback.
     void signIn(provider).catch(() => setPending(null));
   }

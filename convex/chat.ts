@@ -6,8 +6,9 @@ import { v } from "convex/values";
  * On-site chat bot (public action).
  *
  * Converses with visitors, figures out intent (event reminders vs. business
- * services), and captures leads conversationally into the `subscribers` /
- * `businessLeads` tables. The model emits a hidden <!--LEAD {...}--> block
+ * services vs. resident needing a local pro), and captures leads
+ * conversationally into the `subscribers` / `businessLeads` /
+ * `serviceRequests` tables. The model emits a hidden <!--LEAD {...}--> block
  * when it has a complete lead; the action parses it, writes it via the
  * validated lead mutations, and strips the block before replying.
  *
@@ -37,12 +38,14 @@ const SYSTEM_PROMPT = `You are the friendly chat assistant for Leander Live, a c
 
 GOALS
 1. Help visitors find events and answer questions about Leander happenings.
-2. Determine intent: (a) someone who wants EVENT REMINDERS, or (b) a LOCAL BUSINESS interested in services.
+2. Determine intent: (a) someone who wants EVENT REMINDERS, (b) a LOCAL BUSINESS interested in services, or (c) a RESIDENT WHO NEEDS A LOCAL PRO (plumber, HVAC, electrician, roofer, lawn care, cleaning, handyman…).
 3. Capture the lead conversationally — never interrogate; one question at a time, natural flow.
 
 FOR EVENT REMINDERS capture: name; email and/or phone (at least one); interests from: Families, Food & Drink, Home & Garden, Nightlife, Arts & Culture. If they give a phone number for TEXT reminders, you MUST get explicit agreement first with words close to: "Just to confirm — is it OK if we text you event reminders at this number? Message and data rates may apply, and you can reply STOP to opt out." Only treat smsOptIn as true if they clearly agree.
 
 FOR BUSINESSES capture: business name; contact name; email and/or phone; vertical from: Home Services, Real Estate, Restaurant/Food, Health & Wellness, Events/Venues, Other; what they want from: Featured listing, Buy leads, Sponsored event.
+
+FOR SERVICE REQUESTS (resident needs a pro) capture: service category from: Plumbing, HVAC, Electrical, Roofing, Lawn & Yard, Cleaning, Pest Control, Handyman, Other; what's going on (one short description in their words); their name; phone and/or email (at least one — phone preferred so the pro can reach them fast). Flow: acknowledge the problem warmly, ask what's going on, then ask for name + best number to reach them. Promise we'll connect them with a trusted local pro. Do NOT promise a specific business name or arrival time.
 
 RULES
 - Keep replies short (1-3 sentences). Ask one thing at a time.
@@ -51,15 +54,17 @@ RULES
   <!--LEAD {"type":"subscriber","name":"...","email":"...","phone":"...","interests":[...],"smsOptIn":true/false} -->
   or
   <!--LEAD {"type":"business","businessName":"...","contactName":"...","email":"...","phone":"...","vertical":"...","interests":[...]} -->
+  or
+  <!--LEAD {"type":"service","service":"Plumbing","description":"...","name":"...","phone":"...","email":"..."} -->
   Omit optional fields you don't have (don't send empty strings). interests arrays may be empty.
-- Do NOT emit the LEAD block until every required field is captured. Required: subscriber → name + (email or phone); business → businessName + contactName + (email or phone) + vertical.
+- Do NOT emit the LEAD block until every required field is captured. Required: subscriber → name + (email or phone); business → businessName + contactName + (email or phone) + vertical; service → service + name + (phone or email).
 - After a lead is captured, thank them warmly and stop asking for details.
 
 UPCOMING EVENTS (approved, soonest first):
 `;
 
 interface LeadBlock {
-  type: "subscriber" | "business";
+  type: "subscriber" | "business" | "service";
   name?: string;
   email?: string;
   phone?: string;
@@ -68,6 +73,8 @@ interface LeadBlock {
   businessName?: string;
   contactName?: string;
   vertical?: string;
+  service?: string;
+  description?: string;
 }
 
 function extractLeadBlock(reply: string): { clean: string; lead: LeadBlock | null } {
@@ -76,7 +83,7 @@ function extractLeadBlock(reply: string): { clean: string; lead: LeadBlock | nul
   let lead: LeadBlock | null = null;
   try {
     const parsed = JSON.parse(match[1]) as LeadBlock;
-    if (parsed.type === "subscriber" || parsed.type === "business") {
+    if (parsed.type === "subscriber" || parsed.type === "business" || parsed.type === "service") {
       lead = parsed;
     }
   } catch {
@@ -180,6 +187,15 @@ export const chatReply = action({
             phone: lead.phone,
             interests: lead.interests ?? [],
             smsOptIn: lead.smsOptIn ?? false,
+          });
+        } else if (lead.type === "service") {
+          await ctx.runMutation(api.serviceRequests.submit, {
+            service: lead.service ?? "Other",
+            description: lead.description,
+            name: lead.name ?? "",
+            email: lead.email,
+            phone: lead.phone,
+            source: "chat",
           });
         } else {
           await ctx.runMutation(api.leads.submitBusinessLead, {

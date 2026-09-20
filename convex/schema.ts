@@ -50,6 +50,8 @@ export default defineSchema({
     source: sourceValidator,
     url: v.optional(v.string()),
     status: statusValidator,
+    // Paid placement: pinned to the top of listings while featuredUntil is in the future.
+    featuredUntil: v.optional(v.number()),
   })
     .index("by_status_startsAt", ["status", "startsAt"])
     .index("by_startsAt", ["startsAt"]),
@@ -125,6 +127,26 @@ export default defineSchema({
     createdAt: v.number(),
     updatedAt: v.number(),
   }).index("by_sessionId", ["sessionId"]),
+
+  // Service requests: residents who need a local pro (plumber, HVAC, …).
+  // Captured by the chat qualifier; sold/routed to partner businesses.
+  // This is the sellable-lead inventory for the "AI leads to services" product.
+  serviceRequests: defineTable({
+    service: v.string(), // e.g. "Plumbing", "HVAC", "Electrical"
+    description: v.optional(v.string()), // what's going on, in their words
+    name: v.string(),
+    email: v.optional(v.string()),
+    phone: v.optional(v.string()),
+    source: v.string(), // "chat" | "form" | "phone"
+    status: v.string(), // "new" | "contacted" | "assigned" | "sold" | "closed"
+    assignedBusinessId: v.optional(v.id("businesses")),
+    salePrice: v.optional(v.number()),
+    notes: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_status", ["status"])
+    .index("by_service", ["service"]),
 
   // Convex Auth tables (users, sessions, accounts, …).
   ...authTables,

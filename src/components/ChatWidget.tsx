@@ -8,6 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { MessageCircle, X, Send, CircleCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { trackEvent } from "../site/analytics";
 
 /* ------------------------------------------------------------------ */
 /* On-site chat widget (shadcn): converses, qualifies intent, captures */
@@ -36,7 +37,7 @@ function getSessionId(): string {
 const GREETING: Msg = {
   role: "assistant",
   content:
-    "Howdy! Looking for event reminders, or are you a local business? I can help with either.",
+    "Howdy! Looking for event reminders, a trusted local pro, or are you a local business? I can help with any of those.",
 };
 
 export function ChatWidget() {
@@ -63,7 +64,10 @@ export function ChatWidget() {
     try {
       const result = await chatReply({ messages: next.slice(-20), sessionId: sessionId.current });
       setMessages((prev) => [...prev, { role: "assistant", content: result.reply }]);
-      if (result.leadSaved) setDone(true);
+      if (result.leadSaved) {
+        setDone(true);
+        trackEvent("chat_lead_captured");
+      }
     } catch {
       setMessages((prev) => [
         ...prev,
@@ -159,7 +163,12 @@ export function ChatWidget() {
       )}
       <Button
         size="icon"
-        onClick={() => setOpen((v) => !v)}
+        onClick={() => {
+          setOpen((v) => {
+            if (!v) trackEvent("chat_opened");
+            return !v;
+          });
+        }}
         aria-label={open ? "Close chat" : "Chat with Leander Live"}
         className="h-14 w-14 rounded-full shadow-lg"
       >

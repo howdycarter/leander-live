@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
+import { trackEvent } from "./analytics";
 import {
   Dialog,
   DialogContent,
@@ -233,6 +234,11 @@ export function EventCard({
           />
         </div>
         <CardHeader className="px-4 pb-1 pt-6">
+          {isEventFeatured(event) && (
+            <div className="mb-2">
+              <FeaturedEventBadge />
+            </div>
+          )}
           <CardTitle className="text-[17px] font-bold leading-snug">{title}</CardTitle>
         </CardHeader>
         <CardContent className="flex-1 px-4 py-0">
@@ -265,7 +271,14 @@ export function EventCard({
         />
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-2">
-            <CardTitle className="text-[15px] font-bold leading-snug">{title}</CardTitle>
+            <div className="min-w-0">
+              {isEventFeatured(event) && (
+                <div className="mb-1">
+                  <FeaturedEventBadge />
+                </div>
+              )}
+              <CardTitle className="text-[15px] font-bold leading-snug">{title}</CardTitle>
+            </div>
             <CategoryBadge event={event} className="shrink-0 px-2 py-0.5 text-[11px]" />
           </div>
           <div className="mt-1.5 flex flex-col gap-1 text-[13px] text-[#5c4f40]">
@@ -439,6 +452,7 @@ export function SubmitDialogContent() {
       });
       setSent(true);
       reset();
+      trackEvent("event_submitted", { category: category || "uncategorized" });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
     } finally {
@@ -559,6 +573,20 @@ function FeaturedJobBadge() {
     <Badge className="gap-1 rounded-full bg-accent px-2.5 py-0.5 text-accent-foreground">
       <Star className="h-3 w-3" aria-hidden="true" />
       Featured
+    </Badge>
+  );
+}
+
+/** True while an event's paid featured placement is active. */
+export function isEventFeatured(event: { featuredUntil?: number }): boolean {
+  return (event.featuredUntil ?? 0) > Date.now();
+}
+
+export function FeaturedEventBadge() {
+  return (
+    <Badge className="gap-1 rounded-full bg-accent px-2.5 py-0.5 text-accent-foreground">
+      <Star className="h-3 w-3" aria-hidden="true" />
+      Sponsored
     </Badge>
   );
 }
@@ -960,6 +988,10 @@ export function RemindersForm() {
         smsOptIn,
       });
       setDone(true);
+      trackEvent("reminder_subscribed", {
+        sms_opt_in: smsOptIn,
+        interest_count: interests.length,
+      });
       setName("");
       setEmail("");
       setPhone("");
@@ -1078,6 +1110,10 @@ export function BusinessForm() {
       });
       setDoneName({ contact: contactName, business: businessName });
       setDone(true);
+      trackEvent("business_lead_submitted", {
+        vertical,
+        interest_count: interests.length,
+      });
       setBusinessName("");
       setContactName("");
       setEmail("");

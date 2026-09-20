@@ -15,6 +15,7 @@ import { cn } from "@/lib/utils";
 import { AccountButton } from "../components/Auth";
 import { ChatWidget } from "../components/ChatWidget";
 import { useSiteActions } from "./state";
+import { trackEvent } from "./analytics";
 
 /* ---------------- brand ---------------- */
 
@@ -63,7 +64,13 @@ function Header() {
           ))}
         </nav>
         <div className="flex items-center gap-2">
-          <Button onClick={openSubmit} className="rounded-full px-4">
+          <Button
+            onClick={() => {
+              trackEvent("submit_event_opened");
+              openSubmit();
+            }}
+            className="rounded-full px-4"
+          >
             <Plus className="h-4 w-4" />
             <span className="hidden sm:inline">Submit Event</span>
             <span className="sm:hidden">Submit</span>
@@ -123,6 +130,7 @@ function Footer() {
           <ul className="flex flex-col gap-2.5 text-sm font-medium">
             <FooterLink to="/about">About</FooterLink>
             <FooterLink to="/reminders">Get reminders</FooterLink>
+            <FooterLink to="/advertise">Advertise</FooterLink>
             <li>
               <button
                 type="button"

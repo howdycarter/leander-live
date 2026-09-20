@@ -148,10 +148,14 @@ export function AdminLeads() {
       <Tabs defaultValue="pipeline">
         <TabsList>
           <TabsTrigger value="pipeline">Pipeline</TabsTrigger>
+          <TabsTrigger value="services">Service requests</TabsTrigger>
           <TabsTrigger value="businesses">Businesses</TabsTrigger>
         </TabsList>
         <TabsContent value="pipeline">
           <PipelineBoard adminKey={adminKey} onSelect={setSelectedId} onError={setErr} />
+        </TabsContent>
+        <TabsContent value="services">
+          <ServiceRequestsTab adminKey={adminKey} onError={setErr} />
         </TabsContent>
         <TabsContent value="businesses">
           <BusinessesTab adminKey={adminKey} onError={setErr} />
@@ -474,5 +478,273 @@ function BusinessesTab({ adminKey, onError }: { adminKey: string; onError: (msg:
         </Card>
       )}
     </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Service requests: resident needs-a-pro leads, sellable to partners.  */
+/* ------------------------------------------------------------------ */
+
+const SERVICE_STAGES = ["new", "contacted", "assigned", "sold", "closed"] as const;
+
+type ServiceRequest = {
+  _id: Id<"serviceRequests">;
+  service: string;
+  description?: string;
+  name: string;
+  email?: string;
+  phone?: string;
+  source: string;
+  status: string;
+  assignedBusinessName: string | null;
+  assignedBusinessId?: Id<"businesses">;
+  salePrice?: number;
+  notes?: string;
+  createdAt: number;
+  updatedAt: number;
+};
+
+function ServiceRequestsTab({
+  adminKey,
+  onError,
+}: {
+  adminKey: string;
+  onError: (msg: string) => void;
+}) {
+  const reqs = useQuery(api.serviceRequests.list, { adminKey }) as
+    | ServiceRequest[]
+    | undefined;
+  const [selectedId, setSelectedId] = useState<Id<"serviceRequests"> | null>(null);
+
+  if (reqs === undefined)
+    return (
+      <div className="flex flex-col gap-2" aria-label="Loading service requests">
+        <Skeleton className="h-12 w-full" />
+        <Skeleton className="h-12 w-full" />
+        <Skeleton className="h-12 w-2/3" />
+      </div>
+    );
+  if (reqs === null) {
+    onError("Not authorized — check the admin key.");
+    return <p className="text-destructive">Could not load service requests.</p>;
+  }
+
+  return (
+    <div>
+      <div className="grid auto-cols-[240px] grid-flow-col gap-3 overflow-x-auto pb-4">
+        {SERVICE_STAGES.map((stage) => {
+          const inStage = reqs.filter((r) => r.status === stage);
+          return (
+            <div key={stage} className="rounded-lg bg-muted/60 p-2.5">
+              <h3 className="mb-2 flex items-center justify-between px-1 text-sm font-semibold capitalize">
+                {stage}
+                <Badge variant="secondary">{inStage.length}</Badge>
+              </h3>
+              <div className="flex flex-col gap-2">
+                {inStage.map((r) => (
+                  <Card
+                    key={r._id.toString()}
+                    className="cursor-pointer hover:border-primary"
+                    onClick={() => setSelectedId(r._id)}
+                  >
+                    <CardContent className="p-3">
+                      <p className="text-sm font-semibold">{r.service}</p>
+                      <p className="mt-0.5 text-xs text-muted-foreground">
+                        {r.name}
+                        {r.assignedBusinessName ? ` → ${r.assignedBusinessName}` : ""}
+                        {r.salePrice != null ? ` · $${r.salePrice}` : ""}
+                      </p>
+                      <Badge variant="outline" className="mt-2 text-[11px]">{r.source}</Badge>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <Sheet open={selectedId !== null} onOpenChange={(o) => !o && setSelectedId(null)}>
+        {selectedId && (
+          <ServiceRequestDetail
+            adminKey={adminKey}
+            requestId={selectedId}
+            requests={reqs}
+            onClose={() => setSelectedId(null)}
+            onError={onError}
+          />
+        )}
+      </Sheet>
+    </div>
+  );
+}
+
+function ServiceRequestDetail({
+  adminKey,
+  requestId,
+  requests,
+  onClose,
+  onError,
+}: {
+  adminKey: string;
+  requestId: Id<"serviceRequests">;
+  requests: ServiceRequest[];
+  onClose: () => void;
+  onError: (msg: string) => void;
+}) {
+  const req = requests.find((r) => r._id.toString() === requestId.toString());
+  const businesses = useQuery(api.crm.listBusinesses, { adminKey }) as
+    | Business[]
+    | undefined;
+  const moveStage = useMutation(api.serviceRequests.moveStage);
+  const assignReq = useMutation(api.serviceRequests.assign);
+  const markSold = useMutation(api.serviceRequests.markSold);
+  const addNote = useMutation(api.serviceRequests.addNote);
+  const [note, setNote] = useState("");
+  const [price, setPrice] = useState("");
+  const [assignId, setAssignId] = useState("");
+
+  async function run(fn: () => Promise<unknown>, ok?: () => void) {
+    try {
+      onError("");
+      await fn();
+      ok?.();
+    } catch (e) {
+      onError(e instanceof Error ? e.message : "Something went wrong.");
+    }
+  }
+
+  if (!req) return null;
+
+  return (
+    <SheetContent className="overflow-y-auto">
+      <SheetHeader>
+        <SheetTitle>
+          {req.service} — {req.name}
+        </SheetTitle>
+        <SheetDescription>via {req.source}</SheetDescription>
+      </SheetHeader>
+      <div className="mt-4 flex flex-col gap-4 text-sm">
+        <dl className="grid grid-cols-[110px_1fr] gap-x-3 gap-y-1.5">
+          <dt className="text-muted-foreground">Phone</dt>
+          <dd>{req.phone ?? "—"}</dd>
+          <dt className="text-muted-foreground">Email</dt>
+          <dd>{req.email ?? "—"}</dd>
+          <dt className="text-muted-foreground">Details</dt>
+          <dd>{req.description ?? "—"}</dd>
+          <dt className="text-muted-foreground">Assigned to</dt>
+          <dd>{req.assignedBusinessName ?? "Unassigned"}</dd>
+          {req.salePrice != null && (
+            <>
+              <dt className="text-muted-foreground">Sale price</dt>
+              <dd>${req.salePrice}</dd>
+            </>
+          )}
+        </dl>
+
+        <Separator />
+
+        <div>
+          <h4 className="mb-2 font-semibold">Move stage</h4>
+          <div className="flex flex-wrap gap-2">
+            {SERVICE_STAGES.filter((s) => s !== req.status).map((s) => (
+              <Button
+                key={s}
+                size="sm"
+                variant="outline"
+                onClick={() => run(() => moveStage({ adminKey, requestId, status: s }))}
+              >
+                {s}
+              </Button>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <h4 className="mb-2 font-semibold">Assign to business</h4>
+          <div className="flex gap-2">
+            <Select value={assignId} onValueChange={setAssignId}>
+              <SelectTrigger className="flex-1" aria-label="Assign business">
+                <SelectValue placeholder="Pick a business…" />
+              </SelectTrigger>
+              <SelectContent>
+                {(businesses ?? []).map((b) => (
+                  <SelectItem key={b._id.toString()} value={b._id.toString()}>
+                    {b.name} ({b.vertical})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button
+              size="sm"
+              disabled={!assignId}
+              onClick={() =>
+                run(() =>
+                  assignReq({
+                    adminKey,
+                    requestId,
+                    businessId: assignId as Id<"businesses">,
+                  }),
+                )
+              }
+            >
+              Assign
+            </Button>
+          </div>
+        </div>
+
+        <div>
+          <h4 className="mb-2 font-semibold">Mark sold</h4>
+          <div className="flex gap-2">
+            <Input
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+              placeholder="$35.00"
+              inputMode="decimal"
+              className="w-32"
+              aria-label="Sale price"
+            />
+            <Button
+              size="sm"
+              onClick={() =>
+                run(() => markSold({ adminKey, requestId, price: Number(price) }), () =>
+                  setPrice(""),
+                )
+              }
+            >
+              Record sale
+            </Button>
+          </div>
+        </div>
+
+        <div>
+          <h4 className="mb-2 font-semibold">Notes</h4>
+          {req.notes && (
+            <p className="mb-2 whitespace-pre-wrap rounded-md bg-muted p-3 text-xs">
+              {req.notes}
+            </p>
+          )}
+          <div className="flex flex-col gap-2">
+            <Textarea
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              placeholder="Add a note…"
+              rows={2}
+            />
+            <Button
+              size="sm"
+              variant="outline"
+              className="self-start"
+              onClick={() => run(() => addNote({ adminKey, requestId, note }), () => setNote(""))}
+            >
+              Add note
+            </Button>
+          </div>
+        </div>
+
+        <Button variant="ghost" onClick={onClose}>
+          Close
+        </Button>
+      </div>
+    </SheetContent>
   );
 }
