@@ -135,11 +135,11 @@ export function IconTrio({ overlap = false }: { overlap?: boolean }) {
       {TRIO.map((t) => (
         <Link key={t.title} to={t.to} className="group">
           <Card className="h-full border-[#eadbc3] bg-white/95 shadow-lg backdrop-blur transition-transform duration-200 group-hover:-translate-y-1">
-            <CardContent className="flex items-center gap-4 p-5">
+            <CardContent className="flex items-center gap-3 p-4 sm:gap-4 sm:p-5">
               <img
                 src={t.icon}
                 alt=""
-                className="h-16 w-16 shrink-0 rounded-full object-cover shadow"
+                className="h-12 w-12 shrink-0 rounded-full object-cover shadow sm:h-16 sm:w-16"
                 loading="lazy"
               />
               <div className="min-w-0">
@@ -147,7 +147,7 @@ export function IconTrio({ overlap = false }: { overlap?: boolean }) {
                   {t.chip}
                 </p>
                 <h3 className="font-display text-xl font-bold text-[#16324f]">{t.title}</h3>
-                <p className="text-sm text-stone-600">{t.blurb}</p>
+                <p className="hidden text-sm text-stone-600 sm:block">{t.blurb}</p>
               </div>
               <ArrowRight
                 className="ml-auto h-5 w-5 shrink-0 text-stone-300 transition-colors group-hover:text-[#b5431f]"
@@ -169,7 +169,7 @@ export function BusinessSoon() {
     <section
       id="businesses"
       aria-label="Local businesses"
-      className="mx-auto max-w-6xl scroll-mt-24 px-4 pt-16"
+      className="mx-auto max-w-6xl scroll-mt-24 px-4 pt-10 sm:pt-16"
     >
       <Card className="border-dashed border-[#d9c9a8] bg-[#fff6ea]">
         <CardContent className="flex flex-col items-center gap-3 p-8 text-center">
@@ -296,12 +296,13 @@ export function FeaturedEvents({
         </Card>
       ) : (
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {filtered.slice(0, 4).map((event: EventItem) => (
+          {filtered.slice(0, 4).map((event: EventItem, i: number) => (
             <EventCard
               key={event._id}
               event={event}
               saved={saved.has(event._id)}
               onToggleSaved={() => toggleSaved(event._id)}
+              className={i >= 3 ? "hidden sm:flex" : undefined}
             />
           ))}
         </div>

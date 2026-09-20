@@ -209,10 +209,12 @@ export function EventCard({
   event,
   saved,
   onToggleSaved,
+  className,
 }: {
   event: EventItem;
   saved: boolean;
   onToggleSaved: () => void;
+  className?: string;
 }) {
   const img = event.image ?? CATEGORY_IMAGE[event.category ?? ""] ?? CATEGORY_IMAGE.Community;
   const title = event.url ? (
@@ -223,7 +225,7 @@ export function EventCard({
     event.title
   );
   return (
-    <Card className="flex flex-col overflow-hidden border-[#eadbc3]">
+    <Card className={cn("flex flex-col overflow-hidden border-[#eadbc3]", className)}>
       {/* Desktop: vertical card */}
       <div className="hidden flex-col sm:flex sm:flex-1">
         <div className="relative h-44 shrink-0 overflow-hidden">
@@ -284,11 +286,7 @@ export function EventCard({
           <div className="mt-1.5 flex flex-col gap-1 text-sm text-[#5c4f40]">
             <span className="flex items-center gap-1.5">
               <CalendarDays className="h-3.5 w-3.5 shrink-0 text-[#a08b6d]" />
-              {formatDate(event.startsAt)}
-            </span>
-            <span className="flex items-center gap-1.5">
-              <Clock className="h-3.5 w-3.5 shrink-0 text-[#a08b6d]" />
-              {formatTime(event.startsAt)}
+              {formatDate(event.startsAt)} · {formatTime(event.startsAt)}
             </span>
             <span className="flex items-center gap-1.5">
               <MapPin className="h-3.5 w-3.5 shrink-0 text-[#a08b6d]" />
