@@ -5,7 +5,7 @@ import { api } from "../../convex/_generated/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowRight, Bell, Heart } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import {
   About,
   BusinessForm,
@@ -17,109 +17,29 @@ import {
   inRange,
   type DateFilter,
 } from "./content";
+import {
+  BusinessSoon,
+  FeaturedEvents,
+  HomeHero,
+  IconTrio,
+  NavyCtaBand,
+  PageHero,
+} from "./conceptA";
 import { useSavedEvents, useSiteActions } from "./state";
 
-/* ---------------- home ---------------- */
-
-function Hero() {
-  return (
-    <section aria-label="Welcome" className="px-4 pt-6">
-      <div className="relative mx-auto max-w-6xl overflow-hidden rounded-2xl text-white">
-        <img
-          src="/images/real/hero-concert-real.jpg"
-          alt="Fireworks over Liberty Fest at Devine Lake Park, Leander"
-          className="absolute inset-0 h-full w-full object-cover"
-        />
-        <div
-          className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/35 to-black/10"
-          aria-hidden="true"
-        />
-        <div className="relative max-w-2xl px-6 py-16 md:px-12 md:py-24">
-          <h1 className="font-display text-5xl font-bold leading-tight md:text-6xl">
-            Leander Live
-          </h1>
-          <p className="mt-3 text-xl font-semibold text-white/95 md:text-2xl">
-            Real Events. A Stronger Community.
-          </p>
-          <p className="mt-4 max-w-xl text-white/85">
-            Discover local events, support local people, and be part of what makes
-            Leander home.
-          </p>
-          <Button asChild size="lg" className="mt-8 rounded-full px-7">
-            <Link to="/events">
-              Explore Events <ArrowRight className="h-4 w-4" />
-            </Link>
-          </Button>
-        </div>
-        <p className="font-script absolute right-10 top-1/2 hidden -translate-y-1/2 rotate-2 text-right text-[32px] leading-snug text-white/95 md:block">
-          Local People
-          <br />
-          Brighter Tomorrows
-          <Heart className="ml-2 inline h-5 w-5 fill-current" aria-hidden="true" />
-        </p>
-      </div>
-    </section>
-  );
-}
+/* ---------------- home — Concept A: Bright & Bold ---------------- */
 
 export function HomePage() {
-  const { saved, toggleSaved } = useSavedEvents();
-  const events = useQuery(api.events.listUpcoming, { limit: 4 });
-
   return (
     <>
-      <Hero />
-      <main className="mx-auto max-w-6xl px-4">
-        <section aria-label="Featured events" className="pt-10">
-          <div className="mb-4 flex items-end justify-between gap-4">
-            <h2 className="font-display text-3xl font-bold">Featured Events</h2>
-            <Button asChild variant="link" className="h-auto shrink-0 px-0 text-sm font-semibold text-[#b5431f]">
-              <Link to="/events">
-                View all events <ArrowRight className="h-3.5 w-3.5" />
-              </Link>
-            </Button>
-          </div>
-          {events === undefined ? (
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4" aria-label="Loading events">
-              {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="flex flex-col gap-3">
-                  <Skeleton className="h-44 w-full rounded-xl" />
-                  <Skeleton className="h-5 w-3/4" />
-                  <Skeleton className="h-4 w-1/2" />
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-              {events.map((event) => (
-                <EventCard
-                  key={event._id}
-                  event={event}
-                  saved={saved.has(event._id)}
-                  onToggleSaved={() => toggleSaved(event._id)}
-                />
-              ))}
-            </div>
-          )}
-        </section>
-
-        <section aria-label="Get reminders" className="pt-14">
-          <div className="overflow-hidden rounded-2xl bg-secondary px-6 py-10 text-white md:px-10">
-            <h2 className="font-display flex items-center gap-2 text-3xl font-bold">
-              <Bell className="h-7 w-7" aria-hidden="true" /> Never miss what&apos;s happening
-            </h2>
-            <p className="mt-2 max-w-xl text-white/85">
-              Pick your interests and we&apos;ll only nudge you about the Leander events
-              you actually care about.
-            </p>
-            <Button asChild variant="outline" className="mt-6 rounded-full border-white/40 bg-transparent text-white hover:bg-white/10 hover:text-white">
-              <Link to="/reminders">
-                Get reminders <ArrowRight className="h-4 w-4" />
-              </Link>
-            </Button>
-          </div>
-        </section>
-      </main>
+      <HomeHero />
+      <IconTrio overlap />
+      <FeaturedEvents
+        title="Upcoming in Leander"
+        subtitle="Festivals, markets, live music, and Friday-night lights."
+      />
+      <BusinessSoon />
+      <NavyCtaBand />
     </>
   );
 }
@@ -162,11 +82,20 @@ export function EventsPage() {
   }
 
   return (
-    <main className="mx-auto max-w-6xl px-4 pt-10">
+    <>
+      <PageHero
+        title={savedOnly ? "Saved Events" : "Upcoming Events"}
+        subtitle={
+          savedOnly
+            ? "Everything you've hearted, in one place."
+            : "Every festival, market, concert, and Friday-night light — all in one place."
+        }
+      />
+      <main className="mx-auto max-w-6xl px-4 py-10">
       <div className="mb-4 flex items-end justify-between gap-4">
-        <h1 className="font-display text-3xl font-bold">
-          {savedOnly ? "Saved Events" : "Upcoming Events"}
-        </h1>
+        <h2 className="font-display text-2xl font-bold text-[#16324f]">
+          {savedOnly ? "Your saved events" : "Find your thing"}
+        </h2>
         {hasFilters && (
           <Button
             variant="link"
@@ -233,7 +162,8 @@ export function EventsPage() {
           )}
         </>
       )}
-    </main>
+      </main>
+    </>
   );
 }
 
@@ -241,9 +171,15 @@ export function EventsPage() {
 
 export function JobsPage() {
   return (
-    <main className="mx-auto max-w-6xl px-4 pt-10">
-      <JobsBoard />
-    </main>
+    <>
+      <PageHero
+        title="Jobs in Leander"
+        subtitle="Local work, right here in town — posted by Leander employers."
+      />
+      <main className="mx-auto max-w-6xl px-4 py-10">
+        <JobsBoard />
+      </main>
+    </>
   );
 }
 
@@ -251,19 +187,19 @@ export function JobsPage() {
 
 export function CommunityPage() {
   return (
-    <main className="mx-auto max-w-6xl px-4 pt-10">
-      <div className="mb-6 overflow-hidden rounded-2xl bg-secondary px-6 py-10 text-white md:px-10">
-        <h1 className="font-display text-3xl font-bold">Put your business in front of Leander</h1>
-        <p className="mt-2 max-w-xl text-white/85">
-          Featured listings, sponsored events, and qualified local leads — from the community
-          board Leander actually reads.
-        </p>
-      </div>
-      <div className="grid max-w-4xl gap-6">
-        <BusinessForm />
-        <CrossPromoCard />
-      </div>
-    </main>
+    <>
+      <PageHero
+        eyebrow="For local businesses"
+        title="Put your business in front of Leander"
+        subtitle="Featured listings, sponsored events, and qualified local leads — from the community board Leander actually reads."
+      />
+      <main className="mx-auto max-w-6xl px-4 py-10">
+        <div className="grid max-w-4xl gap-6">
+          <BusinessForm />
+          <CrossPromoCard />
+        </div>
+      </main>
+    </>
   );
 }
 
@@ -271,16 +207,17 @@ export function CommunityPage() {
 
 export function RemindersPage() {
   return (
-    <main className="mx-auto max-w-6xl px-4 pt-10">
-      <h1 className="font-display mb-2 text-3xl font-bold">Never miss what&apos;s happening</h1>
-      <p className="mb-6 text-muted-foreground">
-        Sign up for reminders about the events you care about — pick your interests and we&apos;ll
-        only nudge you about those.
-      </p>
-      <div className="max-w-2xl">
-        <RemindersForm />
-      </div>
-    </main>
+    <>
+      <PageHero
+        title="Never miss what's happening"
+        subtitle="Sign up for reminders about the events you care about — pick your interests and we'll only nudge you about those."
+      />
+      <main className="mx-auto max-w-6xl px-4 py-10">
+        <div className="max-w-2xl">
+          <RemindersForm />
+        </div>
+      </main>
+    </>
   );
 }
 
@@ -288,11 +225,17 @@ export function RemindersPage() {
 
 export function AboutPage() {
   return (
-    <main className="mx-auto max-w-6xl px-4 pt-10">
-      <div className="max-w-3xl">
-        <About />
-      </div>
-    </main>
+    <>
+      <PageHero
+        title="What is Leander Live?"
+        subtitle="People • Places • Opportunities — the community hub for Leander, Texas."
+      />
+      <main className="mx-auto max-w-6xl px-4 py-10">
+        <div className="max-w-3xl">
+          <About />
+        </div>
+      </main>
+    </>
   );
 }
 

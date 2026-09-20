@@ -845,14 +845,11 @@ export function JobsBoard() {
 
   return (
     <div>
-      <div className="mb-4 flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h2 className="font-display text-3xl font-bold">Leander Jobs</h2>
-          <p className="mt-1 text-muted-foreground">
-            Local work, right here in town — posted by Leander employers.
-          </p>
-        </div>
-        <Button onClick={() => setPostOpen(true)} className="rounded-full">
+      <div className="mb-4 flex justify-end">
+        <Button
+          onClick={() => setPostOpen(true)}
+          className="rounded-full bg-[#b5431f] font-semibold text-white hover:bg-[#9c3a1a]"
+        >
           <Plus className="h-4 w-4" /> Post a job
         </Button>
       </div>
