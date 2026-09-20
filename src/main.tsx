@@ -13,7 +13,7 @@ function MissingConfig() {
       <header className="site-header">
         <div className="site-header-inner">
           <a className="brand" href="#top" aria-label="Leander Live home">
-            <img src="/logo.png" alt="Leander Live logo" />
+            <img src="/brand/logo-mark.png" alt="Leander Live logo" />
             <span>
               <span className="wordmark">Leander Live</span>
               <span className="tagline">Events. People. A Stronger Leander.</span>

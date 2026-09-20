@@ -84,7 +84,7 @@ export function ChatWidget() {
         <Card className="absolute bottom-16 right-0 flex h-[480px] max-h-[calc(100vh-220px)] w-[min(360px,calc(100vw-2rem))] flex-col overflow-hidden shadow-xl">
           <CardHeader className="flex flex-row items-center gap-3 bg-primary p-4 text-primary-foreground">
             <Avatar className="h-8 w-8 rounded-md">
-              <AvatarImage src="/logo.png" alt="Leander Live" />
+              <AvatarImage src="/brand/logo-mark.png" alt="Leander Live" />
               <AvatarFallback className="rounded-md bg-white/20 text-xs font-bold text-primary-foreground">
                 LL
               </AvatarFallback>

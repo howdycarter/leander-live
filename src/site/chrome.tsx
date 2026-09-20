@@ -18,22 +18,14 @@ import { useSiteActions } from "./state";
 
 /* ---------------- brand ---------------- */
 
-export function BrandLockup({ iconClass = "h-10 w-10" }: { iconClass?: string }) {
+export function BrandLockup({ className = "h-10" }: { className?: string }) {
   return (
-    <Link to="/" className="flex items-center gap-3" aria-label="Leander Live home">
+    <Link to="/" className="flex shrink-0 items-center" aria-label="Leander Live home">
       <img
-        src="/logo-icon.png"
-        alt="Leander Live logo"
-        className={cn(iconClass, "rounded-2xl shadow-sm")}
+        src="/brand/logo-leander-live.png"
+        alt="Leander Live — People, Places, Opportunities"
+        className={cn(className, "w-auto")}
       />
-      <span className="leading-tight">
-        <span className="font-display block text-[24px] font-bold text-[#b5431f]">
-          Leander Live
-        </span>
-        <span className="block whitespace-nowrap text-xs text-[#6b5d4f]">
-          Events. People. A Stronger Leander.
-        </span>
-      </span>
     </Link>
   );
 }
