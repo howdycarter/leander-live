@@ -277,11 +277,11 @@ export function EventCard({
                   <FeaturedEventBadge />
                 </div>
               )}
-              <CardTitle className="text-[15px] font-bold leading-snug">{title}</CardTitle>
+              <CardTitle className="text-[17px] font-bold leading-snug">{title}</CardTitle>
             </div>
             <CategoryBadge event={event} className="shrink-0 px-2 py-0.5 text-[11px]" />
           </div>
-          <div className="mt-1.5 flex flex-col gap-1 text-[13px] text-[#5c4f40]">
+          <div className="mt-1.5 flex flex-col gap-1 text-sm text-[#5c4f40]">
             <span className="flex items-center gap-1.5">
               <CalendarDays className="h-3.5 w-3.5 shrink-0 text-[#a08b6d]" />
               {formatDate(event.startsAt)}
@@ -296,7 +296,7 @@ export function EventCard({
             </span>
           </div>
           {event.description && (
-            <CardDescription className="mt-1 truncate text-xs">
+            <CardDescription className="mt-1 hidden truncate text-[13px] sm:block">
               {event.description}
             </CardDescription>
           )}

@@ -235,11 +235,11 @@ export function FeaturedEvents({
   }, [events, chip]);
 
   return (
-    <section aria-label={title} className="mx-auto max-w-6xl px-4 pt-16">
+    <section aria-label={title} className="mx-auto max-w-6xl px-4 pt-10 sm:pt-16">
       <div className="mb-2 flex flex-wrap items-end justify-between gap-3">
         <div>
           <h2 className="font-display text-3xl font-bold text-[#16324f]">{title}</h2>
-          {subtitle && <p className="mt-1 text-sm text-stone-600">{subtitle}</p>}
+          {subtitle && <p className="mt-1.5 text-[15px] text-stone-600">{subtitle}</p>}
         </div>
         <Button asChild variant="link" className="h-auto px-0 font-semibold text-[#b5431f]">
           <Link to="/events">
@@ -248,14 +248,18 @@ export function FeaturedEvents({
         </Button>
       </div>
 
-      <div className="mb-6 flex flex-wrap gap-2" role="group" aria-label="Filter events">
+      <div
+        className="-mx-4 mb-6 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0"
+        role="group"
+        aria-label="Filter events"
+      >
         {FILTER_CHIPS.map((c) => (
           <Button
             key={c}
             size="sm"
             variant={chip === c ? "default" : "outline"}
             className={cn(
-              "rounded-full",
+              "shrink-0 rounded-full",
               chip === c
                 ? "bg-[#16324f] text-white hover:bg-[#16324f]/90"
                 : "border-[#d9c9a8] bg-white/70 hover:bg-white"
@@ -310,8 +314,8 @@ export function FeaturedEvents({
 
 export function NavyCtaBand() {
   return (
-    <section className="mt-16" style={{ backgroundColor: NAVY }} aria-label="Join the community">
-      <div className="mx-auto flex max-w-6xl flex-col items-center gap-4 px-4 py-14 text-center">
+    <section className="mt-10 sm:mt-16" style={{ backgroundColor: NAVY }} aria-label="Join the community">
+      <div className="mx-auto flex max-w-6xl flex-col items-center gap-4 px-4 py-10 text-center sm:py-14">
         <p className="font-script text-3xl text-amber-300">Same town. More together.</p>
         <h2 className="font-display max-w-2xl text-3xl font-bold text-white">
           Leander Live is your community hub — connecting people, places, and opportunities.

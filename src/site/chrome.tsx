@@ -87,7 +87,10 @@ function Header() {
 function FooterLink({ to, children }: { to: string; children: React.ReactNode }) {
   return (
     <li>
-      <Link to={to} className="text-[#4a3d2f] hover:text-[#b5431f]">
+      <Link
+        to={to}
+        className="inline-block py-1 text-[15px] text-[#4a3d2f] hover:text-[#b5431f]"
+      >
         {children}
       </Link>
     </li>
@@ -96,7 +99,7 @@ function FooterLink({ to, children }: { to: string; children: React.ReactNode })
 
 function FooterHeading({ children }: { children: React.ReactNode }) {
   return (
-    <p className="mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-[#6b5d4f]">
+    <p className="mb-2 text-xs font-semibold uppercase tracking-[0.14em] text-[#6b5d4f]">
       {children}
     </p>
   );
@@ -106,20 +109,20 @@ function Footer() {
   const { openSubmit } = useSiteActions();
   return (
     <footer className="mt-16 border-t border-[#eadbc3] bg-[#fff6ea]">
-      <div className="mx-auto grid max-w-6xl gap-10 px-4 py-12 sm:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1fr]">
-        <div>
+      <div className="mx-auto grid max-w-6xl grid-cols-2 gap-x-6 gap-y-8 px-4 py-8 sm:py-12 lg:grid-cols-[1.4fr_1fr_1fr_1fr] lg:gap-10">
+        <div className="col-span-2 lg:col-span-1">
           <BrandLockup />
-          <p className="mt-4 max-w-xs text-sm leading-relaxed text-[#6b5d4f]">
+          <p className="mt-3 max-w-xs text-[15px] leading-relaxed text-[#6b5d4f]">
             Real events, local people, a stronger Leander — one community board for
             the whole town.
           </p>
-          <p className="mt-4 text-xs font-medium tracking-[0.22em] text-[#6b5d4f]">
+          <p className="mt-3 hidden text-xs font-medium tracking-[0.22em] text-[#6b5d4f] lg:block">
             SMALL TOWN SPIRIT. A BRIGHTER TOMORROW.
           </p>
         </div>
         <nav aria-label="Explore">
           <FooterHeading>Explore</FooterHeading>
-          <ul className="flex flex-col gap-2.5 text-sm font-medium">
+          <ul className="flex flex-col gap-1 font-medium">
             <FooterLink to="/events">Events</FooterLink>
             <FooterLink to="/jobs">Jobs</FooterLink>
             <FooterLink to="/community">Community</FooterLink>
@@ -127,7 +130,7 @@ function Footer() {
         </nav>
         <nav aria-label="Company">
           <FooterHeading>Company</FooterHeading>
-          <ul className="flex flex-col gap-2.5 text-sm font-medium">
+          <ul className="flex flex-col gap-1 font-medium">
             <FooterLink to="/about">About</FooterLink>
             <FooterLink to="/reminders">Get reminders</FooterLink>
             <FooterLink to="/advertise">Advertise</FooterLink>
@@ -135,25 +138,24 @@ function Footer() {
               <button
                 type="button"
                 onClick={openSubmit}
-                className="text-[#4a3d2f] hover:text-[#b5431f]"
+                className="inline-block py-1 text-left text-[15px] text-[#4a3d2f] hover:text-[#b5431f]"
               >
                 Submit an event
               </button>
             </li>
           </ul>
         </nav>
-        <nav aria-label="Legal">
+        <nav aria-label="Legal" className="col-span-2 lg:col-span-1">
           <FooterHeading>Legal</FooterHeading>
-          <ul className="flex flex-col gap-2.5 text-sm font-medium">
+          <ul className="flex flex-row gap-5 font-medium lg:flex-col lg:gap-1">
             <FooterLink to="/privacy">Privacy</FooterLink>
           </ul>
         </nav>
       </div>
       <Separator className="bg-[#eadbc3]" />
-      <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-1.5 px-4 py-4 text-xs text-muted-foreground sm:flex-row">
-        <p>© 2026 Leander Live · Built for the Leander community.</p>
+      <div className="mx-auto max-w-6xl px-4 py-3.5 text-center text-[13px] text-muted-foreground">
         <p>
-          Built by{" "}
+          © 2026 Leander Live · Built by{" "}
           <a
             href="https://howdycarter.com"
             target="_blank"
