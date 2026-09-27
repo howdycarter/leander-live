@@ -113,8 +113,14 @@ const CATEGORY_IMAGE: Record<string, string> = {
 
 /* ---------------- helpers ---------------- */
 
+/* All event/meeting times are Leander-local: always render in America/Chicago,
+   never the viewer's timezone (a traveler in another zone still sees the
+   correct local start time). */
+const SITE_TZ = "America/Chicago";
+
 export function formatDate(ms: number) {
   return new Date(ms).toLocaleDateString("en-US", {
+    timeZone: SITE_TZ,
     weekday: "short",
     month: "short",
     day: "numeric",
@@ -123,7 +129,11 @@ export function formatDate(ms: number) {
 }
 
 export function formatTime(ms: number) {
-  return new Date(ms).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+  return new Date(ms).toLocaleTimeString("en-US", {
+    timeZone: SITE_TZ,
+    hour: "numeric",
+    minute: "2-digit",
+  });
 }
 
 function toLocalInputValue(d: Date) {
@@ -132,14 +142,64 @@ function toLocalInputValue(d: Date) {
 }
 
 function startOfDay(d: Date) {
-  const c = new Date(d);
-  c.setHours(0, 0, 0, 0);
-  return c;
+  const p = centralParts(d);
+  return new Date(centralMidnightMs(p.year, p.month, p.day));
 }
 function endOfDay(d: Date) {
-  const c = new Date(d);
-  c.setHours(23, 59, 59, 999);
-  return c;
+  const p = centralParts(d);
+  return new Date(centralMidnightMs(p.year, p.month, p.day) + 86400000 - 1);
+}
+
+/** Calendar parts of an instant in America/Chicago. */
+function centralParts(d: Date) {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: SITE_TZ,
+    year: "numeric",
+    month: "numeric",
+    day: "numeric",
+    weekday: "short",
+  }).formatToParts(d);
+  const get = (t: string) => parts.find((p) => p.type === t)?.value ?? "";
+  return {
+    year: Number(get("year")),
+    month: Number(get("month")),
+    day: Number(get("day")),
+    weekday: get("weekday"), // "Sun".."Sat"
+  };
+}
+
+const WEEKDAY_NUM: Record<string, number> = {
+  Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6,
+};
+
+/**
+ * Offset of America/Chicago at an instant, in ms: (wall clock read as UTC) - instant.
+ * DST-aware; probing at 00:30 local keeps clear of the 2 AM transitions.
+ */
+function chicagoOffsetMs(d: Date): number {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: SITE_TZ,
+    hour12: false,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  }).formatToParts(d);
+  const get = (t: string) => Number(parts.find((p) => p.type === t)?.value ?? 0);
+  let hour = get("hour");
+  if (hour === 24) hour = 0; // midnight edge in some implementations
+  const asUTC = Date.UTC(
+    get("year"), get("month") - 1, get("day"), hour, get("minute"), get("second"),
+  );
+  return asUTC - d.getTime();
+}
+
+/** Epoch ms of Central midnight starting the given Central calendar day. */
+function centralMidnightMs(year: number, month: number, day: number): number {
+  const probe = new Date(Date.UTC(year, month - 1, day, 0, 30, 0));
+  return Date.UTC(year, month - 1, day) - chicagoOffsetMs(probe);
 }
 
 export function inRange(startsAt: number, filter: DateFilter, now: Date): boolean {
@@ -150,16 +210,18 @@ export function inRange(startsAt: number, filter: DateFilter, now: Date): boolea
     case "Today":
       return startsAt >= day.getTime() && startsAt <= endOfDay(now).getTime();
     case "This Weekend": {
-      const dow = day.getDay();
+      const p = centralParts(now);
+      const dow = WEEKDAY_NUM[p.weekday] ?? 0;
       const daysToSat = (6 - dow + 7) % 7;
-      const sat = new Date(day);
-      sat.setDate(sat.getDate() + daysToSat);
-      const sunEnd = endOfDay(new Date(sat.getTime() + 86400000));
-      return startsAt >= sat.getTime() && startsAt <= sunEnd.getTime();
+      const satMs = centralMidnightMs(p.year, p.month, p.day) + daysToSat * 86400000;
+      const sunEnd = satMs + 2 * 86400000 - 1;
+      return startsAt >= satMs && startsAt <= sunEnd;
     }
     case "This Month": {
-      const end = new Date(day.getFullYear(), day.getMonth() + 1, 0, 23, 59, 59, 999);
-      return startsAt >= day.getTime() && startsAt <= end.getTime();
+      const p = centralParts(now);
+      const lastDay = new Date(Date.UTC(p.year, p.month, 0)).getUTCDate();
+      const end = centralMidnightMs(p.year, p.month, lastDay) + 86400000 - 1;
+      return startsAt >= startOfDay(now).getTime() && startsAt <= end;
     }
   }
 }
@@ -217,8 +279,10 @@ export function SaveButton({
 
 function DateBadge({ startsAt, className }: { startsAt: number; className?: string }) {
   const d = new Date(startsAt);
-  const month = d.toLocaleDateString("en-US", { month: "short" }).toUpperCase();
-  const day = d.getDate();
+  const month = d.toLocaleDateString("en-US", { timeZone: SITE_TZ, month: "short" }).toUpperCase();
+  const day = Number(
+    d.toLocaleDateString("en-US", { timeZone: SITE_TZ, day: "numeric" }),
+  );
   return (
     <div
       className={cn(
