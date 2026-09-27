@@ -1,12 +1,12 @@
 import { useEffect } from "react";
 import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
-import { AdminLeads } from "./components/AdminLeads";
 import { Canonical, ScrollToTop, SiteLayout } from "./site/chrome";
 import { SavedEventsProvider, SiteActionsProvider } from "./site/state";
 import { initAnalytics, trackPageView } from "./site/analytics";
 import {
   AboutPage,
   AdvertisePage,
+  CityHallPage,
   CommunityPage,
   EventDetailPage,
   EventsPage,
@@ -38,12 +38,12 @@ export default function App() {
       <SavedEventsProvider>
         <SiteActionsProvider>
           <Routes>
-            <Route path="/admin/leads" element={<AdminLeads />} />
             <Route element={<SiteLayout />}>
               <Route index element={<HomePage />} />
               <Route path="events" element={<EventsPage />} />
               <Route path="events/:id" element={<EventDetailPage />} />
               <Route path="jobs" element={<JobsPage />} />
+              <Route path="city-hall" element={<CityHallPage />} />
               <Route path="community" element={<CommunityPage />} />
               <Route path="reminders" element={<RemindersPage />} />
               <Route path="about" element={<AboutPage />} />

@@ -77,7 +77,7 @@ export const AD_PACKAGES: AdPackage[] = [
     cadence: "/qualified lead",
     tagline: "Pay only when a real neighbor needs your trade.",
     features: [
-      "AI chat qualifies every request for you",
+      "We qualify every request for you",
       "Name, number, and job details delivered",
       "Exclusive category option: $299/mo",
       "No lead, no charge — ever",
@@ -90,16 +90,16 @@ export const AD_PACKAGES: AdPackage[] = [
 /** How the service-leads product works (3 steps on the Advertise page). */
 export const SERVICE_LEAD_STEPS = [
   {
-    title: "A neighbor asks",
-    body: "Someone tells our chat their AC died or they need a plumber — in plain words, any time of day.",
+    title: "A neighbor needs help",
+    body: "Someone in Leander needs a plumber, an HVAC tech, or a lawn crew — and asks the town board.",
   },
   {
-    title: "AI qualifies it",
+    title: "We qualify it",
     body: "We capture the trade, the job details, and their name and number. No tire-kickers, no spam.",
   },
   {
     title: "You get the lead",
-    body: "The qualified request lands with you instantly. You pay per lead, or own the whole category.",
+    body: "The qualified request lands with you directly. You pay per lead, or own the whole category.",
   },
 ] as const;
 

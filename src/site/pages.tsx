@@ -1,19 +1,18 @@
 import { useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { useQuery } from "convex/react";
-import { api } from "../../convex/_generated/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowRight } from "lucide-react";
 import {
   About,
+  ALL_EVENTS,
+  ALL_JOBS,
   BusinessForm,
   CrossPromoCard,
   EventCard,
   FeedFilters,
   JobsBoard,
-  RemindersForm,
+  RemindersContent,
   inRange,
   type DateFilter,
 } from "./content";
@@ -27,6 +26,7 @@ import {
   PageHero,
   WeekendSpotlight,
 } from "./conceptA";
+import { CityHallPage } from "./cityHall";
 import { EventDetailPage } from "./eventDetail";
 import { useSavedEvents, useSiteActions } from "./state";
 
@@ -49,7 +49,7 @@ export function HomePage() {
   );
 }
 
-export { EventDetailPage };
+export { EventDetailPage, CityHallPage };
 
 /* ---------------- events ---------------- */
 
@@ -59,7 +59,6 @@ export function EventsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const savedOnly = searchParams.get("saved") === "1";
 
-  const events = useQuery(api.events.listUpcoming, { limit: 50 });
   // Concept-page search links here with ?q= — honor it on first load.
   const [query, setQuery] = useState(() => searchParams.get("q") ?? "");
   const [dateFilter, setDateFilter] = useState<DateFilter>("All");
@@ -69,14 +68,14 @@ export function EventsPage() {
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return (events ?? []).filter((e) => {
-      if (savedOnly && !saved.has(e._id)) return false;
+    return ALL_EVENTS.filter((e) => {
+      if (savedOnly && !saved.has(e.id)) return false;
       if (category !== "All" && (e.category ?? "") !== category) return false;
       if (!inRange(e.startsAt, dateFilter, now)) return false;
       if (q && !`${e.title} ${e.venue} ${e.description}`.toLowerCase().includes(q)) return false;
       return true;
     });
-  }, [events, query, dateFilter, category, now, saved, savedOnly]);
+  }, [query, dateFilter, category, now, saved, savedOnly]);
 
   const hasFilters =
     savedOnly || dateFilter !== "All" || category !== "All" || query.trim() !== "";
@@ -122,52 +121,34 @@ export function EventsPage() {
         setCategory={setCategory}
         onSubmit={openSubmit}
       />
-      {events === undefined ? (
-        <div
-          className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4"
-          aria-label="Loading events"
-        >
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="flex flex-col gap-3">
-              <Skeleton className="h-44 w-full rounded-xl" />
-              <Skeleton className="h-5 w-3/4" />
-              <Skeleton className="h-4 w-1/2" />
-              <Skeleton className="h-4 w-2/3" />
-            </div>
+      <p className="mb-4 text-sm text-muted-foreground">
+        {filtered.length === 1 ? "1 event" : `${filtered.length} events`}
+        {hasFilters ? " matching your filters" : " upcoming"}
+      </p>
+      {filtered.length === 0 ? (
+        <Card>
+          <CardContent className="pt-6">
+            <h3 className="font-semibold">
+              {savedOnly ? "No saved events yet" : "No events match those filters"}
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              {savedOnly
+                ? "Tap the heart on any event to save it here."
+                : "Try widening the dates or categories — or submit the event yourself."}
+            </p>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {filtered.map((event) => (
+            <EventCard
+              key={event.id}
+              event={event}
+              saved={saved.has(event.id)}
+              onToggleSaved={() => toggleSaved(event.id)}
+            />
           ))}
         </div>
-      ) : (
-        <>
-          <p className="mb-4 text-sm text-muted-foreground">
-            {filtered.length === 1 ? "1 event" : `${filtered.length} events`}
-            {hasFilters ? " matching your filters" : " upcoming"}
-          </p>
-          {filtered.length === 0 ? (
-            <Card>
-              <CardContent className="pt-6">
-                <h3 className="font-semibold">
-                  {savedOnly ? "No saved events yet" : "No events match those filters"}
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  {savedOnly
-                    ? "Tap the heart on any event to save it here."
-                    : "Try widening the dates or categories — or submit the event yourself."}
-                </p>
-              </CardContent>
-            </Card>
-          ) : (
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-              {filtered.map((event) => (
-                <EventCard
-                  key={event._id}
-                  event={event}
-                  saved={saved.has(event._id)}
-                  onToggleSaved={() => toggleSaved(event._id)}
-                />
-              ))}
-            </div>
-          )}
-        </>
       )}
       </main>
     </>
@@ -210,18 +191,18 @@ export function CommunityPage() {
   );
 }
 
-/* ---------------- reminders ---------------- */
+/* ---------------- reminders → add to calendar ---------------- */
 
 export function RemindersPage() {
   return (
     <>
       <PageHero
         title="Never miss what's happening"
-        subtitle="Sign up for reminders about the events you care about — pick your interests and we'll only nudge you about those."
+        subtitle="Add any event straight to your calendar — no sign-up, no spam, just the .ics file."
       />
       <main className="mx-auto max-w-6xl px-4 py-10">
         <div className="max-w-2xl">
-          <RemindersForm />
+          <RemindersContent />
         </div>
       </main>
     </>
@@ -255,14 +236,14 @@ export function PrivacyPage() {
       <h1 className="font-display mt-2 text-4xl font-bold text-[#b5431f]">
         Privacy Policy
       </h1>
-      <p className="mt-2 text-sm text-[#6b5d4f]">Effective September 19, 2026</p>
+      <p className="mt-2 text-sm text-[#6b5d4f]">Effective September 27, 2026</p>
 
       <div className="prose-cream mt-8 space-y-6 text-[15px] leading-relaxed">
         <p>
           Leander Live is a community events board for Leander, Texas. This policy
-          explains what information we collect and how we use it. In short: we use
-          your info only for event updates and local business inquiries — never
-          sold, never shared.
+          explains what information we collect and how we use it. In short: there
+          are no accounts, no sign-in, and no tracking of who you are — the site
+          is a static page that reads public event listings.
         </p>
 
         <section>
@@ -271,26 +252,20 @@ export function PrivacyPage() {
           </h2>
           <ul className="mt-2 list-disc space-y-2 pl-5">
             <li>
-              <strong>Account info.</strong> If you sign in with Google, we receive
-              your name, email address, and profile photo from Google so we can
-              identify your account.
+              <strong>Saved events.</strong> Events you heart are stored only in
+              your own browser&apos;s local storage. They never leave your device,
+              and clearing your browser data removes them.
             </li>
             <li>
-              <strong>Saved events.</strong> Events you heart are stored so they
-              follow you across devices. If you&apos;re signed out, they&apos;re kept in your
-              browser&apos;s local storage; if you&apos;re signed in, they&apos;re synced to your
-              account.
+              <strong>Event, job &amp; business submissions.</strong> When you email
+              us a submission through the site&apos;s forms, we receive whatever
+              details you put in that email so we can review and publish your
+              listing.
             </li>
             <li>
-              <strong>Event submissions &amp; inquiries.</strong> When you submit an
-              event or contact us as a local business, we collect whatever details
-              you provide (name, email, event info) so we can review and publish
-              your listing.
-            </li>
-            <li>
-              <strong>Text reminders.</strong> If you opt in, we collect your phone
-              number to send event reminders. Message and data rates may apply; reply
-              STOP to opt out at any time.
+              <strong>Analytics.</strong> We use Google Analytics to see aggregate
+              page views (which pages are popular). It does not identify you
+              personally.
             </li>
           </ul>
         </section>
@@ -300,29 +275,9 @@ export function PrivacyPage() {
             How we use it
           </h2>
           <p>
-            We use your information to run Leander Live: keeping you signed in,
-            syncing your saved events, publishing events you submit, and sending
-            reminders you asked for. We do not sell your personal information, and
-            we do not share it with third parties for their own marketing.
-          </p>
-        </section>
-
-        <section>
-          <h2 className="font-display text-xl font-bold text-[#b5431f]">
-            Third-party services
-          </h2>
-          <p>
-            Sign-in is handled by Google under{" "}
-            <a
-              href="https://policies.google.com/privacy"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-semibold text-[#b5431f] hover:underline"
-            >
-              Google&apos;s Privacy Policy
-            </a>
-            . Our app hosting and database are provided by Convex. Text reminders,
-            when enabled, are delivered through our messaging provider.
+            We use submissions to keep the board fresh and accurate. We do not
+            sell your personal information, and we do not share it with third
+            parties for their own marketing.
           </p>
         </section>
 
@@ -332,10 +287,15 @@ export function PrivacyPage() {
           </h2>
           <ul className="mt-2 list-disc space-y-2 pl-5">
             <li>Unsave events any time by tapping the heart again.</li>
-            <li>Sign out any time from the account menu.</li>
-            <li>Reply STOP to any text reminder to opt out.</li>
             <li>
-              Ask us to delete your account data by contacting us (see below).
+              Ask us to remove a submission by emailing{" "}
+              <a
+                href="mailto:chris@howdycarter.com"
+                className="font-semibold text-[#b5431f] hover:underline"
+              >
+                chris@howdycarter.com
+              </a>
+              .
             </li>
           </ul>
         </section>
@@ -352,10 +312,13 @@ export function PrivacyPage() {
             >
               Howdy Carter
             </a>
-            . Questions about this policy? Reach out through the{" "}
-            <Link to="/reminders" className="font-semibold text-[#b5431f] hover:underline">
-              reminders page
-            </Link>
+            . Questions about this policy? Email{" "}
+            <a
+              href="mailto:chris@howdycarter.com"
+              className="font-semibold text-[#b5431f] hover:underline"
+            >
+              chris@howdycarter.com
+            </a>
             .
           </p>
         </section>
@@ -443,8 +406,6 @@ function PackageCard({ pkg, onInterested }: { pkg: AdPackage; onInterested: (pkg
 export function AdvertisePage() {
   const formRef = useRef<HTMLDivElement>(null);
   const [selectedPkg, setSelectedPkg] = useState<string | null>(null);
-  const events = useQuery(api.events.listUpcoming, { limit: 200 });
-  const jobs = useQuery(api.jobs.listJobs, {});
 
   function scrollToForm(pkg: AdPackage) {
     setSelectedPkg(pkg.id);
@@ -460,10 +421,10 @@ export function AdvertisePage() {
       >
         <div className="mt-6 flex flex-wrap gap-3">
           <Badge className="bg-white/15 text-white hover:bg-white/25">
-            {events === undefined ? "…" : events.length} upcoming events
+            {ALL_EVENTS.length} upcoming events
           </Badge>
           <Badge className="bg-white/15 text-white hover:bg-white/25">
-            {jobs === undefined ? "…" : jobs.length} local jobs
+            {ALL_JOBS.length} local jobs
           </Badge>
           <Badge className="bg-white/15 text-white hover:bg-white/25">One community board</Badge>
         </div>
@@ -481,12 +442,11 @@ export function AdvertisePage() {
             Service leads
           </p>
           <h2 className="font-display mt-2 text-3xl font-bold">
-            Neighbors ask. AI qualifies. You get the job.
+            Neighbors ask. We qualify. You get the job.
           </h2>
           <p className="mt-2 max-w-2xl text-muted-foreground">
-            Our chat talks to residents around the clock. When someone needs a
-            plumber, an HVAC tech, or a lawn crew, we capture the details and
-            route the qualified lead to you — {formatPrice(AD_PACKAGES[3])}, or own
+            Tell us what you do and where you work. When a neighbor needs your
+            trade, we route the qualified lead to you — {formatPrice(AD_PACKAGES[3])}, or own
             your trade exclusively for $299/mo.
           </p>
           <div className="mt-6 grid gap-4 md:grid-cols-3">
@@ -511,7 +471,13 @@ export function AdvertisePage() {
                 : "Tell us about your business and what you want — we'll get you set up personally."}
             </p>
             <div className="mt-6">
-              <BusinessForm />
+              <BusinessForm
+                packageName={
+                  selectedPkg
+                    ? AD_PACKAGES.find((p) => p.id === selectedPkg)?.name
+                    : undefined
+                }
+              />
             </div>
           </div>
         </section>

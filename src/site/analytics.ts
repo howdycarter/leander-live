@@ -3,8 +3,7 @@
  *
  * Setup (Chris): create a GA4 property at analytics.google.com, copy the
  * Measurement ID (G-XXXXXXXXXX), then:
- *   VITE_GA_MEASUREMENT_ID=G-XXXXXXXXXX npx vite build && npm run deploy
- * or set it as a Convex frontend env var before building.
+ *   VITE_GA_MEASUREMENT_ID=G-XXXXXXXXXX npm run build
  *
  * Everything is no-op until the ID is present — the site works fine without it.
  */

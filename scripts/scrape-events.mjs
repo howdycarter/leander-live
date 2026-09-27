@@ -1,0 +1,276 @@
+/**
+ * Scrape Leander events from:
+ *   1. City of Leander CivicPlus calendar  (https://www.leandertx.gov/Calendar.aspx)
+ *   2. Leander Chamber calendar            (https://leander.chamberspace.net/calendar)
+ * and merge with the hand-curated anchor events already in src/data/events.json.
+ *
+ * Output: src/data/events.json (array of LiveEvent, sorted ascending by startsAt).
+ *
+ * Robustness: idempotent; a failed source logs WARN: to stderr, keeps the
+ * previous records for that source, and the script still exits 0.
+ */
+import { readFileSync, writeFileSync, existsSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { dirname, join } from "node:path";
+import * as cheerio from "cheerio";
+
+const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
+const OUT = join(ROOT, "src/data/events.json");
+const UA = "LeanderLive-Scraper/1.0 (community-events-bot; contact chris@howdycarter.com)";
+const SLEEP_MS = 300;
+const MAX_DETAIL_PAGES = 60;
+
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+async function get(url) {
+  const res = await fetch(url, { headers: { "User-Agent": UA } });
+  if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
+  return res.text();
+}
+
+/** America/Chicago wall-clock -> epoch ms (handles CDT/CST correctly). */
+function chicagoEpoch(y, mo, d, h, mi) {
+  const guess = new Date(Date.UTC(y, mo - 1, d, h, mi));
+  const dtf = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Chicago", hour12: false,
+    year: "numeric", month: "2-digit", day: "2-digit",
+    hour: "2-digit", minute: "2-digit", second: "2-digit",
+  });
+  const parts = Object.fromEntries(dtf.formatToParts(guess).map((p) => [p.type, p.value]));
+  const asUtc = Date.UTC(+parts.year, +parts.month - 1, +parts.day, (+parts.hour) % 24, +parts.minute, +parts.second);
+  return guess.getTime() - (asUtc - guess.getTime());
+}
+
+function normTitle(t) {
+  return t.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+}
+
+function mapCategory(text, fallback) {
+  const t = text.toLowerCase();
+  if (/(music|concert|band|dj|choir|symphony|karaoke|open mic)/.test(t)) return "Music";
+  if (/(food|wine|beer|brew|tasting|cook-off|chili|bbq|brunch|dinner|lunch|farmer'?s market|food truck)/.test(t)) return "Food & Drink";
+  if (/(kid|family|children|toddler|story ?time|pumpkin|santa|easter|trick-or-treat|halloween|youth|teen|camp)/.test(t)) return "Family";
+  if (/(hike|trail|run |5k|marathon|golf|fishing|kayak|paddle|park|camping|outdoor|nature|bike|cycling)/.test(t)) return "Outdoors";
+  if (/(workshop|class|training|course|seminar|education|learn|lecture|book club|library|stem)/.test(t)) return "Learn";
+  return fallback || "Community";
+}
+
+function loadPrevious() {
+  if (!existsSync(OUT)) return [];
+  try {
+    const arr = JSON.parse(readFileSync(OUT, "utf8"));
+    return Array.isArray(arr) ? arr : [];
+  } catch {
+    console.error("WARN: could not parse previous events.json; starting fresh");
+    return [];
+  }
+}
+
+/* ---------------- City of Leander calendar ---------------- */
+
+async function scrapeCityCalendar() {
+  const now = new Date();
+  const months = [];
+  for (let i = 0; i < 3; i++) {
+    const d = new Date(now.getFullYear(), now.getMonth() + i, 1);
+    months.push({ month: d.getMonth() + 1, year: d.getFullYear() });
+  }
+  const found = new Map(); // EID -> partial record
+  for (const { month, year } of months) {
+    await sleep(SLEEP_MS);
+    const html = await get(`https://www.leandertx.gov/Calendar.aspx?month=${month}&year=${year}`);
+    const $ = cheerio.load(html);
+    $(".calendars .calendar").each((_, cal) => {
+      const section = $(cal).find("h2.title").first().text().trim(); // "Library" | "Meetings" | ...
+      const fallbackCat = section.toLowerCase().includes("librar") ? "Learn" : "Community";
+      $(cal).find("ol > li").each((_, li) => {
+        const a = $(li).find("h3 a[id^='eventTitle_']").first();
+        const href = a.attr("href") || "";
+        const m = href.match(/EID=(\d+)/i);
+        if (!m) return;
+        const eid = m[1];
+        if (found.has(eid)) return;
+        const title = a.find("span").text().trim() || a.text().trim();
+        const schema = $(li).find("[itemscope][itemtype='http://schema.org/Event']");
+        const startISO = schema.find("[itemprop='startDate']").first().text().trim(); // "2026-09-28T18:30:00" (floating, America/Chicago)
+        const sm = startISO.match(/(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/);
+        if (!sm) return;
+        const startsAt = chicagoEpoch(+sm[1], +sm[2], +sm[3], +sm[4], +sm[5]);
+        // end time from the visible "September 28, 2026, 6:30 PM - 7:30 PM" range
+        let endsAt;
+        const dateText = $(li).find(".subHeader .date").first().text().replace(/\s+/g, " ").trim();
+        const em = dateText.match(/-\s*(\d{1,2}):(\d{2})\s*(AM|PM)/i);
+        if (em) {
+          let eh = +em[1] % 12; if (/pm/i.test(em[3])) eh += 12;
+          endsAt = chicagoEpoch(+sm[1], +sm[2], +sm[3], eh, +em[2]);
+          if (endsAt <= startsAt) endsAt += 24 * 3600 * 1000; // crosses midnight
+        }
+        const venue = $(li).find(".subHeader .eventLocation .name").first().text().trim();
+        const addr = schema.find("[itemprop='address']");
+        const street = addr.find("[itemprop='streetAddress']").text().trim();
+        const city = addr.find("[itemprop='addressLocality']").text().trim();
+        const region = addr.find("[itemprop='addressRegion']").text().trim();
+        const zip = addr.find("[itemprop='postalCode']").text().trim();
+        const address = [street, [city, region].filter(Boolean).join(" "), zip].filter(Boolean).join(", ") || undefined;
+        const detailUrl = `https://www.leandertx.gov/Calendar.aspx?EID=${eid}`;
+        found.set(eid, {
+          id: `citycal-${eid}`, title, startsAt, endsAt,
+          venue: venue || "Leander, TX", address,
+          description: `${title} — see the City of Leander calendar for details.`,
+          url: detailUrl, sourceUrl: detailUrl,
+          category: mapCategory(`${title} ${section}`, fallbackCat),
+          source: "city-calendar",
+        });
+      });
+    });
+    console.error(`city-calendar: month ${month}/${year} -> ${found.size} events so far`);
+  }
+
+  // Detail pages for full descriptions (capped).
+  let n = 0;
+  for (const ev of found.values()) {
+    if (n >= MAX_DETAIL_PAGES) break;
+    n++;
+    await sleep(SLEEP_MS);
+    try {
+      const html = await get(ev.url);
+      const $ = cheerio.load(html);
+      const desc = $("div[itemprop='description']").first().text().replace(/\s+/g, " ").trim();
+      if (desc) ev.description = desc;
+      // detail page may refine the date line
+      const dline = $("[id$='eventDate']").first().text().trim();
+      if (dline) ev._dateLine = dline;
+    } catch (e) {
+      console.error(`WARN: city detail ${ev.id}: ${e.message}`);
+      ev.description = ev.description || `${ev.title} — see the City of Leander calendar for details.`;
+    }
+  }
+  return [...found.values()];
+}
+
+/* ---------------- Chamber of Commerce calendar ---------------- */
+
+function parseICS(ics) {
+  const out = {};
+  const unfolded = ics.replace(/\r\n[ \t]/g, "");
+  for (const line of unfolded.split(/\r\n|\n/)) {
+    const i = line.indexOf(":");
+    if (i < 0) continue;
+    const key = line.slice(0, i).split(";")[0];
+    let val = line.slice(i + 1).replace(/\\,/g, ",").replace(/\\;/g, ";").replace(/\\n/g, "\n").trim();
+    if (["DTSTART", "DTEND", "SUMMARY", "LOCATION", "DESCRIPTION", "UID"].includes(key)) out[key] = val;
+  }
+  return out;
+}
+
+function parseICSDate(s) {
+  // "20261010T100000" (floating -> America/Chicago) or "...Z"
+  const m = s.match(/(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})(Z?)/);
+  if (!m) return null;
+  if (m[7] === "Z") return Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4], +m[5], +m[6]);
+  return chicagoEpoch(+m[1], +m[2], +m[3], +m[4], +m[5]);
+}
+
+async function scrapeChamber() {
+  await sleep(SLEEP_MS);
+  const html = await get("https://leander.chamberspace.net/calendar");
+  const urls = new Map();
+  for (const m of html.matchAll(/href="((?:https:\/\/leander\.chamberspace\.net)?\/event\/[^"]+)"/g)) {
+    const u = m[1].startsWith("http") ? m[1] : `https://leander.chamberspace.net${m[1]}`;
+    const em = u.match(/\/event\/[^/]+\/(\d+)/);
+    if (em) urls.set(em[1], u);
+  }
+  if (urls.size === 0) throw new Error("no /event/ URLs found on chamber calendar page");
+  console.error(`chamber: ${urls.size} event pages found`);
+  const events = [];
+  for (const [eid, pageUrl] of urls) {
+    await sleep(SLEEP_MS);
+    try {
+      const ics = await get(`https://leander.chamberspace.net/virtualdir/includesV2/ICSDownload.asp?eid=${eid}`);
+      if (!ics.includes("BEGIN:VEVENT")) throw new Error("no VEVENT in ICS");
+      const f = parseICS(ics);
+      const startsAt = f.DTSTART ? parseICSDate(f.DTSTART) : null;
+      if (!startsAt) throw new Error("unparseable DTSTART");
+      const endsAt = f.DTEND ? parseICSDate(f.DTEND) : undefined;
+      const loc = (f.LOCATION || "").replace(/\s+/g, " ").trim();
+      const venue = loc.split(",")[0].trim() || "Leander, TX";
+      events.push({
+        id: `chamber-${eid}`,
+        title: (f.SUMMARY || "Chamber Event").trim(),
+        description: (f.DESCRIPTION || "").replace(/\s+/g, " ").trim() || "See the Leander Chamber of Commerce calendar for details.",
+        startsAt, endsAt,
+        venue, address: loc.includes(",") ? loc : undefined,
+        url: pageUrl, sourceUrl: pageUrl,
+        category: mapCategory(`${f.SUMMARY} ${f.DESCRIPTION}`, "Community"),
+        source: "chamber",
+      });
+    } catch (e) {
+      console.error(`WARN: chamber eid ${eid}: ${e.message}`);
+    }
+  }
+  return events;
+}
+
+/* ---------------- main ---------------- */
+
+async function main() {
+  const prev = loadPrevious();
+  const anchors = prev.filter((e) => typeof e.id === "string" && e.id.startsWith("anchor-"));
+  const prevBySource = new Map();
+  for (const e of prev) {
+    if (e.id && e.id.startsWith("anchor-")) continue;
+    if (!prevBySource.has(e.source)) prevBySource.set(e.source, []);
+    prevBySource.get(e.source).push(e);
+  }
+
+  const now = Date.now();
+  let city = [], chamber = [];
+
+  try {
+    city = await scrapeCityCalendar();
+    console.error(`city-calendar: OK (${city.length} events)`);
+  } catch (e) {
+    console.error(`WARN: city-calendar source failed: ${e.message}; keeping ${prevBySource.get("city-calendar")?.length || 0} previous records`);
+    city = prevBySource.get("city-calendar") || [];
+  }
+
+  try {
+    chamber = await scrapeChamber();
+    console.error(`chamber: OK (${chamber.length} events)`);
+  } catch (e) {
+    console.error(`WARN: chamber source failed: ${e.message}; keeping ${prevBySource.get("chamber")?.length || 0} previous records`);
+    chamber = prevBySource.get("chamber") || [];
+  }
+
+  // Backfill: previous records whose ids are missing from the fresh pull
+  // (transient fetch failures) are kept, so one bad request never deletes data.
+  // Past events are still dropped.
+  const freshIds = new Set([...city, ...chamber].map((e) => e.id));
+  for (const src of ["city-calendar", "chamber"]) {
+    for (const old of prevBySource.get(src) || []) {
+      if (!freshIds.has(old.id) && old.startsAt && old.startsAt >= now - 6 * 3600 * 1000) {
+        (src === "city-calendar" ? city : chamber).push(old);
+        freshIds.add(old.id);
+        console.error(`backfilled ${old.id} from previous run`);
+      }
+    }
+  }
+  // Dedupe by (normalized title, start date); drop past events; keep anchors verbatim.
+  const seen = new Set(anchors.map((a) => `${normTitle(a.title)}|${new Date(a.startsAt).toISOString().slice(0, 10)}`));
+  const fresh = [];
+  for (const ev of [...city, ...chamber]) {
+    if (!ev.title || !ev.startsAt) continue;
+    if (ev.startsAt < now - 6 * 3600 * 1000) continue; // started >6h ago
+    const key = `${normTitle(ev.title)}|${new Date(ev.startsAt).toISOString().slice(0, 10)}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    if (ev.endsAt && ev.endsAt <= ev.startsAt) delete ev.endsAt;
+    fresh.push(ev);
+  }
+
+  const all = [...anchors, ...fresh].sort((a, b) => a.startsAt - b.startsAt);
+  writeFileSync(OUT, JSON.stringify(all, null, 2) + "\n");
+  console.log(`events.json: ${all.length} events (${anchors.length} anchors, ${city.length} city-calendar, ${chamber.length} chamber)`);
+}
+
+main().catch((e) => { console.error(`WARN: fatal: ${e.message}`); process.exit(0); });

@@ -1,21 +1,19 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { useQuery } from "convex/react";
-import { api } from "../../convex/_generated/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
   ArrowLeft,
   ArrowUpRight,
-  Bell,
   CalendarDays,
+  CalendarPlus,
   Check,
   Clock,
   MapPin,
   Share2,
 } from "lucide-react";
 import {
+  ALL_EVENTS,
   CategoryBadge,
   EventCard,
   FeaturedEventBadge,
@@ -26,6 +24,7 @@ import {
   isEventFeatured,
   type EventItem,
 } from "./content";
+import { downloadEventIcs } from "./ics";
 import { useSavedEvents } from "./state";
 import { trackEvent } from "./analytics";
 
@@ -45,7 +44,7 @@ function ShareButton({ event }: { event: EventItem }) {
           text: event.blurb ?? event.description,
           url,
         });
-        trackEvent("event_shared", { event_id: event._id, method: "webshare" });
+        trackEvent("event_shared", { event_id: event.id, method: "webshare" });
         return;
       } catch {
         /* user dismissed — fall through to copy */
@@ -54,7 +53,7 @@ function ShareButton({ event }: { event: EventItem }) {
     try {
       await navigator.clipboard.writeText(url);
       setCopied(true);
-      trackEvent("event_shared", { event_id: event._id, method: "copy_link" });
+      trackEvent("event_shared", { event_id: event.id, method: "copy_link" });
       setTimeout(() => setCopied(false), 2000);
     } catch {
       /* clipboard unavailable */
@@ -72,15 +71,15 @@ function ShareButton({ event }: { event: EventItem }) {
 function RelatedEvents({ event, all }: { event: EventItem; all: EventItem[] }) {
   const { saved, toggleSaved } = useSavedEvents();
   const related = all
-    .filter((e) => e._id !== event._id && e.category === event.category)
+    .filter((e) => e.id !== event.id && e.category === event.category)
     .slice(0, 3);
   const fill =
     related.length < 3
       ? all.filter(
           (e) =>
-            e._id !== event._id &&
+            e.id !== event.id &&
             e.category !== event.category &&
-            !related.some((r) => r._id === e._id),
+            !related.some((r) => r.id === e.id),
         )
       : [];
   const picks = [...related, ...fill].slice(0, 3);
@@ -96,10 +95,10 @@ function RelatedEvents({ event, all }: { event: EventItem; all: EventItem[] }) {
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {picks.map((e) => (
           <EventCard
-            key={e._id}
+            key={e.id}
             event={e}
-            saved={saved.has(e._id)}
-            onToggleSaved={() => toggleSaved(e._id)}
+            saved={saved.has(e.id)}
+            onToggleSaved={() => toggleSaved(e.id)}
           />
         ))}
       </div>
@@ -110,12 +109,11 @@ function RelatedEvents({ event, all }: { event: EventItem; all: EventItem[] }) {
 export function EventDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { saved, toggleSaved } = useSavedEvents();
-  const events = useQuery(api.events.listUpcoming, { limit: 200 });
-  const event = events?.find((e) => e._id === id);
+  const event = ALL_EVENTS.find((e) => e.id === id);
 
   useEffect(() => {
-    if (event) trackEvent("event_detail_view", { event_id: event._id });
-  }, [event?._id]); // eslint-disable-line react-hooks/exhaustive-deps
+    if (event) trackEvent("event_detail_view", { event_id: event.id });
+  }, [event?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-8 md:py-10">
@@ -125,14 +123,7 @@ export function EventDetailPage() {
         </Link>
       </Button>
 
-      {events === undefined ? (
-        <div className="flex flex-col gap-4">
-          <Skeleton className="h-64 w-full rounded-2xl md:h-96" />
-          <Skeleton className="h-9 w-2/3" />
-          <Skeleton className="h-5 w-1/2" />
-          <Skeleton className="h-24 w-full" />
-        </div>
-      ) : !event ? (
+      {!event ? (
         <Card className="mx-auto max-w-md text-center">
           <CardContent className="flex flex-col items-center gap-4 pt-8">
             <p className="font-display text-4xl font-bold text-[#b5431f]">Hmm.</p>
@@ -239,15 +230,20 @@ export function EventDetailPage() {
                         Going?
                       </span>
                       <SaveButton
-                        saved={saved.has(event._id)}
-                        onToggleSaved={() => toggleSaved(event._id)}
+                        saved={saved.has(event.id)}
+                        onToggleSaved={() => toggleSaved(event.id)}
                         className="border border-[#eadbc3]"
                       />
                     </div>
-                    <Button asChild className="w-full rounded-full" size="lg">
-                      <Link to="/reminders">
-                        <Bell className="h-4 w-4" /> Remind me about events like this
-                      </Link>
+                    <Button
+                      className="w-full rounded-full"
+                      size="lg"
+                      onClick={() => {
+                        downloadEventIcs(event);
+                        trackEvent("ics_downloaded", { event_id: event.id });
+                      }}
+                    >
+                      <CalendarPlus className="h-4 w-4" /> Add to calendar
                     </Button>
                     <div className="flex gap-2">
                       <ShareButton event={event} />
@@ -269,7 +265,7 @@ export function EventDetailPage() {
             </div>
           </article>
 
-          <RelatedEvents event={event} all={events} />
+          <RelatedEvents event={event} all={ALL_EVENTS} />
         </>
       )}
     </main>

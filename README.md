@@ -1,74 +1,66 @@
 # Leander Live
 
-A real-time community events board for Leander, TX — built for the
-[Convex All Gas Hackathon](https://luma.com/convex-allgas-hackathon)
-(sponsored by OpenAI, Firecrawl, and AgentMail).
-
-Anyone can browse the live event feed; organizers submit events via the web
-form or by emailing the AgentMail inbox. A weekly Firecrawl crawl pulls in
-city/chamber listings, and OpenAI writes one-line "why go" blurbs.
+A community events, jobs, and city-hall board for Leander, TX — a **static
+site** hosted on Vercel at <https://leanderlive.com>. No backend, no accounts,
+no database at runtime: all content is scraped into JSON at build time.
 
 ## Stack
 
-- **Convex** — database, queries, mutations, real-time sync, scheduled actions,
-  HTTP routes (schema in `convex/schema.ts`)
-- **React + Vite** frontend, hosted on Convex static hosting (`*.convex.site`)
-- **Firecrawl** — weekly crawl of Leander event pages (`convex/ingestion.ts`)
-- **AgentMail** — email inbox for organizer submissions (`convex/http.ts`)
-- **OpenAI** — event summary blurbs (`convex/summarize.ts`)
+- **React + Vite + Tailwind** frontend, deployed as static files on Vercel
+- **Static JSON data** in `src/data/` — events, jobs, civic meetings, news
+- **Node scrapers** in `scripts/` — refresh the JSON from city/chamber/job sources
+- **localStorage** — saved events live in the visitor's browser only
+- **mailto forms** — event submissions, job postings, and advertiser leads open
+  the visitor's email client addressed to the site owner
+- **`.ics` downloads** — "Add to Calendar" generates a calendar file client-side
 
 ## Setup
 
 ```bash
 npm install
-npx convex dev        # first run: logs you in, provisions the project, writes .env.local
-npm run dev           # Vite dev server (Convex runs alongside via `convex dev`)
+npm run dev        # Vite dev server
 ```
 
-Copy `.env.example` values into Convex when ready:
+## Refreshing data
 
 ```bash
-npx convex env set FIRECRAWL_API_KEY <key>        # https://www.firecrawl.dev (20k free credits for participants)
-npx convex env set AGENTMAIL_API_KEY <key>        # https://agentmail.to
-npx convex env set AGENTMAIL_INBOX <inbox>        # e.g. events@agentmail.to
-npx convex env set AGENTMAIL_WEBHOOK_SECRET <s>   # shared webhook secret
-npx convex env set OPENAI_API_KEY <key>           # https://platform.openai.com
+npm run scrape     # events + jobs + civic/news → src/data/*.json
+npm run build      # rebuild dist/ with the fresh JSON
 ```
 
-Then point the AgentMail inbox webhook at
-`https://<your-deployment>.convex.site/agentmail/inbound`.
-
-Seed the anchor annual events (idempotent — skips if the table has rows):
-
-```bash
-npx convex run seed:seedAnchorEvents
-```
+The scrapers are idempotent and tolerant: if a source is down or changes
+format, the previous JSON is kept rather than wiped. Anchor events
+(`anchor-*` ids in `src/data/events.json`) are hand-curated and always
+preserved.
 
 ## Deploy
 
-```bash
-npx convex login                  # first time only (opens convex.dev in your browser)
-npm run deploy                    # builds frontend + deploys backend + uploads dist/
-```
-
-The app goes live at `https://<your-deployment>.convex.site`.
-
-Two-step alternative:
+Sourceless static deploy via the Vercel API (project `leander-live`):
 
 ```bash
-npx convex deploy
-npm run deploy:static
+npm run build
+python3 ~/workspace/skills/vercel/bin/vercel-deploy-files.py \
+  prj_YCLPijwZsHQ0jcodsZLH3EyBceHw dist --target production
 ```
 
-## Hackathon checklist
+`public/vercel.json` provides the SPA fallback rewrite (`/(.*)` → `/index.html`)
+so client-side routes (`/events`, `/jobs`, `/city-hall`, …) resolve.
 
-- [x] Public repo, new app started after Aug 25
-- [x] Convex backend: schema, queries, mutations, real-time sync, crons
-- [x] Sponsor stack wired: Firecrawl ingestion, AgentMail inbox, OpenAI summaries
-- [x] `hackathon.md` build log
-- [ ] `npx convex login` + `npm run deploy` → live `*.convex.site` URL
-- [ ] Firecrawl / AgentMail / OpenAI keys set via `npx convex env set`
-- [ ] Register on Luma (needs Chris)
-- [ ] Post build on X/LinkedIn tagging @convex @OpenAI @firecrawl @agentmail (needs Chris's approval)
-- [ ] Record <3 min clickthrough demo
-- [ ] Submit at vibeapps.dev before Sep 22, 12:00 PM PT (needs Chris)
+> Project settings note: the Vercel project's framework, build, install, and
+> output-directory settings must stay empty — the deployment is prebuilt
+> static files, and any framework preset makes Vercel try `npm install` on the
+> file set and fail the deploy.
+
+## Environment
+
+Optional, build-time only (see `.env.example`):
+
+- `VITE_GA_MEASUREMENT_ID` — Google Analytics 4 measurement ID. The site works
+  fine without it.
+
+## Retired
+
+The hackathon-era backend is gone: the `convex/` directory, auth, chat widget,
+SMS reminders, voice bridge, and all related setup docs
+(`PHONE_BOT_SETUP.md`, `BUDGET_SETUP.md`, `SUBMISSION_CHECKLIST.md`,
+`hackathon.md`) describe a retired architecture and are kept for history only.

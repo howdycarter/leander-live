@@ -12,8 +12,6 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { AccountButton } from "../components/Auth";
-import { ChatWidget } from "../components/ChatWidget";
 import { useSiteActions } from "./state";
 import { trackEvent } from "./analytics";
 
@@ -36,12 +34,13 @@ export function BrandLockup({ className = "h-10" }: { className?: string }) {
 const NAV_LINKS = [
   { to: "/events", label: "Events" },
   { to: "/jobs", label: "Jobs" },
+  { to: "/city-hall", label: "City Hall" },
   { to: "/community", label: "Community" },
   { to: "/about", label: "About" },
 ];
 
 function Header() {
-  const { openSubmit, openSignIn } = useSiteActions();
+  const { openSubmit } = useSiteActions();
   return (
     <header className="sticky top-0 z-40 border-b border-[#eadbc3] bg-cream/95 backdrop-blur supports-[backdrop-filter]:bg-cream/80">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4">
@@ -75,7 +74,6 @@ function Header() {
             <span className="hidden sm:inline">Submit Event</span>
             <span className="sm:hidden">Submit</span>
           </Button>
-          <AccountButton onSignIn={openSignIn} />
         </div>
       </div>
     </header>
@@ -125,6 +123,7 @@ function Footer() {
           <ul className="flex flex-col gap-1 font-medium">
             <FooterLink to="/events">Events</FooterLink>
             <FooterLink to="/jobs">Jobs</FooterLink>
+            <FooterLink to="/city-hall">City Hall</FooterLink>
             <FooterLink to="/community">Community</FooterLink>
           </ul>
         </nav>
@@ -261,7 +260,6 @@ export function SiteLayout() {
       <Header />
       <Outlet />
       <Footer />
-      <ChatWidget />
       <TabBar />
     </div>
   );

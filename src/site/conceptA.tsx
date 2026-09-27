@@ -1,11 +1,8 @@
 import { useMemo, useState, type ReactNode } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useQuery } from "convex/react";
-import { api } from "../../convex/_generated/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
   ArrowRight,
   Bell,
@@ -18,7 +15,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { EventCard, inRange, type EventItem, type JobItem } from "./content";
+import { ALL_EVENTS, ALL_JOBS, EventCard, inRange, type EventItem, type JobItem } from "./content";
 import { useSavedEvents } from "./state";
 
 /* ================================================================
@@ -61,8 +58,6 @@ export function PageHero({
 /* ---------------- homepage hero ---------------- */
 
 export function HomeHero() {
-  const events = useQuery(api.events.listUpcoming, { limit: 200 });
-  const jobs = useQuery(api.jobs.listJobs, {});
   const navigate = useNavigate();
   const [q, setQ] = useState("");
 
@@ -121,13 +116,13 @@ export function HomeHero() {
         <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-white/80">
           <span>
             <strong className="font-display text-lg text-white">
-              {events === undefined ? "…" : events.length}
+              {ALL_EVENTS.length}
             </strong>{" "}
             upcoming events
           </span>
           <span>
             <strong className="font-display text-lg text-white">
-              {jobs === undefined ? "…" : jobs.length}
+              {ALL_JOBS.length}
             </strong>{" "}
             local jobs
           </span>
@@ -207,11 +202,10 @@ export function IconTrio({ overlap = false }: { overlap?: boolean }) {
 
 export function WeekendSpotlight() {
   const { saved, toggleSaved } = useSavedEvents();
-  const events = useQuery(api.events.listUpcoming, { limit: 60 });
   const now = useMemo(() => new Date(), []);
   const weekend = useMemo(
-    () => (events ?? []).filter((e) => inRange(e.startsAt, "This Weekend", now)),
-    [events, now],
+    () => ALL_EVENTS.filter((e) => inRange(e.startsAt, "This Weekend", now)),
+    [now],
   );
 
   return (
@@ -232,17 +226,7 @@ export function WeekendSpotlight() {
         </Button>
       </div>
 
-      {events === undefined ? (
-        <div className="flex gap-5 overflow-hidden" aria-label="Loading weekend events">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="flex w-72 shrink-0 flex-col gap-3">
-              <Skeleton className="h-44 w-full rounded-xl" />
-              <Skeleton className="h-5 w-3/4" />
-              <Skeleton className="h-4 w-1/2" />
-            </div>
-          ))}
-        </div>
-      ) : weekend.length === 0 ? (
+      {weekend.length === 0 ? (
         <Card className="border-dashed border-[#d9c9a8] bg-[#fff6ea]">
           <CardContent className="flex flex-col items-center gap-3 p-8 text-center">
             <CalendarSearch className="h-10 w-10 text-[#c05a1e]" aria-hidden="true" />
@@ -261,11 +245,11 @@ export function WeekendSpotlight() {
           aria-label="Weekend events"
         >
           {weekend.map((event) => (
-            <div key={event._id} role="listitem" className="w-64 shrink-0 snap-start sm:w-72">
+            <div key={event.id} role="listitem" className="w-64 shrink-0 snap-start sm:w-72">
               <EventCard
                 event={event}
-                saved={saved.has(event._id)}
-                onToggleSaved={() => toggleSaved(event._id)}
+                saved={saved.has(event.id)}
+                onToggleSaved={() => toggleSaved(event.id)}
               />
             </div>
           ))}
@@ -278,13 +262,11 @@ export function WeekendSpotlight() {
 /* ---------------- jobs preview ---------------- */
 
 export function JobsPreview() {
-  const jobs = useQuery(api.jobs.listJobs, {});
   const preview = useMemo(() => {
-    if (!jobs) return undefined;
-    const featured = jobs.filter((j) => j.featured);
-    const rest = jobs.filter((j) => !j.featured);
+    const featured = ALL_JOBS.filter((j) => j.featured);
+    const rest = ALL_JOBS.filter((j) => !j.featured);
     return [...featured, ...rest].slice(0, 3);
-  }, [jobs]);
+  }, []);
 
   return (
     <section aria-label="Featured jobs" className="mx-auto max-w-6xl px-4 pt-10 sm:pt-14">
@@ -307,17 +289,7 @@ export function JobsPreview() {
         </Button>
       </div>
 
-      {preview === undefined ? (
-        <div className="grid gap-5 sm:grid-cols-3" aria-label="Loading jobs">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="flex flex-col gap-3">
-              <Skeleton className="h-6 w-2/3" />
-              <Skeleton className="h-4 w-1/2" />
-              <Skeleton className="h-16 w-full" />
-            </div>
-          ))}
-        </div>
-      ) : preview.length === 0 ? (
+      {preview.length === 0 ? (
         <Card className="border-dashed border-[#d9c9a8]">
           <CardContent className="p-8 text-center text-sm text-stone-600">
             No openings posted yet —{" "}
@@ -330,7 +302,7 @@ export function JobsPreview() {
       ) : (
         <div className="grid gap-5 sm:grid-cols-3">
           {preview.map((job: JobItem) => (
-            <Link key={job._id} to="/jobs" className="group">
+            <Link key={job.id} to="/jobs" className="group">
               <Card className="h-full border-[#eadbc3] transition-all duration-200 group-hover:-translate-y-1 group-hover:shadow-lg">
                 <CardContent className="flex h-full flex-col gap-2 p-5">
                   <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#e2eefb] text-[#2f7fd0]">
@@ -487,16 +459,15 @@ export function FeaturedEvents({
   limit?: number;
 }) {
   const { saved, toggleSaved } = useSavedEvents();
-  const events = useQuery(api.events.listUpcoming, { limit });
   const [chip, setChip] = useState<(typeof FILTER_CHIPS)[number]>("All");
 
   const filtered = useMemo(() => {
-    if (!events) return undefined;
+    const events = ALL_EVENTS.slice(0, limit);
     if (chip === "All") return events;
     if (chip === "This weekend")
       return events.filter((e: EventItem) => withinDays(e.startsAt, 7));
     return events.filter((e: EventItem) => e.category === chip);
-  }, [events, chip]);
+  }, [chip, limit]);
 
   return (
     <section aria-label={title} className="mx-auto max-w-6xl px-4 pt-10 sm:pt-16">
@@ -535,17 +506,7 @@ export function FeaturedEvents({
         ))}
       </div>
 
-      {filtered === undefined ? (
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4" aria-label="Loading events">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="flex flex-col gap-3">
-              <Skeleton className="h-44 w-full rounded-xl" />
-              <Skeleton className="h-5 w-3/4" />
-              <Skeleton className="h-4 w-1/2" />
-            </div>
-          ))}
-        </div>
-      ) : filtered.length === 0 ? (
+      {filtered.length === 0 ? (
         <Card className="border-dashed border-[#d9c9a8]">
           <CardContent className="p-8 text-center text-sm text-stone-600">
             Nothing in “{chip}” right now —{" "}
@@ -562,10 +523,10 @@ export function FeaturedEvents({
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {filtered.map((event: EventItem, i: number) => (
             <EventCard
-              key={event._id}
+              key={event.id}
               event={event}
-              saved={saved.has(event._id)}
-              onToggleSaved={() => toggleSaved(event._id)}
+              saved={saved.has(event.id)}
+              onToggleSaved={() => toggleSaved(event.id)}
               className={i >= 4 ? "hidden lg:flex" : i >= 3 ? "hidden sm:flex" : undefined}
             />
           ))}

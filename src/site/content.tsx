@@ -1,17 +1,18 @@
 import { useMemo, useState, type ButtonHTMLAttributes, type FormEvent } from "react";
 import { Link } from "react-router-dom";
-import { useMutation, useQuery } from "convex/react";
-import { api } from "../../convex/_generated/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { trackEvent } from "./analytics";
+import { downloadEventIcs } from "./ics";
+import type { Job, LiveEvent } from "../data/types";
+import eventsRaw from "../data/events.json";
+import jobsRaw from "../data/jobs.json";
 import {
   Dialog,
   DialogContent,
@@ -35,10 +36,12 @@ import {
   Briefcase,
   Building2,
   CalendarDays,
+  CalendarPlus,
   CircleCheck,
   Clock,
   Heart,
   Leaf,
+  Mail,
   MapPin,
   Music,
   Plus,
@@ -52,17 +55,26 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+/* ---------------- static data (build-time JSON, no backend) ---------------- */
+
+export const ALL_EVENTS: LiveEvent[] = (eventsRaw as LiveEvent[])
+  .filter((e) => e.startsAt >= Date.now() - 24 * 60 * 60 * 1000)
+  .sort((a, b) => a.startsAt - b.startsAt);
+
+export const ALL_JOBS: Job[] = (jobsRaw as Job[]).slice();
+
+export type EventItem = LiveEvent;
+export type JobItem = Job;
+
+const LEAD_EMAIL = "chris@howdycarter.com";
+
+function mailtoFor(subject: string, body: string): string {
+  return `mailto:${LEAD_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+}
+
 /* ---------------- constants ---------------- */
 
 const CATEGORIES = ["Music", "Food & Drink", "Family", "Outdoors", "Learn", "Community"] as const;
-
-const SUBSCRIBER_INTERESTS = [
-  "Families",
-  "Food & Drink",
-  "Home & Garden",
-  "Nightlife",
-  "Arts & Culture",
-] as const;
 
 const BUSINESS_VERTICALS = [
   "Home Services",
@@ -157,12 +169,9 @@ function toggleInList(prev: string[], item: string) {
 }
 
 const PRIVACY_NOTE =
-  "We use your info only for event updates and local business inquiries — never sold, never shared.";
+  "We use your info only to follow up on your inquiry — never sold, never shared.";
 
 /* ---------------- event feed ---------------- */
-
-export type EventsResult = ReturnType<typeof useQuery<typeof api.events.listUpcoming>>;
-export type EventItem = NonNullable<EventsResult>[number];
 
 export function CategoryBadge({ event, className }: { event: EventItem; className?: string }) {
   const style = CATEGORY_STYLE[event.category ?? ""] ?? DEFAULT_CATEGORY;
@@ -238,7 +247,7 @@ export function EventCard({
   className?: string;
 }) {
   const img = event.image ?? CATEGORY_IMAGE[event.category ?? ""] ?? CATEGORY_IMAGE.Community;
-  const detailUrl = `/events/${event._id}`;
+  const detailUrl = `/events/${event.id}`;
   const title = (
     <Link to={detailUrl} className="transition-colors hover:text-[#b5431f]">
       {event.title}
@@ -454,51 +463,34 @@ export function FeedFilters({
   );
 }
 
-/* ---------------- submit event dialog ---------------- */
+/* ---------------- submit event dialog (mailto — no backend) ---------------- */
 
 export function SubmitDialogContent() {
-  const submit = useMutation(api.events.submit);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [venue, setVenue] = useState("");
   const [category, setCategory] = useState<string>("");
   const [url, setUrl] = useState("");
   const [when, setWhen] = useState(() => toLocalInputValue(new Date(Date.now() + 7 * 86400000)));
-  const [error, setError] = useState<string | null>(null);
   const [sent, setSent] = useState(false);
-  const [sending, setSending] = useState(false);
 
-  function reset() {
-    setTitle("");
-    setDescription("");
-    setVenue("");
-    setCategory("");
-    setUrl("");
-    setWhen(toLocalInputValue(new Date(Date.now() + 7 * 86400000)));
-    setError(null);
-  }
-
-  async function handleSubmit(e: FormEvent) {
+  function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    setError(null);
-    setSending(true);
-    try {
-      await submit({
-        title,
-        description,
-        venue,
-        category: category ? (category as (typeof CATEGORIES)[number]) : undefined,
-        url: url.trim() || undefined,
-        startsAt: new Date(when).getTime(),
-      });
-      setSent(true);
-      reset();
-      trackEvent("event_submitted", { category: category || "uncategorized" });
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong.");
-    } finally {
-      setSending(false);
-    }
+    const body = [
+      `Event: ${title}`,
+      `When: ${new Date(when).toLocaleString("en-US")}`,
+      `Venue: ${venue}`,
+      category ? `Category: ${category}` : null,
+      url.trim() ? `Link: ${url.trim()}` : null,
+      "",
+      "Description:",
+      description,
+    ]
+      .filter((l) => l !== null)
+      .join("\n");
+    window.location.href = mailtoFor(`Event submission: ${title}`, body);
+    trackEvent("event_submitted_mailto", { category: category || "uncategorized" });
+    setSent(true);
   }
 
   return (
@@ -514,7 +506,8 @@ export function SubmitDialogContent() {
           <Alert>
             <CircleCheck className="h-4 w-4 text-secondary" />
             <AlertDescription>
-              🎉 Got it — your event was submitted and is pending review.
+              🎉 Your email app should have opened with your event details — just hit
+              send and we&apos;ll review it for the board.
             </AlertDescription>
           </Alert>
           <Button variant="outline" onClick={() => setSent(false)}>
@@ -560,21 +553,20 @@ export function SubmitDialogContent() {
               <Input id="ev-url" type="url" value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://…" />
             </div>
           </div>
-          {error && (
-            <Alert variant="destructive">
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
-          <Button type="submit" disabled={sending}>
-            {sending ? "Submitting…" : "Submit event"}
+          <Button type="submit">
+            <Mail className="h-4 w-4" /> Email your submission
           </Button>
+          <p className="text-xs text-muted-foreground">
+            This opens your email app with everything prefilled — send it to get your
+            event on the board.
+          </p>
         </form>
       )}
     </DialogContent>
   );
 }
 
-/* ---------------- jobs board ---------------- */
+/* ---------------- jobs board (static JSON) ---------------- */
 
 const JOB_TYPES = ["full-time", "part-time", "contract", "temporary"] as const;
 
@@ -592,9 +584,6 @@ const JOB_TYPE_STYLE: Record<string, { color: string; soft: string }> = {
   contract: { color: "#d97a1f", soft: "#fceedb" },
   temporary: { color: "#7a8f3c", soft: "#ebf1da" },
 };
-
-export type JobsResult = ReturnType<typeof useQuery<typeof api.jobs.listJobs>>;
-export type JobItem = NonNullable<JobsResult>[number];
 
 function JobTypeBadge({ type }: { type: string }) {
   const style = JOB_TYPE_STYLE[type] ?? JOB_TYPE_STYLE["full-time"];
@@ -709,6 +698,11 @@ function JobDetailContent({ job }: { job: JobItem }) {
         </DialogDescription>
       </DialogHeader>
       <p className="whitespace-pre-line text-sm leading-relaxed">{job.description}</p>
+      {job.closesAt && (
+        <p className="text-sm text-muted-foreground">
+          <strong>Closes:</strong> {formatDate(job.closesAt)}
+        </p>
+      )}
       <Button asChild className="w-full">
         <a href={job.applyUrl} target="_blank" rel="noopener noreferrer">
           Apply now <ArrowUpRight className="h-4 w-4" />
@@ -722,7 +716,6 @@ function JobDetailContent({ job }: { job: JobItem }) {
 }
 
 function PostJobDialogContent() {
-  const submit = useMutation(api.jobs.submitJob);
   const [title, setTitle] = useState("");
   const [company, setCompany] = useState("");
   const [location, setLocation] = useState("Leander, TX");
@@ -730,42 +723,26 @@ function PostJobDialogContent() {
   const [payRange, setPayRange] = useState("");
   const [description, setDescription] = useState("");
   const [applyUrl, setApplyUrl] = useState("");
-  const [error, setError] = useState<string | null>(null);
   const [sent, setSent] = useState(false);
-  const [sending, setSending] = useState(false);
 
-  function reset() {
-    setTitle("");
-    setCompany("");
-    setLocation("Leander, TX");
-    setType("full-time");
-    setPayRange("");
-    setDescription("");
-    setApplyUrl("");
-    setError(null);
-  }
-
-  async function handleSubmit(e: FormEvent) {
+  function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    setError(null);
-    setSending(true);
-    try {
-      await submit({
-        title,
-        company,
-        location,
-        type: type as (typeof JOB_TYPES)[number],
-        payRange: payRange.trim() || undefined,
-        description,
-        applyUrl,
-      });
-      setSent(true);
-      reset();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong.");
-    } finally {
-      setSending(false);
-    }
+    const body = [
+      `Job title: ${title}`,
+      `Company: ${company}`,
+      `Location: ${location}`,
+      `Type: ${JOB_TYPE_LABEL[type] ?? type}`,
+      payRange.trim() ? `Pay range: ${payRange.trim()}` : null,
+      `Apply link: ${applyUrl}`,
+      "",
+      "Description:",
+      description,
+    ]
+      .filter((l) => l !== null)
+      .join("\n");
+    window.location.href = mailtoFor(`Job posting: ${title} at ${company}`, body);
+    trackEvent("job_posted_mailto", { type });
+    setSent(true);
   }
 
   return (
@@ -781,7 +758,8 @@ function PostJobDialogContent() {
           <Alert>
             <CircleCheck className="h-4 w-4 text-secondary" />
             <AlertDescription>
-              Thanks — your job was submitted and is pending review.
+              Your email app should have opened with your job details — just hit
+              send and we&apos;ll review it for the board.
             </AlertDescription>
           </Alert>
           <Button variant="outline" onClick={() => setSent(false)}>
@@ -876,25 +854,13 @@ function PostJobDialogContent() {
               placeholder="What does the role involve? Any requirements?"
             />
           </div>
-          <div className="flex items-start gap-3 rounded-lg border border-dashed p-3">
-            <Checkbox id="job-featured" disabled />
-            <div className="grid gap-1">
-              <Label htmlFor="job-featured" className="text-muted-foreground">
-                Feature this job — coming soon
-              </Label>
-              <p className="text-xs text-muted-foreground">
-                Paid featured placement is on the way. Posting is free for now.
-              </p>
-            </div>
-          </div>
-          {error && (
-            <Alert variant="destructive">
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
-          <Button type="submit" disabled={sending}>
-            {sending ? "Posting…" : "Post job"}
+          <Button type="submit">
+            <Mail className="h-4 w-4" /> Email your job post
           </Button>
+          <p className="text-xs text-muted-foreground">
+            This opens your email app with everything prefilled — send it to get
+            your opening on the board.
+          </p>
         </form>
       )}
     </DialogContent>
@@ -902,14 +868,13 @@ function PostJobDialogContent() {
 }
 
 export function JobsBoard() {
-  const jobs = useQuery(api.jobs.listJobs, {});
   const [typeFilter, setTypeFilter] = useState<string>("All");
   const [postOpen, setPostOpen] = useState(false);
   const [selected, setSelected] = useState<JobItem | null>(null);
 
   const filtered = useMemo(
-    () => (jobs ?? []).filter((j) => typeFilter === "All" || j.type === typeFilter),
-    [jobs, typeFilter],
+    () => ALL_JOBS.filter((j) => typeFilter === "All" || j.type === typeFilter),
+    [typeFilter],
   );
 
   return (
@@ -951,20 +916,7 @@ export function JobsBoard() {
         )}
       </div>
 
-      {jobs === undefined ? (
-        <div
-          className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3"
-          aria-label="Loading jobs"
-        >
-          {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="flex flex-col gap-3">
-              <Skeleton className="h-5 w-3/4" />
-              <Skeleton className="h-4 w-1/2" />
-              <Skeleton className="h-16 w-full" />
-            </div>
-          ))}
-        </div>
-      ) : filtered.length === 0 ? (
+      {filtered.length === 0 ? (
         <Card>
           <CardContent className="pt-6">
             <h3 className="font-semibold">No jobs here yet</h3>
@@ -982,7 +934,7 @@ export function JobsBoard() {
           </p>
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {filtered.map((job) => (
-              <JobCard key={job._id} job={job} onSelect={() => setSelected(job)} />
+              <JobCard key={job.id} job={job} onSelect={() => setSelected(job)} />
             ))}
           </div>
         </>
@@ -1003,173 +955,98 @@ export function JobsBoard() {
   );
 }
 
-/* ---------------- lead forms ---------------- */
+/* ---------------- reminders → add-to-calendar (.ics downloads, no backend) ---------------- */
 
-export function RemindersForm() {
-  const subscribe = useMutation(api.leads.subscribe);
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [interests, setInterests] = useState<string[]>([]);
-  const [smsOptIn, setSmsOptIn] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [done, setDone] = useState(false);
-  const [sending, setSending] = useState(false);
+export function RemindersContent() {
+  const upcoming = useMemo(() => ALL_EVENTS.slice(0, 15), []);
 
-  async function handleSubmit(e: FormEvent) {
-    e.preventDefault();
-    setError(null);
-    setSending(true);
-    try {
-      await subscribe({
-        name,
-        email: email.trim() || undefined,
-        phone: phone.trim() || undefined,
-        interests,
-        smsOptIn,
-      });
-      setDone(true);
-      trackEvent("reminder_subscribed", {
-        sms_opt_in: smsOptIn,
-        interest_count: interests.length,
-      });
-      setName("");
-      setEmail("");
-      setPhone("");
-      setInterests([]);
-      setSmsOptIn(false);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong.");
-    } finally {
-      setSending(false);
-    }
+  function addToCalendar(event: EventItem) {
+    downloadEventIcs(event);
+    trackEvent("ics_downloaded", { event_id: event.id });
   }
 
   return (
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Bell className="h-5 w-5 text-primary" /> Get event reminders
+          <Bell className="h-5 w-5 text-primary" /> Never miss what&apos;s happening
         </CardTitle>
         <CardDescription>
-          Tell us what you love and we&apos;ll send the good stuff your way. Email
-          reminders work today — text reminders are rolling out soon, so leave your
-          number and we&apos;ll text you as soon as they&apos;re live.
+          No sign-up needed — download any event straight to your calendar
+          (Apple, Google, Outlook — the .ics file works everywhere).
         </CardDescription>
       </CardHeader>
       <CardContent>
-        {done ? (
-          <div className="flex flex-col items-start gap-4">
-            <Alert>
-              <CircleCheck className="h-4 w-4 text-secondary" />
-              <AlertDescription>
-                🎉 You&apos;re in! Watch for Leander events coming your way.
-              </AlertDescription>
-            </Alert>
-            <Button variant="outline" onClick={() => setDone(false)}>Add another person</Button>
-          </div>
+        {upcoming.length === 0 ? (
+          <p className="text-sm text-muted-foreground">
+            No upcoming events right now — check back soon.
+          </p>
         ) : (
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            <div className="grid gap-2">
-              <Label htmlFor="rm-name">Name</Label>
-              <Input id="rm-name" value={name} onChange={(e) => setName(e.target.value)} maxLength={120} required placeholder="Your name" />
-            </div>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div className="grid gap-2">
-                <Label htmlFor="rm-email">Email</Label>
-                <Input id="rm-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="rm-phone">Phone</Label>
-                <Input id="rm-phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="(512) 555-0123" />
-              </div>
-            </div>
-            <p className="text-xs text-muted-foreground">At least one of email or phone is required.</p>
-            <div className="grid gap-2">
-              <Label>I&apos;m interested in</Label>
-              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                {SUBSCRIBER_INTERESTS.map((i) => (
-                  <label key={i} className="flex cursor-pointer items-center gap-2 rounded-md border px-3 py-2 text-sm hover:bg-muted/50">
-                    <Checkbox checked={interests.includes(i)} onCheckedChange={() => setInterests((prev) => toggleInList(prev, i))} />
-                    {i}
-                  </label>
-                ))}
-              </div>
-            </div>
-            <p className="text-xs text-muted-foreground">{PRIVACY_NOTE}</p>
-            <label className="flex cursor-pointer items-start gap-2 rounded-md border px-3 py-2 text-sm hover:bg-muted/50">
-              <Checkbox
-                checked={smsOptIn}
-                onCheckedChange={(v) => setSmsOptIn(v === true)}
-                className="mt-0.5"
-                aria-label="Text me event reminders"
-              />
-              <span>
-                Text me reminders too
-                <span className="block text-xs text-muted-foreground">
-                  I agree to receive automated text messages from Leander Live at the number
-                  above. Message &amp; data rates may apply. Reply STOP to opt out.
-                </span>
-              </span>
-            </label>
-            {error && (
-              <Alert variant="destructive">
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
-            <Button type="submit" disabled={sending}>
-              {sending ? "Signing you up…" : "Sign me up"}
-            </Button>
-          </form>
+          <ul className="flex flex-col divide-y divide-[#eadbc3]">
+            {upcoming.map((event) => (
+              <li key={event.id} className="flex items-center gap-3 py-3">
+                <div className="min-w-0 flex-1">
+                  <p className="truncate font-semibold">{event.title}</p>
+                  <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                    <CalendarDays className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                    {formatDate(event.startsAt)} · {formatTime(event.startsAt)}
+                  </p>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="shrink-0 rounded-full"
+                  onClick={() => addToCalendar(event)}
+                >
+                  <CalendarPlus className="h-4 w-4" /> Add to calendar
+                </Button>
+              </li>
+            ))}
+          </ul>
         )}
       </CardContent>
     </Card>
   );
 }
 
-export function BusinessForm() {
-  const submitLead = useMutation(api.leads.submitBusinessLead);
+/* ---------------- lead forms (mailto — no backend) ---------------- */
+
+export function BusinessForm({ packageName }: { packageName?: string }) {
   const [businessName, setBusinessName] = useState("");
   const [contactName, setContactName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [vertical, setVertical] = useState("");
   const [interests, setInterests] = useState<string[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  const [done, setDone] = useState(false);
-  const [sending, setSending] = useState(false);
-  const [doneName, setDoneName] = useState({ contact: "", business: "" });
+  const [sent, setSent] = useState(false);
+  const [sentName, setSentName] = useState({ contact: "", business: "" });
 
-  async function handleSubmit(e: FormEvent) {
+  function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    setError(null);
-    setSending(true);
-    try {
-      await submitLead({
-        businessName,
-        contactName,
-        email: email.trim() || undefined,
-        phone: phone.trim() || undefined,
-        vertical,
-        interests,
-      });
-      setDoneName({ contact: contactName, business: businessName });
-      setDone(true);
-      trackEvent("business_lead_submitted", {
-        vertical,
-        interest_count: interests.length,
-      });
-      setBusinessName("");
-      setContactName("");
-      setEmail("");
-      setPhone("");
-      setVertical("");
-      setInterests([]);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong.");
-    } finally {
-      setSending(false);
-    }
+    const body = [
+      `Business: ${businessName}`,
+      `Contact: ${contactName}`,
+      email.trim() ? `Email: ${email.trim()}` : null,
+      phone.trim() ? `Phone: ${phone.trim()}` : null,
+      vertical ? `Vertical: ${vertical}` : null,
+      interests.length > 0 ? `Interested in: ${interests.join(", ")}` : null,
+      packageName ? `Package: ${packageName}` : null,
+    ]
+      .filter((l) => l !== null)
+      .join("\n");
+    window.location.href = mailtoFor(
+      `Advertiser inquiry: ${businessName}${packageName ? ` (${packageName})` : ""}`,
+      body,
+    );
+    trackEvent("business_lead_mailto", { vertical, interest_count: interests.length });
+    setSentName({ contact: contactName, business: businessName });
+    setSent(true);
+    setBusinessName("");
+    setContactName("");
+    setEmail("");
+    setPhone("");
+    setVertical("");
+    setInterests([]);
   }
 
   return (
@@ -1181,16 +1058,17 @@ export function BusinessForm() {
         <CardDescription>We&apos;ll reach out with ways to get in front of Leander.</CardDescription>
       </CardHeader>
       <CardContent>
-        {done ? (
+        {sent ? (
           <div className="flex flex-col items-start gap-4">
             <Alert>
               <CircleCheck className="h-4 w-4 text-secondary" />
               <AlertDescription>
-                🎉 Thanks, {doneName.contact ? doneName.contact.split(" ")[0] : "there"}! We&apos;ll be in
-                touch about <strong>{doneName.business}</strong> soon.
+                🎉 Thanks, {sentName.contact ? sentName.contact.split(" ")[0] : "there"}! Your
+                email app should have opened — hit send and we&apos;ll be in touch about{" "}
+                <strong>{sentName.business}</strong> soon.
               </AlertDescription>
             </Alert>
-            <Button variant="outline" onClick={() => setDone(false)}>Submit another business</Button>
+            <Button variant="outline" onClick={() => setSent(false)}>Submit another business</Button>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -1240,13 +1118,8 @@ export function BusinessForm() {
               </div>
             </div>
             <p className="text-xs text-muted-foreground">{PRIVACY_NOTE}</p>
-            {error && (
-              <Alert variant="destructive">
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
-            <Button type="submit" disabled={sending}>
-              {sending ? "Sending…" : "Get in touch"}
+            <Button type="submit">
+              <Mail className="h-4 w-4" /> Get in touch
             </Button>
           </form>
         )}
