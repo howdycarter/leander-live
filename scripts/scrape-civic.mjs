@@ -73,6 +73,40 @@ async function resolveAgendaUrl(eventId, agendaFile) {
   return undefined;
 }
 
+/** America/Chicago offset in minutes at a given UTC instant (handles DST). */
+function chicagoOffsetMinutes(utcMs) {
+  const dtf = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Chicago",
+    year: "numeric", month: "2-digit", day: "2-digit",
+    hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false,
+  });
+  const parts = Object.fromEntries(
+    dtf.formatToParts(new Date(utcMs)).map((p) => [p.type, p.value]),
+  );
+  const asUtc = Date.UTC(
+    +parts.year, +parts.month - 1, +parts.day,
+    +parts.hour % 24, +parts.minute, +parts.second,
+  );
+  return Math.round((asUtc - utcMs) / 60000);
+}
+
+/**
+ * The city's CivicClerk feed stamps LOCAL wall-clock time with a `Z` suffix
+ * (e.g. "2026-10-01T17:00:00Z" for a 5:00 PM CT council meeting). Parsing that
+ * as UTC shifts every meeting 5-6 hours early (3:30 AM "meetings"). Interpret
+ * the wall time as America/Chicago and convert to a true UTC instant.
+ */
+function parseCentral(s) {
+  const m = String(s).match(/(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})(?::(\d{2}))?/);
+  if (!m) return NaN;
+  const [, Y, Mo, D, h, mi, sec] = m.map(Number);
+  const wallAsUtc = Date.UTC(Y, Mo - 1, D, h, mi, sec || 0);
+  // Iterate once: offset at the guess, then at the corrected instant.
+  let off = chicagoOffsetMinutes(wallAsUtc);
+  off = chicagoOffsetMinutes(wallAsUtc - off * 60000);
+  return wallAsUtc - off * 60000;
+}
+
 async function scrapeMeetings() {
   const today = new Date().toISOString().slice(0, 10);
   let url = `${API}/Events?$filter=startDateTime ge ${today}T00:00:00Z&$top=100`;
@@ -91,7 +125,7 @@ async function scrapeMeetings() {
   const now = Date.now();
   const meetings = [];
   for (const e of events) {
-    const startsAt = Date.parse(e.startDateTime);
+    const startsAt = parseCentral(e.startDateTime);
     if (!Number.isFinite(startsAt) || startsAt < now - 6 * 3600 * 1000) continue;
     const body = mapBody(e.eventCategoryName, e.eventName);
     const agendaUrl = await resolveAgendaUrl(e.id, e.agendaFile);
