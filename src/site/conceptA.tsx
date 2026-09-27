@@ -72,11 +72,11 @@ export function HomeHero() {
         className="absolute inset-0 bg-gradient-to-r from-[#16324f]/90 via-[#16324f]/60 to-[#16324f]/30"
         aria-hidden="true"
       />
-      <div className="relative mx-auto flex max-w-6xl flex-col items-start gap-5 px-4 pb-36 pt-16 text-white md:pt-24">
+      <div className="relative mx-auto flex max-w-6xl flex-col items-start gap-5 px-4 pb-20 pt-12 text-white md:pb-36 md:pt-24">
         <Badge className="bg-amber-400/90 px-3 py-1 text-xs font-bold uppercase tracking-widest text-[#16324f]">
           <MapPin className="mr-1 h-3.5 w-3.5" aria-hidden="true" /> Leander, Texas
         </Badge>
-        <h1 className="font-display max-w-3xl text-5xl font-black leading-[1.05] md:text-6xl">
+        <h1 className="font-display max-w-3xl text-4xl font-black leading-[1.05] sm:text-5xl md:text-6xl">
           What&apos;s happening in Leander this week?
         </h1>
         <p className="max-w-xl text-lg text-white/85">

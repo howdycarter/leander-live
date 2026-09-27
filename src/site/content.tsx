@@ -506,7 +506,23 @@ export function FeedFilters({
         </Select>
       </div>
 
-      {/* Mobile category pills */}
+      {/* Mobile filter rows: dates + categories */}
+      <div
+        className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 md:hidden"
+        role="group"
+        aria-label="Filter by date"
+      >
+        {DATE_FILTERS.map((f) => (
+          <FilterPill
+            key={f}
+            active={dateFilter === f}
+            onClick={() => setDateFilter(f)}
+            className="shrink-0"
+          >
+            {f}
+          </FilterPill>
+        ))}
+      </div>
       <div
         className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 md:hidden"
         role="group"
