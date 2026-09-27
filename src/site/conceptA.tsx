@@ -1,14 +1,24 @@
 import { useMemo, useState, type ReactNode } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowRight, Check, MapPin } from "lucide-react";
+import {
+  ArrowRight,
+  Bell,
+  Briefcase,
+  Building2,
+  CalendarSearch,
+  Heart,
+  MapPin,
+  Search,
+  Sparkles,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
-import { EventCard, type EventItem } from "./content";
+import { EventCard, inRange, type EventItem, type JobItem } from "./content";
 import { useSavedEvents } from "./state";
 
 /* ================================================================
@@ -51,6 +61,11 @@ export function PageHero({
 /* ---------------- homepage hero ---------------- */
 
 export function HomeHero() {
+  const events = useQuery(api.events.listUpcoming, { limit: 200 });
+  const jobs = useQuery(api.jobs.listJobs, {});
+  const navigate = useNavigate();
+  const [q, setQ] = useState("");
+
   return (
     <section aria-label="Welcome to Leander Live" className="relative overflow-hidden">
       <img
@@ -59,39 +74,66 @@ export function HomeHero() {
         className="absolute inset-0 h-full w-full object-cover"
       />
       <div
-        className="absolute inset-0 bg-gradient-to-r from-[#16324f]/85 via-[#16324f]/55 to-[#16324f]/25"
+        className="absolute inset-0 bg-gradient-to-r from-[#16324f]/90 via-[#16324f]/60 to-[#16324f]/30"
         aria-hidden="true"
       />
-      <div className="relative mx-auto flex max-w-6xl flex-col items-start gap-5 px-4 pb-32 pt-16 text-white md:pt-24">
+      <div className="relative mx-auto flex max-w-6xl flex-col items-start gap-5 px-4 pb-36 pt-16 text-white md:pt-24">
         <Badge className="bg-amber-400/90 px-3 py-1 text-xs font-bold uppercase tracking-widest text-[#16324f]">
           <MapPin className="mr-1 h-3.5 w-3.5" aria-hidden="true" /> Leander, Texas
         </Badge>
         <h1 className="font-display max-w-3xl text-5xl font-black leading-[1.05] md:text-6xl">
-          Find events, businesses, and jobs in Leander.
+          What&apos;s happening in Leander this week?
         </h1>
         <p className="max-w-xl text-lg text-white/85">
           People <span className="text-amber-300">•</span> Places{" "}
           <span className="text-amber-300">•</span> Opportunities — your front porch for
           everything happening in town.
         </p>
-        <div className="flex flex-wrap gap-3">
-          <Button
-            asChild
-            size="lg"
-            className="rounded-full bg-[#d98a1f] px-8 font-bold text-white hover:bg-[#c67a14]"
-          >
-            <Link to="/events">
-              Explore Events <ArrowRight className="h-4 w-4" />
-            </Link>
-          </Button>
-          <Button
-            asChild
-            size="lg"
-            variant="outline"
-            className="rounded-full border-white/50 bg-transparent text-white hover:bg-white/10 hover:text-white"
-          >
-            <Link to="/jobs">Browse Jobs</Link>
-          </Button>
+        <form
+          className="w-full max-w-xl"
+          onSubmit={(e) => {
+            e.preventDefault();
+            navigate(q.trim() ? `/events?q=${encodeURIComponent(q.trim())}` : "/events");
+          }}
+          role="search"
+        >
+          <div className="relative">
+            <Search
+              className="absolute left-5 top-1/2 h-5 w-5 -translate-y-1/2 text-stone-400"
+              aria-hidden="true"
+            />
+            <input
+              type="search"
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="Search events, places, or categories…"
+              aria-label="Search Leander events"
+              className="h-14 w-full rounded-full border-0 bg-white/95 pl-12 pr-32 text-[15px] text-stone-900 shadow-xl placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-400"
+            />
+            <Button
+              type="submit"
+              className="absolute right-1.5 top-1/2 h-11 -translate-y-1/2 rounded-full bg-[#d98a1f] px-6 font-bold text-white hover:bg-[#c67a14]"
+            >
+              Search
+            </Button>
+          </div>
+        </form>
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-white/80">
+          <span>
+            <strong className="font-display text-lg text-white">
+              {events === undefined ? "…" : events.length}
+            </strong>{" "}
+            upcoming events
+          </span>
+          <span>
+            <strong className="font-display text-lg text-white">
+              {jobs === undefined ? "…" : jobs.length}
+            </strong>{" "}
+            local jobs
+          </span>
+          <Link to="/events" className="font-semibold text-amber-300 hover:underline">
+            Browse everything <ArrowRight className="inline h-4 w-4" />
+          </Link>
         </div>
       </div>
     </section>
@@ -161,43 +203,265 @@ export function IconTrio({ overlap = false }: { overlap?: boolean }) {
   );
 }
 
-/* ---------------- business directory teaser ---------------- */
+/* ---------------- this-weekend spotlight strip ---------------- */
 
-export function BusinessSoon() {
-  const [joined, setJoined] = useState(false);
+export function WeekendSpotlight() {
+  const { saved, toggleSaved } = useSavedEvents();
+  const events = useQuery(api.events.listUpcoming, { limit: 60 });
+  const now = useMemo(() => new Date(), []);
+  const weekend = useMemo(
+    () => (events ?? []).filter((e) => inRange(e.startsAt, "This Weekend", now)),
+    [events, now],
+  );
+
   return (
-    <section
-      id="businesses"
-      aria-label="Local businesses"
-      className="mx-auto max-w-6xl scroll-mt-24 px-4 pt-10 sm:pt-16"
-    >
-      <Card className="border-dashed border-[#d9c9a8] bg-[#fff6ea]">
-        <CardContent className="flex flex-col items-center gap-3 p-8 text-center">
-          <img
-            src="/brand/icon-businesses.png"
-            alt=""
-            className="h-14 w-14 rounded-full object-cover shadow"
-            loading="lazy"
-          />
-          <h2 className="font-display text-2xl font-bold text-[#16324f]">
-            The Leander business directory is coming soon
-          </h2>
-          <p className="max-w-lg text-sm text-stone-600">
-            We&apos;re building the home for every local shop, restaurant, and service in
-            town — starting with the businesses that make Leander, Leander.
+    <section aria-label="This weekend in Leander" className="mx-auto max-w-6xl px-4 pt-10 sm:pt-14">
+      <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <p className="text-xs font-bold uppercase tracking-[0.25em] text-[#c05a1e]">
+            Don&apos;t miss it
           </p>
-          {joined ? (
-            <Badge className="gap-1.5 bg-emerald-600 px-4 py-2 text-sm text-white">
-              <Check className="h-4 w-4" aria-hidden="true" /> You&apos;re on the list — we&apos;ll reach out
-            </Badge>
-          ) : (
-            <Button
-              onClick={() => setJoined(true)}
-              className="rounded-full bg-[#b5431f] font-semibold text-white hover:bg-[#9c3a1a]"
-            >
-              Notify me at launch
+          <h2 className="font-display mt-1 text-3xl font-bold text-[#16324f]">
+            This weekend in Leander
+          </h2>
+        </div>
+        <Button asChild variant="link" className="h-auto px-0 font-semibold text-[#b5431f]">
+          <Link to="/events">
+            All events <ArrowRight className="h-4 w-4" />
+          </Link>
+        </Button>
+      </div>
+
+      {events === undefined ? (
+        <div className="flex gap-5 overflow-hidden" aria-label="Loading weekend events">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="flex w-72 shrink-0 flex-col gap-3">
+              <Skeleton className="h-44 w-full rounded-xl" />
+              <Skeleton className="h-5 w-3/4" />
+              <Skeleton className="h-4 w-1/2" />
+            </div>
+          ))}
+        </div>
+      ) : weekend.length === 0 ? (
+        <Card className="border-dashed border-[#d9c9a8] bg-[#fff6ea]">
+          <CardContent className="flex flex-col items-center gap-3 p-8 text-center">
+            <CalendarSearch className="h-10 w-10 text-[#c05a1e]" aria-hidden="true" />
+            <p className="font-semibold text-[#4a3d2f]">
+              Nothing posted for this weekend yet — be the first.
+            </p>
+            <Button asChild className="rounded-full">
+              <Link to="/events">Browse all events</Link>
             </Button>
-          )}
+          </CardContent>
+        </Card>
+      ) : (
+        <div
+          className="-mx-4 flex snap-x snap-mandatory gap-5 overflow-x-auto px-4 pb-2"
+          role="list"
+          aria-label="Weekend events"
+        >
+          {weekend.map((event) => (
+            <div key={event._id} role="listitem" className="w-64 shrink-0 snap-start sm:w-72">
+              <EventCard
+                event={event}
+                saved={saved.has(event._id)}
+                onToggleSaved={() => toggleSaved(event._id)}
+              />
+            </div>
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}
+
+/* ---------------- jobs preview ---------------- */
+
+export function JobsPreview() {
+  const jobs = useQuery(api.jobs.listJobs, {});
+  const preview = useMemo(() => {
+    if (!jobs) return undefined;
+    const featured = jobs.filter((j) => j.featured);
+    const rest = jobs.filter((j) => !j.featured);
+    return [...featured, ...rest].slice(0, 3);
+  }, [jobs]);
+
+  return (
+    <section aria-label="Featured jobs" className="mx-auto max-w-6xl px-4 pt-10 sm:pt-14">
+      <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <p className="text-xs font-bold uppercase tracking-[0.25em] text-[#c05a1e]">
+            Work local
+          </p>
+          <h2 className="font-display mt-1 text-3xl font-bold text-[#16324f]">
+            Jobs in Leander
+          </h2>
+          <p className="mt-1.5 text-[15px] text-stone-600">
+            Local work, right here in town — posted by Leander employers.
+          </p>
+        </div>
+        <Button asChild variant="link" className="h-auto px-0 font-semibold text-[#b5431f]">
+          <Link to="/jobs">
+            All jobs <ArrowRight className="h-4 w-4" />
+          </Link>
+        </Button>
+      </div>
+
+      {preview === undefined ? (
+        <div className="grid gap-5 sm:grid-cols-3" aria-label="Loading jobs">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="flex flex-col gap-3">
+              <Skeleton className="h-6 w-2/3" />
+              <Skeleton className="h-4 w-1/2" />
+              <Skeleton className="h-16 w-full" />
+            </div>
+          ))}
+        </div>
+      ) : preview.length === 0 ? (
+        <Card className="border-dashed border-[#d9c9a8]">
+          <CardContent className="p-8 text-center text-sm text-stone-600">
+            No openings posted yet —{" "}
+            <Link to="/jobs" className="font-semibold text-[#b5431f] underline">
+              post the first one
+            </Link>
+            .
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid gap-5 sm:grid-cols-3">
+          {preview.map((job: JobItem) => (
+            <Link key={job._id} to="/jobs" className="group">
+              <Card className="h-full border-[#eadbc3] transition-all duration-200 group-hover:-translate-y-1 group-hover:shadow-lg">
+                <CardContent className="flex h-full flex-col gap-2 p-5">
+                  <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#e2eefb] text-[#2f7fd0]">
+                    <Briefcase className="h-5 w-5" aria-hidden="true" />
+                  </span>
+                  <h3 className="font-display text-lg font-bold leading-snug text-[#16324f] group-hover:text-[#b5431f]">
+                    {job.title}
+                  </h3>
+                  <p className="text-sm text-muted-foreground">{job.company}</p>
+                  <span className="mt-auto inline-flex items-center gap-1 pt-2 text-sm font-semibold text-[#b5431f]">
+                    View on the jobs board <ArrowRight className="h-3.5 w-3.5" />
+                  </span>
+                </CardContent>
+              </Card>
+            </Link>
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}
+
+/* ---------------- how it works ---------------- */
+
+const STEPS = [
+  {
+    Icon: CalendarSearch,
+    title: "Find your thing",
+    body: "Every festival, market, concert, and Friday-night light — searchable, filterable, all in one place.",
+    tint: "#fbe7e7",
+    color: "#c93a3a",
+  },
+  {
+    Icon: Heart,
+    title: "Save what you love",
+    body: "Tap the heart on any event and it follows you across devices. Your weekend, planned in seconds.",
+    tint: "#ece5fa",
+    color: "#7c5cd6",
+  },
+  {
+    Icon: Bell,
+    title: "Never miss out",
+    body: "Pick your interests and get reminders about the events you care about — by email, and by text soon.",
+    tint: "#e6f2e3",
+    color: "#4c8c4a",
+  },
+];
+
+export function HowItWorks() {
+  return (
+    <section aria-label="How Leander Live works" className="mx-auto max-w-6xl px-4 pt-10 sm:pt-14">
+      <div className="mb-6 text-center">
+        <p className="text-xs font-bold uppercase tracking-[0.25em] text-[#c05a1e]">
+          How it works
+        </p>
+        <h2 className="font-display mt-1 text-3xl font-bold text-[#16324f]">
+          Your town, on one board
+        </h2>
+      </div>
+      <div className="grid gap-5 sm:grid-cols-3">
+        {STEPS.map(({ Icon, title, body, tint, color }, i) => (
+          <Card key={title} className="border-[#eadbc3]">
+            <CardContent className="flex flex-col gap-3 p-6">
+              <div className="flex items-center justify-between">
+                <span
+                  className="flex h-12 w-12 items-center justify-center rounded-full"
+                  style={{ backgroundColor: tint, color }}
+                >
+                  <Icon className="h-6 w-6" aria-hidden="true" />
+                </span>
+                <span className="font-display text-4xl font-black text-[#eadbc3]">
+                  {i + 1}
+                </span>
+              </div>
+              <h3 className="font-display text-xl font-bold text-[#16324f]">{title}</h3>
+              <p className="text-sm leading-relaxed text-stone-600">{body}</p>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/* ---------------- business CTA band (replaces the stale "coming soon" card) ---------------- */
+
+export function BusinessCtaBand() {
+  return (
+    <section aria-label="For local businesses" className="mx-auto max-w-6xl px-4 pt-10 sm:pt-14">
+      <Card className="overflow-hidden border-0 bg-[#16324f] text-white">
+        <CardContent className="relative flex flex-col items-start gap-4 p-8 sm:p-10">
+          <div
+            className="pointer-events-none absolute inset-0 opacity-20"
+            aria-hidden="true"
+          >
+            <img
+              src="/brand/old-town-festival-night.jpg"
+              alt=""
+              className="h-full w-full object-cover"
+              loading="lazy"
+            />
+          </div>
+          <div className="relative flex flex-col items-start gap-4">
+            <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.25em] text-amber-300">
+              <Building2 className="h-4 w-4" aria-hidden="true" /> For Leander businesses
+            </p>
+            <h2 className="font-display max-w-xl text-3xl font-bold leading-tight">
+              Put your business in front of the whole town.
+            </h2>
+            <p className="max-w-xl text-[15px] text-white/80">
+              Featured listings, sponsored events, and AI-qualified service leads —
+              priced for local businesses, not agencies.
+            </p>
+            <div className="flex flex-wrap gap-3">
+              <Button
+                asChild
+                className="rounded-full bg-[#d98a1f] font-bold text-white hover:bg-[#c67a14]"
+              >
+                <Link to="/advertise">
+                  <Sparkles className="h-4 w-4" aria-hidden="true" /> See packages
+                </Link>
+              </Button>
+              <Button
+                asChild
+                variant="outline"
+                className="rounded-full border-white/40 bg-transparent text-white hover:bg-white/10 hover:text-white"
+              >
+                <Link to="/community">Talk to us</Link>
+              </Button>
+            </div>
+          </div>
         </CardContent>
       </Card>
     </section>
@@ -296,13 +560,13 @@ export function FeaturedEvents({
         </Card>
       ) : (
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {filtered.slice(0, 4).map((event: EventItem, i: number) => (
+          {filtered.map((event: EventItem, i: number) => (
             <EventCard
               key={event._id}
               event={event}
               saved={saved.has(event._id)}
               onToggleSaved={() => toggleSaved(event._id)}
-              className={i >= 3 ? "hidden sm:flex" : undefined}
+              className={i >= 4 ? "hidden lg:flex" : i >= 3 ? "hidden sm:flex" : undefined}
             />
           ))}
         </div>

@@ -18,13 +18,16 @@ import {
   type DateFilter,
 } from "./content";
 import {
-  BusinessSoon,
+  BusinessCtaBand,
   FeaturedEvents,
   HomeHero,
-  IconTrio,
+  HowItWorks,
+  JobsPreview,
   NavyCtaBand,
   PageHero,
+  WeekendSpotlight,
 } from "./conceptA";
+import { EventDetailPage } from "./eventDetail";
 import { useSavedEvents, useSiteActions } from "./state";
 
 /* ---------------- home — Concept A: Bright & Bold ---------------- */
@@ -33,16 +36,20 @@ export function HomePage() {
   return (
     <>
       <HomeHero />
-      <IconTrio overlap />
+      <WeekendSpotlight />
       <FeaturedEvents
         title="Upcoming in Leander"
         subtitle="Festivals, markets, live music, and Friday-night lights."
       />
-      <BusinessSoon />
+      <JobsPreview />
+      <HowItWorks />
+      <BusinessCtaBand />
       <NavyCtaBand />
     </>
   );
 }
+
+export { EventDetailPage };
 
 /* ---------------- events ---------------- */
 
@@ -436,6 +443,8 @@ function PackageCard({ pkg, onInterested }: { pkg: AdPackage; onInterested: (pkg
 export function AdvertisePage() {
   const formRef = useRef<HTMLDivElement>(null);
   const [selectedPkg, setSelectedPkg] = useState<string | null>(null);
+  const events = useQuery(api.events.listUpcoming, { limit: 200 });
+  const jobs = useQuery(api.jobs.listJobs, {});
 
   function scrollToForm(pkg: AdPackage) {
     setSelectedPkg(pkg.id);
@@ -450,8 +459,12 @@ export function AdvertisePage() {
         subtitle="Featured placements and AI-qualified service leads — priced for local businesses, not agencies."
       >
         <div className="mt-6 flex flex-wrap gap-3">
-          <Badge className="bg-white/15 text-white hover:bg-white/25">13 upcoming events</Badge>
-          <Badge className="bg-white/15 text-white hover:bg-white/25">19 local jobs</Badge>
+          <Badge className="bg-white/15 text-white hover:bg-white/25">
+            {events === undefined ? "…" : events.length} upcoming events
+          </Badge>
+          <Badge className="bg-white/15 text-white hover:bg-white/25">
+            {jobs === undefined ? "…" : jobs.length} local jobs
+          </Badge>
           <Badge className="bg-white/15 text-white hover:bg-white/25">One community board</Badge>
         </div>
       </PageHero>

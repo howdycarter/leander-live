@@ -1,4 +1,5 @@
 import { useMemo, useState, type ButtonHTMLAttributes, type FormEvent } from "react";
+import { Link } from "react-router-dom";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Button } from "@/components/ui/button";
@@ -205,6 +206,26 @@ export function SaveButton({
   );
 }
 
+function DateBadge({ startsAt, className }: { startsAt: number; className?: string }) {
+  const d = new Date(startsAt);
+  const month = d.toLocaleDateString("en-US", { month: "short" }).toUpperCase();
+  const day = d.getDate();
+  return (
+    <div
+      className={cn(
+        "flex h-14 w-14 flex-col items-center justify-center rounded-xl bg-white/95 shadow-md",
+        className,
+      )}
+      aria-label={formatDate(startsAt)}
+    >
+      <span className="text-[10px] font-bold tracking-widest text-[#b5431f]">{month}</span>
+      <span className="font-display -mt-0.5 text-xl font-black leading-none text-[#16324f]">
+        {day}
+      </span>
+    </div>
+  );
+}
+
 export function EventCard({
   event,
   saved,
@@ -217,60 +238,82 @@ export function EventCard({
   className?: string;
 }) {
   const img = event.image ?? CATEGORY_IMAGE[event.category ?? ""] ?? CATEGORY_IMAGE.Community;
-  const title = event.url ? (
-    <a href={event.url} target="_blank" rel="noreferrer" className="hover:text-[#b5431f] hover:underline">
+  const detailUrl = `/events/${event._id}`;
+  const title = (
+    <Link to={detailUrl} className="transition-colors hover:text-[#b5431f]">
       {event.title}
-    </a>
-  ) : (
-    event.title
+    </Link>
   );
   return (
-    <Card className={cn("flex flex-col overflow-hidden border-[#eadbc3]", className)}>
+    <Card
+      className={cn(
+        "group flex flex-col overflow-hidden border-[#eadbc3] transition-all duration-200 hover:-translate-y-1 hover:shadow-lg",
+        className,
+      )}
+    >
       {/* Desktop: vertical card */}
       <div className="hidden flex-col sm:flex sm:flex-1">
-        <div className="relative h-44 shrink-0 overflow-hidden">
-          <img src={img} alt="" loading="lazy" className="h-full w-full object-cover" />
+        <Link
+          to={detailUrl}
+          className="relative block h-44 shrink-0 overflow-hidden"
+          aria-label={`${event.title} — view details`}
+        >
+          <img
+            src={img}
+            alt=""
+            loading="lazy"
+            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+          />
+          <DateBadge startsAt={event.startsAt} className="absolute left-3 top-3" />
+          {isEventFeatured(event) && (
+            <div className="absolute right-3 top-3">
+              <FeaturedEventBadge />
+            </div>
+          )}
           <CategoryBadge
             event={event}
             className="absolute bottom-0 right-4 translate-y-1/2 shadow-sm"
           />
-        </div>
+        </Link>
         <CardHeader className="px-4 pb-1 pt-6">
-          {isEventFeatured(event) && (
-            <div className="mb-2">
-              <FeaturedEventBadge />
-            </div>
-          )}
           <CardTitle className="text-[17px] font-bold leading-snug">{title}</CardTitle>
         </CardHeader>
         <CardContent className="flex-1 px-4 py-0">
           <div className="flex flex-col gap-1.5 text-sm text-[#5c4f40]">
             <span className="flex items-center gap-2">
-              <CalendarDays className="h-4 w-4 shrink-0 text-[#a08b6d]" />
-              {formatDate(event.startsAt)}
-            </span>
-            <span className="flex items-center gap-2">
               <Clock className="h-4 w-4 shrink-0 text-[#a08b6d]" />
-              {formatTime(event.startsAt)}
+              {formatDate(event.startsAt)} · {formatTime(event.startsAt)}
             </span>
             <span className="flex items-center gap-2">
               <MapPin className="h-4 w-4 shrink-0 text-[#a08b6d]" />
-              {event.venue}
+              <span className="truncate">{event.venue}</span>
             </span>
           </div>
+          {(event.blurb ?? event.description) && (
+            <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">
+              {event.blurb ?? event.description}
+            </p>
+          )}
         </CardContent>
-        <CardFooter className="justify-end px-3 pb-3 pt-1">
+        <CardFooter className="items-center justify-between px-3 pb-3 pt-1">
+          <Link
+            to={detailUrl}
+            className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-sm font-semibold text-[#b5431f] hover:underline"
+          >
+            Details <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
           <SaveButton saved={saved} onToggleSaved={onToggleSaved} />
         </CardFooter>
       </div>
       {/* Mobile: horizontal card */}
-      <CardContent className="flex gap-3 p-3 sm:hidden">
-        <img
-          src={img}
-          alt=""
-          loading="lazy"
-          className="h-28 w-28 shrink-0 rounded-xl object-cover"
-        />
+      <div className="flex gap-3 p-3 sm:hidden">
+        <Link
+          to={detailUrl}
+          className="relative block h-28 w-28 shrink-0 overflow-hidden rounded-xl"
+          aria-label={`${event.title} — view details`}
+        >
+          <img src={img} alt="" loading="lazy" className="h-full w-full object-cover" />
+        </Link>
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
@@ -293,14 +336,14 @@ export function EventCard({
               <span className="truncate">{event.venue}</span>
             </span>
           </div>
-          {event.description && (
-            <CardDescription className="mt-1 hidden truncate text-[13px] sm:block">
-              {event.description}
-            </CardDescription>
+          {(event.blurb ?? event.description) && (
+            <p className="mt-1 truncate text-[13px] text-muted-foreground">
+              {event.blurb ?? event.description}
+            </p>
           )}
         </div>
         <SaveButton saved={saved} onToggleSaved={onToggleSaved} className="self-center" />
-      </CardContent>
+      </div>
     </Card>
   );
 }
@@ -1008,7 +1051,11 @@ export function RemindersForm() {
         <CardTitle className="flex items-center gap-2">
           <Bell className="h-5 w-5 text-primary" /> Get event reminders
         </CardTitle>
-        <CardDescription>Tell us what you love and we'll send the good stuff your way.</CardDescription>
+        <CardDescription>
+          Tell us what you love and we&apos;ll send the good stuff your way. Email
+          reminders work today — text reminders are rolling out soon, so leave your
+          number and we&apos;ll text you as soon as they&apos;re live.
+        </CardDescription>
       </CardHeader>
       <CardContent>
         {done ? (

@@ -40,6 +40,12 @@ const GREETING: Msg = {
     "Howdy! Looking for event reminders, a trusted local pro, or are you a local business? I can help with any of those.",
 };
 
+const QUICK_REPLIES = [
+  "What's on this weekend?",
+  "Find me a local pro",
+  "How do I advertise?",
+] as const;
+
 export function ChatWidget() {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Msg[]>([GREETING]);
@@ -124,6 +130,22 @@ export function ChatWidget() {
             {busy && (
               <div className="self-start rounded-2xl rounded-bl-sm bg-muted px-3.5 py-2.5 text-sm tracking-widest">
                 …
+              </div>
+            )}
+            {messages.length === 1 && !busy && (
+              <div className="flex flex-wrap gap-2 pt-1" aria-label="Suggested questions">
+                {QUICK_REPLIES.map((q) => (
+                  <Button
+                    key={q}
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="h-auto rounded-full px-3 py-1.5 text-xs font-medium"
+                    onClick={() => void send(q)}
+                  >
+                    {q}
+                  </Button>
+                ))}
               </div>
             )}
           </CardContent>

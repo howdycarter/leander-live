@@ -8,6 +8,7 @@ import {
   AboutPage,
   AdvertisePage,
   CommunityPage,
+  EventDetailPage,
   EventsPage,
   HomePage,
   JobsPage,
@@ -41,6 +42,7 @@ export default function App() {
             <Route element={<SiteLayout />}>
               <Route index element={<HomePage />} />
               <Route path="events" element={<EventsPage />} />
+              <Route path="events/:id" element={<EventDetailPage />} />
               <Route path="jobs" element={<JobsPage />} />
               <Route path="community" element={<CommunityPage />} />
               <Route path="reminders" element={<RemindersPage />} />
