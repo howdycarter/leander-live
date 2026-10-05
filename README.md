@@ -1,5 +1,7 @@
 # Leander Live
 
+> **Status (October 2026):** Built for the Convex All Gas Hackathon (deadline September 22, 2026), which passed without a submission — the app was never deployed to a live `*.convex.site` URL, never registered on Luma, and never submitted at vibeapps.dev. The codebase is complete and key-gated (Convex backend, Firecrawl ingestion, AgentMail inbox, OpenAI summaries, voice bridge); going live is blocked on Chris's Convex login and API keys. See `SUBMISSION_CHECKLIST.md` for the frozen pre-deadline state.
+
 A real-time community events board for Leander, TX — built for the
 [Convex All Gas Hackathon](https://luma.com/convex-allgas-hackathon)
 (sponsored by OpenAI, Firecrawl, and AgentMail).
@@ -60,7 +62,7 @@ npx convex deploy
 npm run deploy:static
 ```
 
-## Hackathon checklist
+## Hackathon checklist (as of the Sep 22, 2026 deadline — frozen, not submitted)
 
 - [x] Public repo, new app started after Aug 25
 - [x] Convex backend: schema, queries, mutations, real-time sync, crons
