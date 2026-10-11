@@ -95,7 +95,7 @@ export const seedAnchorEvents = internalMutation({
       await ctx.db.insert("events", {
         ...e,
         source: "crawl",
-        status: "approved",
+        status: "pending",
       });
     }
     return { seeded: anchorEvents.length };

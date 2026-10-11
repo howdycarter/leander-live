@@ -11,6 +11,7 @@ export const statusValidator = v.union(
   v.literal("pending"),
   v.literal("approved"),
   v.literal("rejected"),
+  v.literal("cancelled"),
 );
 
 /** Event categories shown as filter chips in the UI. */
@@ -26,18 +27,24 @@ export const categoryValidator = v.union(
 export type Category = Infer<typeof categoryValidator>;
 
 export default defineSchema({
+  automationUsage: defineTable({ scope: v.string(), day: v.string(), count: v.number() }).index("by_scope_day", ["scope", "day"]),
   events: defineTable({
     title: v.string(),
     description: v.string(),
     // Optional AI-generated one-liner ("why go"), written by the OpenAI action.
     blurb: v.optional(v.string()),
-    startsAt: v.number(), // unix ms
+    startsAt: v.number(), // unix ms; 0 for incomplete pending submissions only
+    endsAt: v.optional(v.number()),
+    checkedAt: v.optional(v.number()),
+    detailsIncomplete: v.optional(v.boolean()),
+    blurbDraft: v.optional(v.string()),
     venue: v.string(),
     category: v.optional(categoryValidator),
     source: sourceValidator,
     url: v.optional(v.string()),
     status: statusValidator,
   })
+    .index("by_url", ["url"])
     .index("by_status_startsAt", ["status", "startsAt"])
     .index("by_startsAt", ["startsAt"]),
 
@@ -70,13 +77,19 @@ export default defineSchema({
     vertical: v.string(), // auto-tagged from capture data
     interests: v.array(v.string()),
     source: v.string(), // "form" | "chat" | "phone" | "reminder"
-    status: v.string(), // "new" | "contacted" | "qualified" | "sold" | "closed"
+    status: v.string(), // new / contacted / qualified / meeting / won / lost
+    consentToContact: v.optional(v.boolean()),
+    consentAt: v.optional(v.number()),
+    requestId: v.optional(v.string()),
+    problem: v.optional(v.string()),
+    notificationStatus: v.optional(v.string()),
     assignedBusinessId: v.optional(v.id("businesses")),
     salePrice: v.optional(v.number()),
     notes: v.optional(v.string()),
     createdAt: v.number(),
     updatedAt: v.number(),
   })
+    .index("by_requestId", ["requestId"])
     .index("by_status", ["status"])
     .index("by_vertical", ["vertical"]),
 

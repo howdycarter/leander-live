@@ -44,6 +44,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { formatDate, formatTime, inRange, toLocalInputValue, parseLeanderTime, type DateFilter } from "./lib/eventTime";
 
 /* ---------------- constants ---------------- */
 
@@ -66,10 +67,10 @@ const BUSINESS_VERTICALS = [
   "Other",
 ] as const;
 
-const BUSINESS_INTERESTS = ["Featured listing", "Buy leads", "Sponsored event"] as const;
+const BUSINESS_INTERESTS = ["Website conversion", "Follow-up automation", "Growth mapping"] as const;
 
 const DATE_FILTERS = ["All", "Today", "This Weekend", "This Month"] as const;
-type DateFilter = (typeof DATE_FILTERS)[number];
+
 
 /* Category accents sampled from the real City of Leander logo palette. */
 const CATEGORY_STYLE: Record<string, { label: string; color: string; soft: string; Icon: LucideIcon }> = {
@@ -84,63 +85,12 @@ const DEFAULT_CATEGORY = { label: "Community", color: "#1e3a6e", soft: "#e2e8f4"
 
 /* ---------------- helpers ---------------- */
 
-function formatDate(ms: number) {
-  return new Date(ms).toLocaleDateString("en-US", {
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-}
-
-function formatTime(ms: number) {
-  return new Date(ms).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
-}
-
-function toLocalInputValue(d: Date) {
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-}
-
-function startOfDay(d: Date) {
-  const c = new Date(d);
-  c.setHours(0, 0, 0, 0);
-  return c;
-}
-function endOfDay(d: Date) {
-  const c = new Date(d);
-  c.setHours(23, 59, 59, 999);
-  return c;
-}
-
-function inRange(startsAt: number, filter: DateFilter, now: Date): boolean {
-  const day = startOfDay(now);
-  switch (filter) {
-    case "All":
-      return true;
-    case "Today":
-      return startsAt >= day.getTime() && startsAt <= endOfDay(now).getTime();
-    case "This Weekend": {
-      const dow = day.getDay();
-      const daysToSat = (6 - dow + 7) % 7;
-      const sat = new Date(day);
-      sat.setDate(sat.getDate() + daysToSat);
-      const sunEnd = endOfDay(new Date(sat.getTime() + 86400000));
-      return startsAt >= sat.getTime() && startsAt <= sunEnd.getTime();
-    }
-    case "This Month": {
-      const end = new Date(day.getFullYear(), day.getMonth() + 1, 0, 23, 59, 59, 999);
-      return startsAt >= day.getTime() && startsAt <= end.getTime();
-    }
-  }
-}
-
 function toggleInList(prev: string[], item: string) {
   return prev.includes(item) ? prev.filter((i) => i !== item) : [...prev, item];
 }
 
 const PRIVACY_NOTE =
-  "We use your info only for event updates and local business inquiries — never sold, never shared.";
+  "Howdy Carter uses your request to respond about its services. Service providers process it for delivery and storage. We do not sell your contact information or enroll you in marketing from this form.";
 const SMS_COPY =
   "I agree to receive text reminders about Leander events from Leander Live at the number provided. Message and data rates may apply. Reply STOP to opt out.";
 
@@ -305,18 +255,19 @@ function EventCard({
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-1 flex-col gap-2">
-        {event.blurb && (
+        {false && event.blurb && (
           <p className="rounded-md bg-accent/25 px-3 py-2 text-sm">
             <Sparkles className="mr-1 inline h-3.5 w-3.5 text-[#a97e1f]" />
             <strong>Why go:</strong> {event.blurb}
           </p>
         )}
         <p className="text-sm text-muted-foreground">{event.description}</p>
+        <p className="text-xs text-muted-foreground">Source checked {event.checkedAt ? formatDate(event.checkedAt) : "not yet"}. Confirm changes with the organizer.</p>
         <div className="mt-auto pt-2">
           {event.url && (
             <Button asChild variant="link" className="h-auto p-0">
               <a href={event.url} target="_blank" rel="noreferrer">
-                Details <Send className="h-3 w-3" />
+                Original source <Send className="h-3 w-3" />
               </a>
             </Button>
           )}
@@ -419,7 +370,7 @@ function SubmitDialogContent() {
         venue,
         category: category ? (category as (typeof CATEGORIES)[number]) : undefined,
         url: url.trim() || undefined,
-        startsAt: new Date(when).getTime(),
+        startsAt: parseLeanderTime(when),
       });
       setSent(true);
       reset();
@@ -457,7 +408,7 @@ function SubmitDialogContent() {
           </div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="grid gap-2">
-              <Label htmlFor="ev-when">Date &amp; time</Label>
+              <Label htmlFor="ev-when">Date &amp; time (Leander / Central)</Label>
               <Input id="ev-when" type="datetime-local" value={when} onChange={(e) => setWhen(e.target.value)} required />
             </div>
             <div className="grid gap-2">
@@ -598,6 +549,10 @@ function BusinessForm() {
   const [phone, setPhone] = useState("");
   const [vertical, setVertical] = useState("");
   const [interests, setInterests] = useState<string[]>([]);
+  const [problem, setProblem] = useState("");
+  const [consentToContact, setConsent] = useState(false);
+  const [companyWebsite, setCompanyWebsite] = useState("");
+  const [requestId, setRequestId] = useState(() => crypto.randomUUID());
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
   const [sending, setSending] = useState(false);
@@ -605,6 +560,7 @@ function BusinessForm() {
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
+    if (sending) return;
     setError(null);
     setSending(true);
     try {
@@ -614,7 +570,7 @@ function BusinessForm() {
         email: email.trim() || undefined,
         phone: phone.trim() || undefined,
         vertical,
-        interests,
+        interests, problem, consentToContact, requestId, companyWebsite,
       });
       setDoneName({ contact: contactName, business: businessName });
       setDone(true);
@@ -624,6 +580,7 @@ function BusinessForm() {
       setPhone("");
       setVertical("");
       setInterests([]);
+      setProblem(""); setConsent(false); setRequestId(crypto.randomUUID());
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
     } finally {
@@ -637,14 +594,13 @@ function BusinessForm() {
         <CardTitle className="flex items-center gap-2">
           <Building2 className="h-5 w-5 text-secondary" /> Tell us about your business
         </CardTitle>
-        <CardDescription>We'll reach out with ways to get in front of Leander.</CardDescription>
+        <CardDescription>Tell Howdy Carter which website or follow-up problem you want to solve.</CardDescription>
       </CardHeader>
       <CardContent>
         {done ? (
           <div className="flex flex-col items-start gap-4">
             <p>
-              🎉 Thanks, {doneName.contact ? doneName.contact.split(" ")[0] : "there"}! We'll be in
-              touch about <strong>{doneName.business}</strong> soon.
+              🎉 Thanks, {doneName.contact ? doneName.contact.split(" ")[0] : "there"}! Your request about <strong>{doneName.business}</strong> has been saved for Howdy Carter. You can also book a mapping conversation below.
             </p>
             <Button variant="outline" onClick={() => setDone(false)}>Submit another business</Button>
           </div>
@@ -695,9 +651,15 @@ function BusinessForm() {
                 ))}
               </div>
             </div>
+            <div className="grid gap-2">
+              <Label htmlFor="bz-problem">What should your website or follow-up do better?</Label>
+              <Textarea id="bz-problem" value={problem} onChange={e => setProblem(e.target.value)} minLength={10} maxLength={2000} required />
+            </div>
+            <div hidden aria-hidden="true"><label>Leave this empty<input tabIndex={-1} autoComplete="off" value={companyWebsite} onChange={e => setCompanyWebsite(e.target.value)} /></label></div>
+            <label className="flex items-start gap-2 text-sm"><Checkbox checked={consentToContact} onCheckedChange={v => setConsent(v === true)} /><span>I want Howdy Carter to contact me about this request.</span></label>
             <p className="text-xs text-muted-foreground">{PRIVACY_NOTE}</p>
-            {error && <p className="text-sm font-medium text-destructive">{error}</p>}
-            <Button type="submit" disabled={sending}>
+            {error && <p role="alert" className="text-sm font-medium text-destructive">{error}</p>}
+            <Button type="submit" disabled={sending || !consentToContact}>
               {sending ? "Sending…" : "Get in touch"}
             </Button>
           </form>
@@ -764,8 +726,8 @@ function CrossPromoCard() {
       </CardHeader>
       <CardContent>
         <Button asChild variant="outline">
-          <a href="https://howdycarter.com" target="_blank" rel="noopener noreferrer">
-            See how <Send className="h-3.5 w-3.5" />
+          <a href="https://howdycarter.com/book?source=leander-live" target="_blank" rel="noopener noreferrer">
+            Book a free mapping <Send className="h-3.5 w-3.5" />
           </a>
         </Button>
       </CardContent>
@@ -880,22 +842,17 @@ function Site() {
         </section>
 
         <section id="reminders" aria-label="Get reminders" className="pt-14">
-          <h2 className="font-display mb-2 text-3xl font-bold">Never miss what's happening</h2>
-          <p className="mb-6 text-muted-foreground">
-            Sign up for reminders about the events you care about — pick your interests and we'll
-            only nudge you about those.
-          </p>
-          <div className="max-w-2xl">
-            <RemindersForm />
-          </div>
+          <h2 className="font-display mb-2 text-3xl font-bold">Event updates</h2>
+          <p className="mb-6 text-muted-foreground">For current schedules and official notification options, visit the <a className="underline" href="https://www.leandertx.gov/calendar.aspx">City of Leander calendar</a>. Our email service is not accepting subscriptions yet.</p>
+          {import.meta.env.VITE_ENABLE_SUBSCRIPTIONS === "true" && <div className="max-w-2xl"><RemindersForm /></div>}
         </section>
 
         <section id="businesses" aria-label="For local businesses" className="pt-14">
           <div className="mb-6 overflow-hidden rounded-2xl bg-secondary px-6 py-10 text-white md:px-10">
-            <h2 className="font-display text-3xl font-bold">Put your business in front of Leander</h2>
+            <h2 className="font-display text-3xl font-bold">Turn local interest into a useful conversation</h2>
             <p className="mt-2 max-w-xl text-white/85">
-              Featured listings, sponsored events, and qualified local leads — from the community
-              board Leander actually reads.
+              Howdy Carter helps local businesses improve their website and follow-up. Start with
+              a free 15-minute mapping conversation and a one-page next-step plan.
             </p>
           </div>
           <div className="grid max-w-4xl gap-6">
@@ -915,7 +872,7 @@ function Site() {
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
         <SubmitDialogContent />
       </Dialog>
-      <ChatWidget />
+      {import.meta.env.VITE_ENABLE_CHAT === "true" && <ChatWidget />}
       <TabBar onSubmit={() => setModalOpen(true)} />
     </div>
   );

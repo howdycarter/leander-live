@@ -17,7 +17,7 @@ export const summarizeEvent = internalAction({
   args: { eventId: v.id("events") },
   handler: async (ctx, args): Promise<{ ok: boolean; reason?: string }> => {
     const apiKey = process.env.OPENAI_API_KEY;
-    if (!apiKey) {
+    if (!apiKey || !await ctx.runMutation(internal.automation.reserve, { scope: "summary" })) {
       console.log("OPENAI_API_KEY not set — skipping summarization.");
       return { ok: false, reason: "missing OPENAI_API_KEY" };
     }

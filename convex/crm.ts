@@ -1,5 +1,6 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { requireAdmin } from "./lib/policy";
 
 /**
  * Mini-CRM: lead pipeline + businesses.
@@ -19,18 +20,13 @@ export const LEAD_STATUSES = [
   "new",
   "contacted",
   "qualified",
-  "sold",
+  "meeting",
+  "won",
+  "lost",
   "closed",
 ] as const;
 
 export const BUSINESS_STATUSES = ["prospect", "active", "paused"] as const;
-
-function requireAdmin(adminKey: string) {
-  const expected = process.env.ADMIN_KEY;
-  if (!expected || adminKey !== expected) {
-    throw new Error("Not authorized.");
-  }
-}
 
 function checkStatus(status: string) {
   if (!(LEAD_STATUSES as readonly string[]).includes(status)) {
@@ -97,48 +93,14 @@ export const moveLeadStage = mutation({
   },
 });
 
+/** Legacy reseller operations remain unavailable for consented service inquiries. */
 export const assignLead = mutation({
-  args: {
-    adminKey: v.string(),
-    leadId: v.id("businessLeads"),
-    businessId: v.id("businesses"),
-  },
-  handler: async (ctx, args) => {
-    requireAdmin(args.adminKey);
-    const [lead, business] = await Promise.all([
-      ctx.db.get(args.leadId),
-      ctx.db.get(args.businessId),
-    ]);
-    if (!lead) throw new Error("Lead not found.");
-    if (!business) throw new Error("Business not found.");
-    await ctx.db.patch(args.leadId, {
-      assignedBusinessId: args.businessId,
-      updatedAt: Date.now(),
-    });
-    return { ok: true, businessName: business.name };
-  },
+  args: { adminKey: v.string(), leadId: v.id("businessLeads"), businessId: v.id("businesses") },
+  handler: async (_ctx, args) => { requireAdmin(args.adminKey); throw new Error("Third-party lead distribution is disabled."); },
 });
-
 export const markSold = mutation({
-  args: {
-    adminKey: v.string(),
-    leadId: v.id("businessLeads"),
-    price: v.number(),
-  },
-  handler: async (ctx, args) => {
-    requireAdmin(args.adminKey);
-    const lead = await ctx.db.get(args.leadId);
-    if (!lead) throw new Error("Lead not found.");
-    if (!Number.isFinite(args.price) || args.price < 0) {
-      throw new Error("Enter a valid sale price.");
-    }
-    await ctx.db.patch(args.leadId, {
-      status: "sold",
-      salePrice: Math.round(args.price * 100) / 100,
-      updatedAt: Date.now(),
-    });
-    return { ok: true };
-  },
+  args: { adminKey: v.string(), leadId: v.id("businessLeads"), price: v.number() },
+  handler: async (_ctx, args) => { requireAdmin(args.adminKey); throw new Error("Lead resale is disabled. Track your own service sale separately."); },
 });
 
 export const addLeadNote = mutation({
