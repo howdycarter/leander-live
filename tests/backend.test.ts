@@ -8,7 +8,7 @@ const now = Date.parse("2026-10-11T08:00:00Z");
 const event = { title: "Test event", description: "Test fixture only", startsAt: now + 86400000, venue: "Test venue", url: "https://www.leandertx.gov/Calendar.aspx?EID=3158" };
 const lead = { businessName: "Test Business", contactName: "Test Owner", email: "test@example.test", vertical: "Other", interests: ["Growth mapping"], consentToContact: true, requestId: "test-request-00001", problem: "Our contact form needs repair." };
 beforeEach(() => { vi.useFakeTimers(); vi.setSystemTime(now); vi.stubEnv("ADMIN_KEY", "test-only-secret"); });
-afterEach(() => { vi.useRealTimers(); vi.unstubAllEnvs(); });
+afterEach(() => { vi.useRealTimers(); vi.unstubAllEnvs(); vi.unstubAllGlobals(); });
 
 describe("event publication", () => {
   it("denies unauthenticated status changes and review access", async () => {
@@ -96,5 +96,28 @@ describe("automation cost guard", () => {
     vi.stubEnv("AUTOMATION_ENABLED","true"); vi.stubEnv("AUTOMATION_DAILY_CALL_LIMIT",limit);
     const t = convexTest(schema, modules);
     expect(await t.mutation(internal.automation.reserve,{scope:"crawl"})).toBe(false);
+  });
+});
+
+
+describe("read-only chat", () => {
+  it("sends no capture instructions and ignores model-emitted contact blocks", async () => {
+    vi.stubEnv("OPENAI_API_KEY","test-only-placeholder");
+    vi.stubEnv("AUTOMATION_ENABLED","true");
+    vi.stubEnv("CHAT_ENABLED","true");
+    vi.stubEnv("AUTOMATION_DAILY_CALL_LIMIT","2");
+    const fetchMock = vi.fn(async () => new Response(JSON.stringify({choices:[{message:{content:'Check the source. <!--LEAD {"type":"subscriber","name":"Example","email":"test@example.test","smsOptIn":true}-->'}}]}), {status:200,headers:{"Content-Type":"application/json"}}));
+    vi.stubGlobal("fetch",fetchMock);
+    const t = convexTest(schema, modules);
+    const result = await t.action(api.chat.chatReply,{messages:[{role:"user",content:"Tell me about local events."}],sessionId:"chat-regression"});
+    const request = JSON.parse((fetchMock.mock.calls[0] as unknown as [string, RequestInit])[1].body as string);
+    const prompt = request.messages[0].content;
+    expect(prompt).toContain("Do not ask for or capture contact information");
+    expect(prompt).not.toContain("COMPLETE lead");
+    expect(prompt).not.toContain('"type":"subscriber"');
+    expect(prompt).not.toContain('"type":"business"');
+    expect(result).toMatchObject({reply:"Check the source.",leadSaved:false});
+    expect(await t.run(ctx => ctx.db.query("subscribers").collect())).toHaveLength(0);
+    expect(await t.run(ctx => ctx.db.query("businessLeads").collect())).toHaveLength(0);
   });
 });

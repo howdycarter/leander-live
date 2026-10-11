@@ -13,7 +13,7 @@ October 11, 2026. Repository main was verified at `db7df483d7fe773afe5dda4e1bdb3
 
 ## Verification and remaining gates
 
-The first local checkpoint passed 27 behavior tests, TypeScript and the production build. Browser tests could not start Chromium because this executor forbids its process socket; the same browser scenarios are in CI. This is scoped validation, not a general security audit.
+The initial local checkpoint passed 27 behavior tests, TypeScript and the production build. Review regressions subsequently extend coverage; use the exact commit CI result for the current count. Browser tests could not start Chromium because this executor forbids its process socket; the same browser scenarios are in CI. This is scoped validation, not a general security audit.
 
 Full backend release requires the actual Convex project, official deployment codegen, schema migration checks, and smoke tests with its existing credentials. Checked-in server/API wrappers use the installed Convex templates; the data-model type comes from the local schema and the static-hosting component binding comes from its installed API. None establishes a deployed backend.
 
@@ -26,6 +26,8 @@ The broader engagement still needs: a verified analytics property and baseline; 
 ## Operating the small pilot
 
 Use at most three approved sources and twenty verified records. The current public feed contains no promoted selections: the one detailed city-page snapshot is held pending a fresh check. Its direct fetch returned HTTP 403; other candidate detail pages could not be verified. The default page supplies useful official calendar links. Do not fill the inventory with invented dates or placeholders.
+
+Before enabling any verified-event promotion, establish and verify a rebuild at least every 24 hours, plus a rebuild immediately after any source/status change and before each promotion. Alert the owner if a build is missed; hold verified promotions until the cadence is restored. Static HTML, sitemap and structured data do not expire themselves without a rebuild. This deployment cadence is a release gate and has not been configured.
 
 Before promoting a guide, open each original event page, check cancellations, verify date/time/venue/eligibility, update `checkedAt` and set `reviewDueAt` no more than 48 hours later, rebuild, and verify the deployed version. If a source is unavailable, hold the entry. Budget 2–3 editorial hours weekly initially and measure actual effort.
 

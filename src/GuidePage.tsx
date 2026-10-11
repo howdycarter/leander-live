@@ -1,12 +1,20 @@
+import { useEffect, useState } from "react";
 import records from "./data/guide.json";
 import { formatDate, formatTime } from "./lib/eventTime";
+import { isCurrentGuideEvent } from "./lib/guidePolicy";
+export { isCurrentGuideEvent } from "./lib/guidePolicy";
 
 export const BOOKING_URL = "https://howdycarter.com/book?source=leander-live";
 export function currentGuide(now: number) {
-  return records.filter(event => event.reviewStatus === "verified" && Date.parse(event.endsAt) > now && Date.parse(event.reviewDueAt) > now);
+  return records.filter(event => isCurrentGuideEvent(event, now));
 }
 
-export function GuidePage({ path = "/", now = Date.now() }: { path?: string; now?: number }) {
+export function GuidePage({ path = "/", now: initialNow = Date.now() }: { path?: string; now?: number }) {
+  const [now, setNow] = useState(initialNow);
+  useEffect(() => {
+    const timer = window.setInterval(() => setNow(Date.now()), 60_000);
+    return () => window.clearInterval(timer);
+  }, []);
   const slug = path.replace(/^\/events\//, "").replace(/\/$/, "");
   const detail = path.startsWith("/events/") ? records.find(event => event.slug === slug) : undefined;
   const unknownRoute = path.startsWith("/events/") && !detail;
@@ -30,7 +38,7 @@ export function GuidePage({ path = "/", now = Date.now() }: { path?: string; now
         {!detail && current.length === 0 && <p className="rounded-xl border p-6">We're checking the next selections. The official calendars below have more current options.</p>}
         {visible.map(event => <article key={event.slug} className="rounded-xl border bg-card p-6 shadow-sm">
           {!detail && <h3 className="font-display text-xl font-bold"><a className="underline decoration-primary/40 underline-offset-4" href={`/events/${event.slug}/`}>{event.title}</a></h3>}
-          {event.reviewStatus !== "verified" ? <p className="font-semibold">This source snapshot needs a current check. Confirm details with the city before making plans.</p> : Date.parse(event.endsAt) <= now ? <p className="font-semibold">This event has ended.</p> : Date.parse(event.reviewDueAt) <= now ? <p className="font-semibold">This listing needs a fresh source check. Confirm directly before making plans.</p> : null}
+          {Date.parse(event.endsAt) <= now ? <p className="font-semibold">This event has ended.</p> : !isCurrentGuideEvent(event, now) ? <p className="font-semibold">This source snapshot needs a current check. Confirm details with the city before making plans.</p> : null}
           <p className="mt-3 font-medium">{formatDate(Date.parse(event.startsAt))} · {formatTime(Date.parse(event.startsAt))}–{formatTime(Date.parse(event.endsAt))}</p>
           <p className="mt-1">{event.venue} · {event.address}</p>
           <p className="mt-4 max-w-3xl leading-relaxed">{event.description}</p>

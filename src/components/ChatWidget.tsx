@@ -8,8 +8,7 @@ import { MessageCircle, X, Send } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /* ------------------------------------------------------------------ */
-/* On-site chat widget (shadcn): converses, qualifies intent, captures */
-/* leads via the `api.chat.chatReply` Convex action (OpenAI).          */
+/* Read-only event help. Contact requests use the explicit business form. */
 /* ------------------------------------------------------------------ */
 
 type Role = "user" | "assistant";
@@ -34,7 +33,7 @@ function getSessionId(): string {
 const GREETING: Msg = {
   role: "assistant",
   content:
-    "Howdy! Looking for event reminders, or are you a local business? I can help with either.",
+    "Howdy! I can help with reviewed event information or point you to Howdy Carter for business help. Please use the business form for contact details.",
 };
 
 export function ChatWidget() {
