@@ -17,7 +17,7 @@ The initial local checkpoint passed 27 behavior tests, TypeScript and the produc
 
 Full backend release requires the actual Convex project, official deployment codegen, schema migration checks, and smoke tests with its existing credentials. Checked-in server/API wrappers use the installed Convex templates; the data-model type comes from the local schema and the static-hosting component binding comes from its installed API. None establishes a deployed backend.
 
-No matching Leander project was found in the connected Vercel account, which exposes Recovery Delivered. The public .co hosts could not be retrieved from the research environment. The actual hosting project, domain routing and deployed commit must be verified before release. Do not create a replacement account or put this personal project in the unrelated team to work around missing access.
+The personal hosting project has not been verified. The public .co hosts could not be retrieved from the research environment. The actual hosting project, domain routing and deployed commit must be verified before release. Do not create a replacement account or put this personal project in the unrelated team to work around missing access.
 
 The full Fix is not marked complete until a working public URL, actual booking/inquiry destination, owner receipt and measurement are verified. The 48-hour delivery clock requires an accepted, unblocked start. This implementation work does not fabricate that start or completion.
 

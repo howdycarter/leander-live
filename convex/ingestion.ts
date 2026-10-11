@@ -1,6 +1,7 @@
 import { internalAction } from "./_generated/server";
 import { internal } from "./_generated/api";
 import type { Category } from "./schema";
+import { safeSourceUrl } from "./lib/policy";
 
 /**
  * Scheduled ingestion (see convex/crons.ts, weekly on Mondays).
@@ -153,6 +154,9 @@ export const crawlLeander = internalAction({
       for (const e of extracted.slice(0, 20)) {
         const title = (e.title ?? "").trim();
         if (!title || !e.venue?.trim() || !e.url?.trim()) continue;
+        let sourceUrl: string | undefined;
+        try { sourceUrl = safeSourceUrl(e.url); } catch { continue; }
+        if (!sourceUrl || !["www.leandertx.gov", "leandertx.gov", "visitleandertx.com", "www.visitleandertx.com"].includes(new URL(sourceUrl).hostname)) continue;
         const startsAt = e.date ? new Date(e.date).getTime() : NaN;
         if (Number.isNaN(startsAt) || startsAt < Date.now() - 24 * 60 * 60 * 1000) {
           continue; // unparseable or past — skip rather than invent
@@ -165,7 +169,7 @@ export const crawlLeander = internalAction({
             startsAt,
             venue: e.venue.trim(),
             category: toCategory(e.category),
-            url: (e.url ?? "").trim() || undefined,
+            url: sourceUrl,
           },
         );
         if (eventId) {

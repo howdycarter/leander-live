@@ -44,6 +44,7 @@ export default defineSchema({
     url: v.optional(v.string()),
     status: statusValidator,
   })
+    .index("by_url", ["url"])
     .index("by_status_startsAt", ["status", "startsAt"])
     .index("by_startsAt", ["startsAt"]),
 

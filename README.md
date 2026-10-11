@@ -18,6 +18,12 @@ The build produces `dist/`, including the guide, individual event page, sitemap 
 
 The historical app below remains available for backend integration. Do not enable it simply because a frontend URL works. Run `npm run codegen` against the selected existing Convex deployment, validate the schema migration and moderation key, then smoke-test inquiry delivery and privacy before enabling the flag. `ADMIN_KEY` is the existing shared-key guard; multi-user authentication is a separate release requirement if access is expanded.
 
+## Static hosting release
+
+`vercel.json` prepares a static-only deployment of `dist/` and forces backend, chat and subscription UI off during its build. It does not create a Vercel project, attach a domain, provision credentials, schedule refreshes or deploy anything. Select the verified personal project and inspect existing configuration before using it. Do not deploy this personal project into an unrelated organization.
+
+Before promoting verified events, configure and verify the daily rebuild/alert cadence described in [implementation status](IMPLEMENTATION_STATUS.md). Until then, event snapshots remain held and visitors use the official source links. Verify the expected commit, both domain routes, event-detail route, source links and actual booking destination after any release.
+
 ## Original application and setup
 
 

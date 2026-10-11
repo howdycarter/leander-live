@@ -40,7 +40,7 @@ export const submit = mutation({
     if (title.length === 0) throw new Error("Title is required.");
     if (description.length === 0) throw new Error("Description is required.");
     if (venue.length === 0) throw new Error("Venue is required.");
-    if (!(args.startsAt > Date.now() - 24 * 60 * 60 * 1000)) {
+    if (!Number.isFinite(args.startsAt) || args.startsAt <= Date.now()) {
       throw new Error("Event date must be in the future.");
     }
     return await ctx.db.insert("events", {
@@ -104,7 +104,7 @@ export const setBlurb = internalMutation({
 
 /**
  * Insert from the Firecrawl ingestion action.
- * Dedupes on (title, startsAt within 24h) so weekly re-crawls don't duplicate.
+ * Dedupes by original source URL; changed facts return to the review queue.
  * Crawled records always need human source verification before publication.
  */
 export const upsertCrawled = internalMutation({
@@ -118,18 +118,17 @@ export const upsertCrawled = internalMutation({
   },
   handler: async (ctx, args): Promise<{ eventId: GenericId<"events"> | null }> => {
     const title = args.title.trim().slice(0, 120);
-    const candidates = await ctx.db
-      .query("events")
-      .withIndex("by_startsAt", (q) =>
-        q.gte("startsAt", args.startsAt - 24 * 60 * 60 * 1000),
-      )
-      .take(50);
-    const dupe = candidates.some(
-      (e) =>
-        e.title.trim().toLowerCase() === title.toLowerCase() &&
-        Math.abs(e.startsAt - args.startsAt) < 24 * 60 * 60 * 1000,
-    );
-    if (dupe) return { eventId: null };
+    const url = safeSourceUrl(args.url);
+    if (!title || !url || !args.venue.trim() || !Number.isFinite(args.startsAt)) throw new Error("Incomplete source event.");
+    const hostname = new URL(url).hostname;
+    if (!["www.leandertx.gov", "leandertx.gov", "visitleandertx.com", "www.visitleandertx.com"].includes(hostname)) throw new Error("Unapproved crawl source.");
+    const existing = await ctx.db.query("events").withIndex("by_url", q => q.eq("url", url)).first();
+    if (existing) {
+      const description = args.description.trim().slice(0, 2000), venue = args.venue.trim().slice(0, 160);
+      if (existing.title === title && existing.startsAt === args.startsAt && existing.venue === venue && existing.description === description && existing.category === args.category) return { eventId: null };
+      await ctx.db.patch(existing._id, {title, description, startsAt:args.startsAt, venue, category:args.category, status:"pending", checkedAt:undefined, endsAt:undefined, blurbDraft:undefined});
+      return { eventId: existing._id };
+    }
     const eventId = await ctx.db.insert("events", {
       title,
       description: args.description.trim().slice(0, 2000),

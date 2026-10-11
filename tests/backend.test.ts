@@ -45,6 +45,25 @@ describe("event publication", () => {
   });
 });
 
+describe("source identity", () => {
+  it("keeps same-title events at different sources and holds changed facts", async () => {
+    const t = convexTest(schema, modules);
+    const first = await t.mutation(internal.events.upsertCrawled,event);
+    await t.mutation(internal.events.upsertCrawled,{...event,url:"https://www.leandertx.gov/Calendar.aspx?EID=3298",venue:"Other venue"});
+    expect(await t.query(api.events.listForReview,{adminKey:"test-only-secret"})).toHaveLength(2);
+    await t.mutation(api.events.review,{adminKey:"test-only-secret",id:first.eventId!,startsAt:event.startsAt,endsAt:event.startsAt+3600000,venue:event.venue,url:event.url,sourceChecked:true});
+    await t.mutation(internal.events.upsertCrawled,{...event,startsAt:event.startsAt+86400000});
+    const changed = await t.run(ctx=>ctx.db.get(first.eventId!));
+    expect(changed).toMatchObject({status:"pending",startsAt:event.startsAt+86400000});
+    expect(changed?.checkedAt).toBeUndefined();
+    expect(await t.query(api.events.listUpcoming,{})).toHaveLength(0);
+  });
+  it("rejects crawler URLs outside the approved source hosts",async()=>{
+    const t=convexTest(schema,modules);
+    await expect(t.mutation(internal.events.upsertCrawled,{...event,url:"https://example.com/event"})).rejects.toThrow("Unapproved");
+  });
+});
+
 describe("business inquiry", () => {
   it("saves explicit consent once when a request is retried", async () => {
     const t = convexTest(schema, modules);
