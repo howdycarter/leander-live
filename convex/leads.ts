@@ -1,5 +1,6 @@
 import { internalMutation, mutation } from "./_generated/server";
 import { v } from "convex/values";
+import { normalizeContact } from "./lib/policy";
 
 /**
  * Lead capture — the two-sided model:
@@ -25,9 +26,9 @@ export const BUSINESS_VERTICALS = [
 ] as const;
 
 export const BUSINESS_INTERESTS = [
-  "Featured listing",
-  "Buy leads",
-  "Sponsored event",
+  "Website conversion",
+  "Follow-up automation",
+  "Growth mapping",
 ] as const;
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -40,8 +41,12 @@ export const subscribe = mutation({
     phone: v.optional(v.string()),
     interests: v.array(v.string()),
     smsOptIn: v.boolean(),
+    emailOptIn: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
+    if (process.env.SUBSCRIPTIONS_ENABLED !== "true") throw new Error("Subscriptions are not open yet.");
+    if (!args.emailOptIn) throw new Error("Please explicitly request email updates.");
+    if (args.smsOptIn || args.phone) throw new Error("Text reminders are not available.");
     const name = args.name.trim();
     if (name.length === 0) throw new Error("Name is required.");
     const email = args.email?.trim() || undefined;
@@ -80,19 +85,27 @@ export const submitBusinessLead = mutation({
     vertical: v.string(),
     interests: v.array(v.string()),
     source: v.optional(v.string()),
+    consentToContact: v.boolean(),
+    requestId: v.string(),
+    problem: v.string(),
+    companyWebsite: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    if (!args.consentToContact) throw new Error("Please give permission for Howdy Carter to respond.");
+    if (args.companyWebsite) throw new Error("Unable to accept this request."); // honeypot
+    if (!/^[a-zA-Z0-9-]{16,64}$/.test(args.requestId)) throw new Error("Please reload and try again.");
     const businessName = args.businessName.trim();
     const contactName = args.contactName.trim();
-    if (businessName.length === 0)
-      throw new Error("Business name is required.");
-    if (contactName.length === 0) throw new Error("Contact name is required.");
-    const email = args.email?.trim() || undefined;
-    const phone = args.phone?.trim() || undefined;
-    if (!email && !phone)
-      throw new Error("Please provide an email address or phone number.");
-    if (email && !EMAIL_RE.test(email))
-      throw new Error("Please enter a valid email address.");
+    const problem = args.problem.trim();
+    if (!businessName || businessName.length > 160) throw new Error("Business name is required (160 characters maximum).");
+    if (!contactName || contactName.length > 120) throw new Error("Contact name is required (120 characters maximum).");
+    if (problem.length < 10 || problem.length > 2000) throw new Error("Describe the problem in 10 to 2000 characters.");
+    const { email, phone } = normalizeContact(args.email, args.phone);
+    const existing = await ctx.db.query("businessLeads").withIndex("by_requestId", q => q.eq("requestId", args.requestId)).first();
+    if (existing) {
+      if (existing.email !== email || existing.phone !== phone || existing.businessName !== businessName || existing.problem !== problem) throw new Error("Please start a new request.");
+      return { ok: true };
+    }
     if (
       !(BUSINESS_VERTICALS as readonly string[]).includes(args.vertical.trim())
     )
@@ -104,18 +117,24 @@ export const submitBusinessLead = mutation({
     if (interests.length === 0)
       throw new Error("Please choose at least one thing you're interested in.");
     const now = Date.now();
-    return await ctx.db.insert("businessLeads", {
+    await ctx.db.insert("businessLeads", {
       businessName: businessName.slice(0, 160),
       contactName: contactName.slice(0, 120),
       email,
       phone: phone?.slice(0, 40),
       vertical: args.vertical.trim(),
       interests,
-      source: args.source?.trim() || "form",
+      source: "leander-live-form",
+      consentToContact: true,
+      consentAt: now,
+      requestId: args.requestId,
+      problem,
+      notificationStatus: "pending",
       status: "new",
       createdAt: now,
       updatedAt: now,
     });
+    return { ok: true };
   },
 });
 

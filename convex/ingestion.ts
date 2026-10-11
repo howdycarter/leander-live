@@ -134,7 +134,7 @@ export const crawlLeander = internalAction({
     ctx,
   ): Promise<{ ok: boolean; inserted: number; reason?: string }> => {
     const apiKey = process.env.FIRECRAWL_API_KEY;
-    if (!apiKey) {
+    if (!apiKey || process.env.AUTOMATION_ENABLED !== "true") {
       console.log("FIRECRAWL_API_KEY not set — skipping crawl.");
       return { ok: false, inserted: 0, reason: "missing FIRECRAWL_API_KEY" };
     }
@@ -142,6 +142,7 @@ export const crawlLeander = internalAction({
     let inserted = 0;
     const errors: string[] = [];
     for (const url of TARGETS) {
+      if (!await ctx.runMutation(internal.automation.reserve, { scope: "crawl" })) break;
       let extracted: ExtractedEvent[];
       try {
         extracted = await runExtract(apiKey, url);
@@ -149,9 +150,9 @@ export const crawlLeander = internalAction({
         errors.push(`${url}: ${err instanceof Error ? err.message : err}`);
         continue;
       }
-      for (const e of extracted) {
+      for (const e of extracted.slice(0, 20)) {
         const title = (e.title ?? "").trim();
-        if (!title) continue;
+        if (!title || !e.venue?.trim() || !e.url?.trim()) continue;
         const startsAt = e.date ? new Date(e.date).getTime() : NaN;
         if (Number.isNaN(startsAt) || startsAt < Date.now() - 24 * 60 * 60 * 1000) {
           continue; // unparseable or past — skip rather than invent
@@ -162,7 +163,7 @@ export const crawlLeander = internalAction({
             title,
             description: (e.description ?? "").trim() || title,
             startsAt,
-            venue: (e.venue ?? "").trim() || "Leander, TX",
+            venue: e.venue.trim(),
             category: toCategory(e.category),
             url: (e.url ?? "").trim() || undefined,
           },

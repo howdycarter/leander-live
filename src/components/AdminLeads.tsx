@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { EventModeration } from "./EventModeration";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
@@ -40,7 +41,7 @@ import { Lock } from "lucide-react";
 /* Proper per-user auth (Convex Auth) is the post-hackathon follow-up. */
 /* ------------------------------------------------------------------ */
 
-const STAGES = ["new", "contacted", "qualified", "sold", "closed"] as const;
+const STAGES = ["new", "contacted", "qualified", "meeting", "won", "lost", "closed"] as const;
 const VERTICALS = [
   "Home Services",
   "Real Estate",
@@ -143,6 +144,7 @@ export function AdminLeads() {
         <TabsList>
           <TabsTrigger value="pipeline">Pipeline</TabsTrigger>
           <TabsTrigger value="businesses">Businesses</TabsTrigger>
+          <TabsTrigger value="events">Event review</TabsTrigger>
         </TabsList>
         <TabsContent value="pipeline">
           <PipelineBoard adminKey={adminKey} onSelect={setSelectedId} onError={setErr} />
@@ -150,6 +152,7 @@ export function AdminLeads() {
         <TabsContent value="businesses">
           <BusinessesTab adminKey={adminKey} onError={setErr} />
         </TabsContent>
+        <TabsContent value="events"><EventModeration adminKey={adminKey} /></TabsContent>
       </Tabs>
       <Sheet open={selectedId !== null} onOpenChange={(o) => !o && setSelectedId(null)}>
         {selectedId && (
@@ -227,12 +230,8 @@ function LeadDetail({
 }) {
   const detail = useQuery(api.crm.getLead, { adminKey, leadId });
   const moveStage = useMutation(api.crm.moveLeadStage);
-  const assignLead = useMutation(api.crm.assignLead);
-  const markSold = useMutation(api.crm.markSold);
   const addNote = useMutation(api.crm.addLeadNote);
   const [note, setNote] = useState("");
-  const [price, setPrice] = useState("");
-  const [assignId, setAssignId] = useState("");
 
   async function run(fn: () => Promise<unknown>, ok?: () => void) {
     try {
@@ -297,45 +296,7 @@ function LeadDetail({
           </div>
         </div>
 
-        <div>
-          <h4 className="mb-2 font-semibold">Sell to the right business</h4>
-          <div className="flex gap-2">
-            <Select value={assignId} onValueChange={setAssignId}>
-              <SelectTrigger aria-label="Assign to business">
-                <SelectValue placeholder="Pick a business…" />
-              </SelectTrigger>
-              <SelectContent>
-                {lead.candidates.map((b) => (
-                  <SelectItem key={b._id.toString()} value={b._id.toString()}>
-                    {b.name} ({b.vertical})
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Button
-              disabled={!assignId}
-              onClick={() =>
-                run(() =>
-                  assignLead({ adminKey, leadId, businessId: assignId as Id<"businesses"> }).then(() =>
-                    setAssignId(""),
-                  ),
-                )
-              }
-            >
-              Assign
-            </Button>
-          </div>
-        </div>
-
-        <div>
-          <h4 className="mb-2 font-semibold">Mark sold</h4>
-          <div className="flex gap-2">
-            <Input value={price} onChange={(e) => setPrice(e.target.value)} placeholder="$ price" inputMode="decimal" aria-label="Sale price" />
-            <Button disabled={!price} onClick={() => run(() => markSold({ adminKey, leadId, price: Number(price) }).then(() => setPrice("")))}>
-              Mark sold
-            </Button>
-          </div>
-        </div>
+        <p className="text-sm">Requests are for Howdy Carter services. Third-party lead distribution and resale are disabled.</p>
 
         <div>
           <h4 className="mb-2 font-semibold">Notes</h4>

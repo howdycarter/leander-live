@@ -1,0 +1,20 @@
+[
+  {
+    "slug": "residential-fall-cleanup-2026-10-17",
+    "title": "Residential Fall Cleanup",
+    "description": "A city cleanup drop-off for residents within Leander city limits. Bring a City of Leander utility bill and Texas-issued ID with matching addresses. Check the city's accepted-item and vehicle restrictions before loading your vehicle; brush is not accepted.",
+    "startsAt": "2026-10-17T08:00:00-05:00",
+    "endsAt": "2026-10-17T12:00:00-05:00",
+    "venue": "Leander Public Works",
+    "address": "607 Municipal Drive, Leander, TX 78641",
+    "cost": "Free",
+    "audience": "Residents within Leander city limits",
+    "accessibility": "Venue accessibility details were not established by the source. Contact Public Works before visiting if you need an accommodation.",
+    "sourceUrl": "https://www.leandertx.gov/Calendar.aspx?EID=3158&calType=0&day=2&month=10&year=2026",
+    "sourceName": "City of Leander",
+    "checkedAt": "2026-10-11T08:43:00Z",
+    "reviewDueAt": "2026-10-13T08:43:00Z",
+    "reviewStatus": "needs_recheck",
+    "verificationNote": "Details were retrieved from a cached city-page snapshot. A current direct check was unavailable; reconfirm with the city before using this listing."
+  }
+]

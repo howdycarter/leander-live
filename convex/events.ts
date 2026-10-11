@@ -6,19 +6,20 @@ import {
 } from "./_generated/server";
 import { v, type GenericId } from "convex/values";
 import { categoryValidator, statusValidator, type Category } from "./schema";
+import { requireAdmin, safeSourceUrl, assertReviewedEvent } from "./lib/policy";
 
 /** Real-time feed: approved, upcoming events, soonest first. */
 export const listUpcoming = query({
   args: { limit: v.optional(v.number()) },
   handler: async (ctx, args) => {
     const now = Date.now();
-    return await ctx.db
-      .query("events")
-      .withIndex("by_status_startsAt", (q) =>
-        q.eq("status", "approved").gte("startsAt", now),
-      )
-      .order("asc")
-      .take(args.limit ?? 50);
+    const limit = Math.min(50, Math.max(1, Math.floor(args.limit ?? 50)));
+    const candidates = await ctx.db.query("events")
+      .withIndex("by_status_startsAt", q => q.eq("status", "approved").gte("startsAt", now - 86400000))
+      .order("asc").take(200);
+    return candidates.filter(event => {
+      try { assertReviewedEvent(event, now); return true; } catch { return false; }
+    }).slice(0, limit);
   },
 });
 
@@ -49,17 +50,41 @@ export const submit = mutation({
       venue: venue.slice(0, 160),
       category: args.category,
       source: "community",
-      url: args.url?.trim() || undefined,
+      url: safeSourceUrl(args.url),
       status: "pending",
     });
   },
 });
 
-/** Moderation: flip an event's status (used by crawled/emailed submissions too). */
-export const setStatus = mutation({
-  args: { id: v.id("events"), status: statusValidator },
+/** Existing ADMIN_KEY protects moderation; no key means no access. */
+export const listForReview = query({
+  args: { adminKey: v.string() },
   handler: async (ctx, args) => {
+    requireAdmin(args.adminKey);
+    return ctx.db.query("events").order("desc").take(100);
+  },
+});
+
+export const setStatus = mutation({
+  args: { adminKey: v.string(), id: v.id("events"), status: statusValidator },
+  handler: async (ctx, args) => {
+    requireAdmin(args.adminKey);
+    const event = await ctx.db.get(args.id);
+    if (!event) throw new Error("Event not found.");
+    if (args.status === "approved") assertReviewedEvent(event, Date.now());
     await ctx.db.patch(args.id, { status: args.status });
+  },
+});
+
+export const review = mutation({
+  args: { adminKey: v.string(), id: v.id("events"), startsAt: v.number(), endsAt: v.number(), venue: v.string(), url: v.string(), sourceChecked: v.boolean() },
+  handler: async (ctx, args) => {
+    requireAdmin(args.adminKey);
+    if (!args.sourceChecked) throw new Error("Check the original source before approving.");
+    if (!await ctx.db.get(args.id)) throw new Error("Event not found.");
+    const reviewed = { startsAt: args.startsAt, endsAt: args.endsAt, venue: args.venue.trim().slice(0, 160), url: safeSourceUrl(args.url), checkedAt: Date.now(), detailsIncomplete: false };
+    assertReviewedEvent(reviewed, Date.now());
+    await ctx.db.patch(args.id, { ...reviewed, status: "approved" });
   },
 });
 
@@ -73,14 +98,14 @@ export const getById = internalQuery({
 export const setBlurb = internalMutation({
   args: { id: v.id("events"), blurb: v.string() },
   handler: async (ctx, args) => {
-    await ctx.db.patch(args.id, { blurb: args.blurb.slice(0, 280) });
+    await ctx.db.patch(args.id, { blurbDraft: args.blurb.slice(0, 280) });
   },
 });
 
 /**
  * Insert from the Firecrawl ingestion action.
  * Dedupes on (title, startsAt within 24h) so weekly re-crawls don't duplicate.
- * Crawled rows go live as "approved" — they come from the city's own pages.
+ * Crawled records always need human source verification before publication.
  */
 export const upsertCrawled = internalMutation({
   args: {
@@ -112,8 +137,8 @@ export const upsertCrawled = internalMutation({
       venue: args.venue.trim().slice(0, 160),
       category: args.category,
       source: "crawl",
-      url: args.url,
-      status: "approved",
+      url: safeSourceUrl(args.url),
+      status: "pending",
     });
     return { eventId };
   },
@@ -203,8 +228,7 @@ function guessCategory(text: string): Category {
 
 /**
  * Insert from the AgentMail inbound webhook. Always pending until reviewed.
- * Parses date/venue/category from the email; falls back to sensible defaults
- * so nothing is ever lost silently.
+ * Missing facts remain incomplete and cannot pass publication review.
  */
 export const insertFromEmail = internalMutation({
   args: {
@@ -223,8 +247,8 @@ export const insertFromEmail = internalMutation({
         `Submission from ${args.from}`;
     }
     const startsAt = extractDate(`${args.subject}\n${description}`, now) ??
-      now + 7 * 24 * 60 * 60 * 1000;
-    const venue = extractVenue(description) ?? "TBD — confirm with organizer";
+      0;
+    const venue = extractVenue(description) ?? "";
     return await ctx.db.insert("events", {
       title: title.slice(0, 120),
       description: description || "(no description provided)",
@@ -232,6 +256,7 @@ export const insertFromEmail = internalMutation({
       venue: venue.slice(0, 160),
       category: guessCategory(`${title}\n${description}`),
       source: "email",
+      detailsIncomplete: true,
       status: "pending",
     });
   },

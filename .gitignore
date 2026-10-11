@@ -2,4 +2,7 @@ node_modules
 dist
 .env
 .env.local
-convex/_generated
+
+.prerender/
+test-results/
+playwright-report/

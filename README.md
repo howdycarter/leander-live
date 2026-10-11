@@ -1,6 +1,25 @@
 # Leander Live
 
-> **Status (October 2026):** Built for the Convex All Gas Hackathon (deadline September 22, 2026), which passed without a submission — the app was never deployed to a live `*.convex.site` URL, never registered on Luma, and never submitted at vibeapps.dev. The codebase is complete and key-gated (Convex backend, Firecrawl ingestion, AgentMail inbox, OpenAI summaries, voice bridge); going live is blocked on Chris's Convex login and API keys. See `SUBMISSION_CHECKLIST.md` for the frozen pre-deadline state.
+> **Implementation status (October 11, 2026):** The default build is a prerendered local guide with a Howdy Carter booking handoff and no backend prerequisite. Convex features are held behind `VITE_ENABLE_FULL_APP=true` until the actual deployment, moderation and delivery configuration are verified. The live hosting target and analytics require verification before release. See [implementation status and release gates](IMPLEMENTATION_STATUS.md).
+
+## Verify the public guide locally
+
+```bash
+npm ci
+npm test
+npm run build
+npm run preview
+# On a machine with browser support:
+npx playwright install chromium
+npm run test:e2e
+```
+
+The build produces `dist/`, including the guide, individual event page, sitemap and robots file. Refresh `src/data/guide.json` from original event pages before promotion. Missing or overdue source checks must stay out of the current guide. The default public path uses no contact form or analytics credentials and links to the existing Howdy scheduling page. A booking handoff does not establish a completed appointment.
+
+The historical app below remains available for backend integration. Do not enable it simply because a frontend URL works. Run `npm run codegen` against the selected existing Convex deployment, validate the schema migration and moderation key, then smoke-test inquiry delivery and privacy before enabling the flag. `ADMIN_KEY` is the existing shared-key guard; multi-user authentication is a separate release requirement if access is expanded.
+
+## Original application and setup
+
 
 A real-time community events board for Leander, TX — built for the
 [Convex All Gas Hackathon](https://luma.com/convex-allgas-hackathon)
