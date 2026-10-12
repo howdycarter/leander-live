@@ -1,37 +1,23 @@
 [
   {
-    "id": "newsflash-1351",
-    "title": "Weather updates and resources",
-    "publishedAt": 1790951100000,
-    "summary": "09/30/2026 - A Flood Watch has been issued for Leander from 7 PM Wednesday through 7 PM Friday.",
-    "url": "https://www.leandertx.gov/CivicAlerts.aspx?aid=1351"
-  },
-  {
-    "id": "newsflash-1346",
-    "title": "Mosquito sample has tested positive for West Nile Virus in Leander",
-    "publishedAt": 1790369340000,
-    "summary": "09/25/2026 - A mosquito trap collected near Devine Lake Park in Leander has tested positive for West Nile virus.",
-    "url": "https://www.leandertx.gov/CivicAlerts.aspx?aid=1346"
-  },
-  {
-    "id": "newsflash-1350",
-    "title": "City Council approves agreement with CenTex Sports for major sports complex",
-    "publishedAt": 1790025598000,
-    "summary": "09/21/2026 - CenTex Sports plans to invest $100 million for a state-of-the-art sports complex in Leander.",
-    "url": "https://www.leandertx.gov/CivicAlerts.aspx?aid=1350"
+    "id": "newsflash-1352",
+    "title": "Upcoming emergency training exercise",
+    "publishedAt": 1791581198000,
+    "summary": "10/09/2026 - On October 18 from 6 a.m. to 3 p.m., the Leander Fire and Police departments will be conducting a training exercise near Metro Drive and US 183 with CapMetro and neighboring cities.",
+    "url": "https://www.leandertx.gov/CivicAlerts.aspx?aid=1352"
   },
   {
     "id": "newsflash-1347",
     "title": "Leander discontinues funding Flock contract",
-    "publishedAt": 1789771380000,
+    "publishedAt": 1791303840000,
     "summary": "09/04/2026 - The City of Leander will discontinue funding its contract with Flock, following the directive by the Leander City Council during its Sept. 3, 2026 meeting.",
     "url": "https://www.leandertx.gov/CivicAlerts.aspx?aid=1347"
   },
   {
-    "id": "newsflash-1348",
-    "title": "Nationwide zoning and planning scam targeting local businesses and residents",
-    "publishedAt": 1788992645000,
-    "summary": "12/31/25 - Authorities are reporting that scammers are masquerading as local and county planning and zoning departments to extract illegitimate land use application renewal payments from local businesses and residents.",
-    "url": "https://www.leandertx.gov/CivicAlerts.aspx?aid=1348"
+    "id": "newsflash-1350",
+    "title": "City Council approves agreement with CenTex Sports for major sports complex",
+    "publishedAt": 1791303780000,
+    "summary": "09/21/2026 - CenTex Sports plans to invest $100 million for a state-of-the-art sports complex in Leander.",
+    "url": "https://www.leandertx.gov/CivicAlerts.aspx?aid=1350"
   }
 ]
