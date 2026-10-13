@@ -126,7 +126,7 @@ export function EventDetailPage() {
       {!event ? (
         <Card className="mx-auto max-w-md text-center">
           <CardContent className="flex flex-col items-center gap-4 pt-8">
-            <p className="font-display text-4xl font-bold text-[#b5431f]">Hmm.</p>
+            <h1 className="font-display text-4xl font-bold text-[#b5431f]">Hmm.</h1>
             <p className="text-muted-foreground">
               That event isn&apos;t on the board anymore — it may have passed or been
               removed. Here&apos;s what&apos;s coming up instead.

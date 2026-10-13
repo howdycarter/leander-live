@@ -14,6 +14,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useSiteActions } from "./state";
 import { trackEvent } from "./analytics";
+import { ALL_EVENTS } from "./content";
 
 /* ---------------- brand ---------------- */
 
@@ -52,6 +53,7 @@ function Header() {
               to={to}
               className={({ isActive }) =>
                 cn(
+                  "py-2",
                   isActive
                     ? "text-[#b5431f] underline decoration-2 underline-offset-8"
                     : "text-[#4a3d2f] hover:text-[#b5431f]",
@@ -214,7 +216,7 @@ function TabBar() {
               aria-current={active ? "page" : undefined}
               className={cn(
                 "flex flex-col items-center gap-1 rounded-none py-1 text-xs font-medium",
-                active ? "text-[#c05a1e]" : "text-muted-foreground",
+                active ? "text-[#b5431f]" : "text-muted-foreground",
               )}
             >
               <Icon className={cn("h-5 w-5", id === "saved" && active && "fill-current")} />
@@ -233,6 +235,83 @@ export function ScrollToTop() {
   const { pathname } = useLocation();
   useEffect(() => {
     window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
+}
+
+/* ---------------- per-route title & description ---------------- */
+
+const DEFAULT_DESCRIPTION =
+  "A real-time community events board for Leander, Texas. Browse local events or submit your own.";
+
+const ROUTE_META: Record<string, { title: string; description: string }> = {
+  "/": {
+    title: "Leander Live — What's happening in Leander, TX",
+    description: DEFAULT_DESCRIPTION,
+  },
+  "/events": {
+    title: "Upcoming Events in Leander, TX — Leander Live",
+    description:
+      "Festivals, markets, live music, and family events in Leander, Texas — every upcoming event on one community board.",
+  },
+  "/jobs": {
+    title: "Jobs in Leander, TX — Leander Live",
+    description:
+      "Local jobs posted by Leander employers — full-time, part-time, and contract work in Leander, Texas.",
+  },
+  "/city-hall": {
+    title: "City Hall — Leander Live",
+    description:
+      "City Council and board meetings, agenda packets, and city news for Leander, Texas — local government in plain sight.",
+  },
+  "/community": {
+    title: "For Businesses — Leander Live",
+    description:
+      "Put your business in front of Leander — featured listings, sponsored events, and qualified local leads from the community board.",
+  },
+  "/reminders": {
+    title: "Event Reminders — Leander Live",
+    description:
+      "Add Leander events straight to your calendar — no sign-up, no spam, just the event file.",
+  },
+  "/about": {
+    title: "About — Leander Live",
+    description:
+      "What is Leander Live? The community events, jobs, and city-hall board for Leander, Texas — plus a short history of the town.",
+  },
+  "/advertise": {
+    title: "Advertise — Leander Live",
+    description:
+      "Featured placements and AI-qualified service leads for Leander businesses, priced for local businesses — not agencies.",
+  },
+  "/privacy": {
+    title: "Privacy Policy — Leander Live",
+    description:
+      "How Leander Live handles your information: no accounts, no sign-in, and saved events that never leave your browser.",
+  },
+};
+
+/** Give every route its own document title and meta description (the SPA
+    ships a single index.html, so without this every page shares one). */
+export function RouteMeta() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    let title = "Page not found — Leander Live";
+    let description = DEFAULT_DESCRIPTION;
+    const eventMatch = pathname.match(/^\/events\/(.+)$/);
+    if (ROUTE_META[pathname]) {
+      ({ title, description } = ROUTE_META[pathname]);
+    } else if (eventMatch) {
+      const ev = ALL_EVENTS.find((e) => e.id === eventMatch[1]);
+      title = ev ? `${ev.title} — Leander Live` : "Event — Leander Live";
+      if (ev) {
+        const blurb = (ev.blurb ?? ev.description ?? "").replace(/\s+/g, " ").trim();
+        if (blurb) description = blurb.slice(0, 155);
+      }
+    }
+    document.title = title;
+    const meta = document.querySelector<HTMLMetaElement>('meta[name="description"]');
+    if (meta) meta.setAttribute("content", description);
   }, [pathname]);
   return null;
 }

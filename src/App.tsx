@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
-import { Canonical, ScrollToTop, SiteLayout } from "./site/chrome";
+import { Canonical, RouteMeta, ScrollToTop, SiteLayout } from "./site/chrome";
 import { SavedEventsProvider, SiteActionsProvider } from "./site/state";
 import { initAnalytics, trackPageView } from "./site/analytics";
 import {
@@ -34,6 +34,7 @@ export default function App() {
     <BrowserRouter>
       <ScrollToTop />
       <Canonical />
+      <RouteMeta />
       <Analytics />
       <SavedEventsProvider>
         <SiteActionsProvider>

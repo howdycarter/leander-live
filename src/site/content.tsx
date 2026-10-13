@@ -57,8 +57,18 @@ import { cn } from "@/lib/utils";
 
 /* ---------------- static data (build-time JSON, no backend) ---------------- */
 
+/** The city calendar leaves cancelled listings up with a CANCELLED marker —
+    they aren't happening, so they don't belong on the board. */
+function isCancelled(e: LiveEvent): boolean {
+  return (
+    /\bcancelled\b/i.test(e.title) ||
+    /^\s*this event has been cancelled/i.test(e.description ?? "")
+  );
+}
+
 export const ALL_EVENTS: LiveEvent[] = (eventsRaw as LiveEvent[])
   .filter((e) => e.startsAt >= Date.now() - 24 * 60 * 60 * 1000)
+  .filter((e) => !isCancelled(e))
   .sort((a, b) => a.startsAt - b.startsAt);
 
 export const ALL_JOBS: Job[] = (jobsRaw as Job[]).slice();
@@ -91,15 +101,17 @@ const DATE_FILTERS = ["All", "Today", "This Weekend", "This Month"] as const;
 export type DateFilter = (typeof DATE_FILTERS)[number];
 
 /* Category badge accents sampled from the approved mockups. */
+/* Text colors are darkened shades of the mockup hues — each passes WCAG AA
+   (>= 4.5:1) against its soft pill background. */
 const CATEGORY_STYLE: Record<string, { label: string; color: string; soft: string; Icon: LucideIcon }> = {
-  Music: { label: "Music", color: "#c93a3a", soft: "#fbe7e7", Icon: Music },
-  "Food & Drink": { label: "Food & Drink", color: "#d97a1f", soft: "#fceedb", Icon: UtensilsCrossed },
-  Family: { label: "Family", color: "#7c5cd6", soft: "#ece5fa", Icon: Users },
-  Outdoors: { label: "Outdoors", color: "#7a8f3c", soft: "#ebf1da", Icon: TreePine },
-  Learn: { label: "Learning", color: "#2f7fd0", soft: "#e2eefb", Icon: BookOpen },
-  Community: { label: "Community", color: "#4c8c4a", soft: "#e6f2e3", Icon: Leaf },
+  Music: { label: "Music", color: "#bf3737", soft: "#fbe7e7", Icon: Music },
+  "Food & Drink": { label: "Food & Drink", color: "#a15a17", soft: "#fceedb", Icon: UtensilsCrossed },
+  Family: { label: "Family", color: "#7053c1", soft: "#ece5fa", Icon: Users },
+  Outdoors: { label: "Outdoors", color: "#60712f", soft: "#ebf1da", Icon: TreePine },
+  Learn: { label: "Learning", color: "#286cb1", soft: "#e2eefb", Icon: BookOpen },
+  Community: { label: "Community", color: "#41773f", soft: "#e6f2e3", Icon: Leaf },
 };
-const DEFAULT_CATEGORY = { label: "Community", color: "#4c8c4a", soft: "#e6f2e3", Icon: Leaf };
+const DEFAULT_CATEGORY = { label: "Community", color: "#41773f", soft: "#e6f2e3", Icon: Leaf };
 
 /* Photo shown on an event card: the event's own image, else a category fallback. */
 const CATEGORY_IMAGE: Record<string, string> = {
@@ -210,12 +222,15 @@ export function inRange(startsAt: number, filter: DateFilter, now: Date): boolea
     case "Today":
       return startsAt >= day.getTime() && startsAt <= endOfDay(now).getTime();
     case "This Weekend": {
+      // The weekend runs Friday through Sunday: on Fri/Sat/Sun it's this
+      // week's Friday; Mon–Thu it's the coming Friday. (Previously Sat–Sun
+      // only, which hid Friday events and, on Sundays, jumped a week ahead.)
       const p = centralParts(now);
       const dow = WEEKDAY_NUM[p.weekday] ?? 0;
-      const daysToSat = (6 - dow + 7) % 7;
-      const satMs = centralMidnightMs(p.year, p.month, p.day) + daysToSat * 86400000;
-      const sunEnd = satMs + 2 * 86400000 - 1;
-      return startsAt >= satMs && startsAt <= sunEnd;
+      const offset = dow === 6 ? -1 : dow === 0 ? -2 : (5 - dow + 7) % 7;
+      const friMs = centralMidnightMs(p.year, p.month, p.day) + offset * 86400000;
+      const sunEnd = friMs + 3 * 86400000 - 1;
+      return startsAt >= friMs && startsAt <= sunEnd;
     }
     case "This Month": {
       const p = centralParts(now);
@@ -291,7 +306,7 @@ function DateBadge({ startsAt, className }: { startsAt: number; className?: stri
       )}
       aria-label={formatDate(startsAt)}
     >
-      <span className="text-[10px] font-bold tracking-widest text-[#b5431f]">{month}</span>
+      <span className="text-xs font-bold tracking-widest text-[#b5431f]">{month}</span>
       <span className="font-display -mt-0.5 text-xl font-black leading-none text-[#16324f]">
         {day}
       </span>
@@ -304,11 +319,15 @@ export function EventCard({
   saved,
   onToggleSaved,
   className,
+  forceVertical = false,
 }: {
   event: EventItem;
   saved: boolean;
   onToggleSaved: () => void;
   className?: string;
+  /** Render the vertical card at every width (narrow rails like the weekend
+      strip, where the horizontal phone layout gets squeezed). */
+  forceVertical?: boolean;
 }) {
   const img = event.image ?? CATEGORY_IMAGE[event.category ?? ""] ?? CATEGORY_IMAGE.Community;
   const detailUrl = `/events/${event.id}`;
@@ -325,7 +344,7 @@ export function EventCard({
       )}
     >
       {/* Desktop: vertical card */}
-      <div className="hidden flex-col sm:flex sm:flex-1">
+      <div className={forceVertical ? "flex flex-col flex-1" : "hidden flex-col sm:flex sm:flex-1"}>
         <Link
           to={detailUrl}
           className="relative block h-44 shrink-0 overflow-hidden"
@@ -379,7 +398,7 @@ export function EventCard({
         </CardFooter>
       </div>
       {/* Mobile: horizontal card */}
-      <div className="flex gap-3 p-3 sm:hidden">
+      <div className={forceVertical ? "hidden" : "flex gap-3 p-3 sm:hidden"}>
         <Link
           to={detailUrl}
           className="relative block h-28 w-28 shrink-0 overflow-hidden rounded-xl"
@@ -618,7 +637,7 @@ export function SubmitDialogContent() {
             <div className="grid gap-2">
               <Label>Category</Label>
               <Select value={category} onValueChange={setCategory}>
-                <SelectTrigger>
+                <SelectTrigger aria-label="Category">
                   <SelectValue placeholder="Pick a category…" />
                 </SelectTrigger>
                 <SelectContent>
@@ -659,10 +678,10 @@ const JOB_TYPE_LABEL: Record<string, string> = {
 
 /* Job-type badge accents (same soft-pill language as the event categories). */
 const JOB_TYPE_STYLE: Record<string, { color: string; soft: string }> = {
-  "full-time": { color: "#2f7fd0", soft: "#e2eefb" },
-  "part-time": { color: "#7c5cd6", soft: "#ece5fa" },
-  contract: { color: "#d97a1f", soft: "#fceedb" },
-  temporary: { color: "#7a8f3c", soft: "#ebf1da" },
+  "full-time": { color: "#286cb1", soft: "#e2eefb" },
+  "part-time": { color: "#7053c1", soft: "#ece5fa" },
+  contract: { color: "#a15a17", soft: "#fceedb" },
+  temporary: { color: "#60712f", soft: "#ebf1da" },
 };
 
 function JobTypeBadge({ type }: { type: string }) {
@@ -887,7 +906,7 @@ function PostJobDialogContent() {
             <div className="grid gap-2">
               <Label>Job type</Label>
               <Select value={type} onValueChange={setType}>
-                <SelectTrigger>
+                <SelectTrigger aria-label="Job type">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -1100,9 +1119,17 @@ export function BusinessForm({ packageName }: { packageName?: string }) {
   const [interests, setInterests] = useState<string[]>([]);
   const [sent, setSent] = useState(false);
   const [sentName, setSentName] = useState({ contact: "", business: "" });
+  const [contactError, setContactError] = useState(false);
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
+    // The form promises "at least one of email or phone" — enforce it, or the
+    // lead arrives with no way to reach the business.
+    if (!email.trim() && !phone.trim()) {
+      setContactError(true);
+      return;
+    }
+    setContactError(false);
     const body = [
       `Business: ${businessName}`,
       `Contact: ${contactName}`,
@@ -1165,18 +1192,23 @@ export function BusinessForm({ packageName }: { packageName?: string }) {
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="grid gap-2">
                 <Label htmlFor="bz-email">Email</Label>
-                <Input id="bz-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@business.com" />
+                <Input id="bz-email" type="email" value={email} onChange={(e) => { setEmail(e.target.value); setContactError(false); }} placeholder="you@business.com" />
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="bz-phone">Phone</Label>
-                <Input id="bz-phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="(512) 555-0123" />
+                <Input id="bz-phone" type="tel" value={phone} onChange={(e) => { setPhone(e.target.value); setContactError(false); }} placeholder="(512) 555-0123" />
               </div>
             </div>
             <p className="text-xs text-muted-foreground">At least one of email or phone is required.</p>
+            {contactError && (
+              <p role="alert" className="-mt-2 text-xs font-semibold text-destructive">
+                Add an email or phone number so we can reach you.
+              </p>
+            )}
             <div className="grid gap-2">
               <Label>Business vertical</Label>
               <Select value={vertical} onValueChange={setVertical} required>
-                <SelectTrigger>
+                <SelectTrigger aria-label="Business vertical">
                   <SelectValue placeholder="Choose a vertical…" />
                 </SelectTrigger>
                 <SelectContent>

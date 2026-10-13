@@ -34,7 +34,7 @@ import { useSavedEvents, useSiteActions } from "./state";
 
 export function HomePage() {
   return (
-    <>
+    <main>
       <HomeHero />
       <WeekendSpotlight />
       <FeaturedEvents
@@ -45,7 +45,7 @@ export function HomePage() {
       <HowItWorks />
       <BusinessCtaBand />
       <NavyCtaBand />
-    </>
+    </main>
   );
 }
 
@@ -334,7 +334,7 @@ export function NotFoundPage() {
     <main className="mx-auto max-w-6xl px-4 pt-16">
       <Card className="mx-auto max-w-md text-center">
         <CardContent className="flex flex-col items-center gap-4 pt-8">
-          <p className="font-display text-5xl font-bold text-[#b5431f]">404</p>
+          <h1 className="font-display text-5xl font-bold text-[#b5431f]">404</h1>
           <p className="text-muted-foreground">
             That page isn&apos;t on the board. Let&apos;s get you back to what&apos;s happening.
           </p>
@@ -431,6 +431,7 @@ export function AdvertisePage() {
       </PageHero>
 
       <main className="mx-auto max-w-6xl px-4 py-12">
+        <h2 className="sr-only">Advertising packages</h2>
         <div className="grid gap-6 md:grid-cols-2">
           {AD_PACKAGES.map((pkg) => (
             <PackageCard key={pkg.id} pkg={pkg} onInterested={scrollToForm} />
@@ -438,7 +439,7 @@ export function AdvertisePage() {
         </div>
 
         <section className="mt-16">
-          <p className="text-xs font-bold uppercase tracking-[0.25em] text-[#c05a1e]">
+          <p className="text-xs font-bold uppercase tracking-[0.25em] text-[#b5431f]">
             Service leads
           </p>
           <h2 className="font-display mt-2 text-3xl font-bold">

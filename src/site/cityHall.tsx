@@ -80,7 +80,7 @@ function NewsCard({ item }: { item: NewsItem }) {
       rel="noopener noreferrer"
       className="group block rounded-xl border border-[#eadbc3] bg-white p-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
     >
-      <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-[#c05a1e]">
+      <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-[#b5431f]">
         <Newspaper className="h-3.5 w-3.5" aria-hidden="true" />
         {formatDate(item.publishedAt)}
       </p>
@@ -144,7 +144,7 @@ export function CityHallPage() {
             <div className="flex flex-col gap-8">
               {bodies.map((body) => (
                 <div key={body}>
-                  <h3 className="mb-3 text-sm font-bold uppercase tracking-[0.18em] text-[#c05a1e]">
+                  <h3 className="mb-3 text-sm font-bold uppercase tracking-[0.18em] text-[#b5431f]">
                     {body}
                   </h3>
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -175,7 +175,7 @@ export function CityHallPage() {
               </p>
               <Button
                 asChild
-                className="rounded-full bg-[#d98a1f] font-bold text-white hover:bg-[#c67a14]"
+                className="rounded-full bg-[#d98a1f] font-bold text-[#16324f] hover:bg-[#e09c2c]"
               >
                 <a
                   href="https://www.leandertx.gov/DocumentCenter"

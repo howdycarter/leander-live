@@ -40,7 +40,12 @@ export function PageHero({
   children?: ReactNode;
 }) {
   return (
-    <div className="relative overflow-hidden" style={{ backgroundColor: NAVY }}>
+    <div
+      className="relative overflow-hidden"
+      style={{ backgroundColor: NAVY }}
+      role="region"
+      aria-label={typeof title === "string" ? title : "Page header"}
+    >
       <div className="absolute inset-0 opacity-25" aria-hidden="true">
         <img src={SUNSET} alt="" className="h-full w-full object-cover" />
         <div className="absolute inset-0" style={{ backgroundColor: NAVY, opacity: 0.6 }} />
@@ -107,7 +112,7 @@ export function HomeHero() {
             />
             <Button
               type="submit"
-              className="absolute right-1.5 top-1/2 h-11 -translate-y-1/2 rounded-full bg-[#d98a1f] px-6 font-bold text-white hover:bg-[#c67a14]"
+              className="absolute right-1.5 top-1/2 h-11 -translate-y-1/2 rounded-full bg-[#d98a1f] px-6 font-bold text-[#16324f] hover:bg-[#e09c2c]"
             >
               Search
             </Button>
@@ -212,7 +217,7 @@ export function WeekendSpotlight() {
     <section aria-label="This weekend in Leander" className="mx-auto max-w-6xl px-4 pt-10 sm:pt-14">
       <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.25em] text-[#c05a1e]">
+          <p className="text-xs font-bold uppercase tracking-[0.25em] text-[#b5431f]">
             Don&apos;t miss it
           </p>
           <h2 className="font-display mt-1 text-3xl font-bold text-[#16324f]">
@@ -250,6 +255,7 @@ export function WeekendSpotlight() {
                 event={event}
                 saved={saved.has(event.id)}
                 onToggleSaved={() => toggleSaved(event.id)}
+                forceVertical
               />
             </div>
           ))}
@@ -272,7 +278,7 @@ export function JobsPreview() {
     <section aria-label="Featured jobs" className="mx-auto max-w-6xl px-4 pt-10 sm:pt-14">
       <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.25em] text-[#c05a1e]">
+          <p className="text-xs font-bold uppercase tracking-[0.25em] text-[#b5431f]">
             Work local
           </p>
           <h2 className="font-display mt-1 text-3xl font-bold text-[#16324f]">
@@ -338,14 +344,14 @@ const STEPS = [
   {
     Icon: Heart,
     title: "Save what you love",
-    body: "Tap the heart on any event and it follows you across devices. Your weekend, planned in seconds.",
+    body: "Tap the heart on any event and it stays saved right here in your browser. Your weekend, planned in seconds.",
     tint: "#ece5fa",
     color: "#7c5cd6",
   },
   {
     Icon: Bell,
     title: "Never miss out",
-    body: "Pick your interests and get reminders about the events you care about — by email, and by text soon.",
+    body: "Add any event straight to your own calendar with one tap — no sign-up, no spam, just the event file.",
     tint: "#e6f2e3",
     color: "#4c8c4a",
   },
@@ -355,7 +361,7 @@ export function HowItWorks() {
   return (
     <section aria-label="How Leander Live works" className="mx-auto max-w-6xl px-4 pt-10 sm:pt-14">
       <div className="mb-6 text-center">
-        <p className="text-xs font-bold uppercase tracking-[0.25em] text-[#c05a1e]">
+        <p className="text-xs font-bold uppercase tracking-[0.25em] text-[#b5431f]">
           How it works
         </p>
         <h2 className="font-display mt-1 text-3xl font-bold text-[#16324f]">
@@ -419,7 +425,7 @@ export function BusinessCtaBand() {
             <div className="flex flex-wrap gap-3">
               <Button
                 asChild
-                className="rounded-full bg-[#d98a1f] font-bold text-white hover:bg-[#c67a14]"
+                className="rounded-full bg-[#d98a1f] font-bold text-[#16324f] hover:bg-[#e09c2c]"
               >
                 <Link to="/advertise">
                   <Sparkles className="h-4 w-4" aria-hidden="true" /> See packages
@@ -444,11 +450,6 @@ export function BusinessCtaBand() {
 
 const FILTER_CHIPS = ["All", "This weekend", "Music", "Family", "Food & Drink", "Outdoors"] as const;
 
-function withinDays(startsAt: number, days: number) {
-  const now = Date.now();
-  return startsAt >= now && startsAt <= now + days * 86400000;
-}
-
 export function FeaturedEvents({
   title = "Upcoming in Leander",
   subtitle,
@@ -460,14 +461,15 @@ export function FeaturedEvents({
 }) {
   const { saved, toggleSaved } = useSavedEvents();
   const [chip, setChip] = useState<(typeof FILTER_CHIPS)[number]>("All");
+  const now = useMemo(() => new Date(), []);
 
   const filtered = useMemo(() => {
     const events = ALL_EVENTS.slice(0, limit);
     if (chip === "All") return events;
     if (chip === "This weekend")
-      return events.filter((e: EventItem) => withinDays(e.startsAt, 7));
+      return events.filter((e: EventItem) => inRange(e.startsAt, "This Weekend", now));
     return events.filter((e: EventItem) => e.category === chip);
-  }, [chip, limit]);
+  }, [chip, limit, now]);
 
   return (
     <section aria-label={title} className="mx-auto max-w-6xl px-4 pt-10 sm:pt-16">
@@ -549,7 +551,7 @@ export function NavyCtaBand() {
         <div className="flex flex-wrap justify-center gap-3">
           <Button
             asChild
-            className="rounded-full bg-[#d98a1f] font-semibold text-white hover:bg-[#c67a14]"
+            className="rounded-full bg-[#d98a1f] font-semibold text-[#16324f] hover:bg-[#e09c2c]"
           >
             <Link to="/community">
               Be part of it <ArrowRight className="h-4 w-4" />
