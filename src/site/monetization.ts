@@ -6,10 +6,23 @@
  * is created or any price is shown as final — the page reads these
  * values, so updating here updates the whole site.
  *
- * STRIPE (Chris): create one Product + Payment Link per package in the
- * Stripe Dashboard (https://dashboard.stripe.com/payment-links), then paste
- * each link below. Until a link is set, that package's button falls back to
- * the advertiser-interest form so no visitor ever hits a dead checkout.
+ * STRIPE STATUS (2026-10-24): no payment links exist yet. The Stripe MCP
+ * connector is not connected, so no products/links could be created —
+ * Chris connects it (OAuth) and the links get created + pasted below.
+ * Billing model per package:
+ *   featured-listing  $49/mo  — subscription Payment Link -> stripeUrl
+ *   sponsored-event   $29     — one-time Payment Link -> stripeUrl
+ *   featured-job      $99     — one-time Payment Link (30 days) -> stripeUrl
+ *   service-leads     $35/lead — NO payment link by design: leads are
+ *                     invoiced manually after delivery (a business can't
+ *                     pre-buy an unknown number of leads through a static
+ *                     link, and "no lead, no charge" requires billing
+ *                     after the fact). stripeUrl stays "" so the CTA
+ *                     keeps falling back to the interest form.
+ *   service-leads exclusivity $299/mo — subscription Payment Link ->
+ *                     exclusivity.stripeUrl
+ * Until a link is set, that package's button falls back to the
+ * advertiser-interest form so no visitor ever hits a dead checkout.
  */
 
 export interface AdPackage {
@@ -22,6 +35,13 @@ export interface AdPackage {
   /** Stripe Payment Link URL. Empty = fall back to interest form. */
   stripeUrl: string;
   cta: string;
+  /** Optional category-exclusivity subscription (service-leads only). */
+  exclusivity?: {
+    price: number;
+    cadence: string;
+    /** Stripe Payment Link URL. Empty = option shown as a feature only. */
+    stripeUrl: string;
+  };
 }
 
 export const AD_PACKAGES: AdPackage[] = [
@@ -84,6 +104,11 @@ export const AD_PACKAGES: AdPackage[] = [
     ],
     stripeUrl: "",
     cta: "Start getting leads",
+    exclusivity: {
+      price: 299,
+      cadence: "/month",
+      stripeUrl: "",
+    },
   },
 ];
 
