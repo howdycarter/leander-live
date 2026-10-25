@@ -3,6 +3,9 @@
  *   1. CivicClerk public API (leandertx.api.civicclerk.com) — upcoming board
  *      meetings (City Council, Planning & Zoning, others).
  *   2. News Flash RSS (https://www.leandertx.gov/RSSFeed.aspx?ModID=1&CID=All-newsflash.xml)
+ *   3. Leander ISD Board of Trustees meetings — BoardBook public view
+ *      (https://www.leanderisd.org/boardagendas/), rendered via Firecrawl
+ *      because leanderisd.org is Cloudflare-walled to plain fetches.
  *
  * Outputs: src/data/civic.json (CivicMeeting[]) and src/data/news.json (NewsItem[]),
  * sorted ascending by startsAt / publishedAt.
@@ -13,6 +16,7 @@
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
+import { execFile } from "node:child_process";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const CIVIC_OUT = join(ROOT, "src/data/civic.json");
@@ -21,6 +25,37 @@ const UA = "LeanderLive-Scraper/1.0 (community-events-bot; contact chris@howdyca
 const SLEEP_MS = 300;
 const API = "https://leandertx.api.civicclerk.com/v1";
 const PORTAL = "https://leandertx.portal.civicclerk.com";
+
+const FIRECRAWL_BIN =
+  process.env.LL_FIRECRAWL_BIN ||
+  "/home/hatch/workspace/custom-connectors/custom.legacy-firecrawl/bin/firecrawl";
+const FIRECRAWL_PYTHONPATH = "/opt/muse/skills/custom-connector-setup/bin";
+
+/** Render a JS-heavy page to markdown via the Firecrawl connector CLI. */
+function firecrawlScrape(url) {
+  return new Promise((resolve, reject) => {
+    execFile(
+      FIRECRAWL_BIN,
+      ["scrape", "--url", url],
+      {
+        env: { ...process.env, PYTHONPATH: FIRECRAWL_PYTHONPATH },
+        maxBuffer: 32 * 1024 * 1024,
+        timeout: 240000,
+      },
+      (err, stdout, stderr) => {
+        if (err) {
+          reject(new Error(`firecrawl scrape failed: ${(stderr || err.message || "").slice(0, 200)}`));
+          return;
+        }
+        if (!stdout || stdout.length < 500) {
+          reject(new Error("firecrawl returned suspiciously little content"));
+          return;
+        }
+        resolve(stdout);
+      },
+    );
+  });
+}
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -177,18 +212,79 @@ async function scrapeNews() {
   return items;
 }
 
+/* ---------------- Leander ISD Board (BoardBook, via Firecrawl) ---------------- */
+
+const MONTHS = {
+  january: 1, february: 2, march: 3, april: 4, may: 5, june: 6,
+  july: 7, august: 8, september: 9, october: 10, november: 11, december: 12,
+};
+
+async function scrapeLisdBoard() {
+  const md = await firecrawlScrape("https://www.leanderisd.org/boardagendas/");
+  const re = /([A-Z][a-z]+) (\d{1,2}), (\d{4}) at (\d{1,2}):(\d{2}) ([AP]M)\s*-\s*([^<|]+?)(?=<br|\||$)/gm;
+  const matches = [...md.matchAll(re)];
+  if (matches.length === 0) throw new Error("no meeting rows parsed from BoardBook public view");
+  const now = Date.now();
+  const out = [];
+  const seenIds = new Set();
+  for (const m of matches) {
+    const [, monName, day, year, hh, mm, ampm, rawTitle] = m;
+    const mon = MONTHS[monName.toLowerCase()];
+    if (!mon) continue;
+    let h = +hh % 12;
+    if (ampm === "PM") h += 12;
+    const startsAt = parseCentral(
+      `${year}-${String(mon).padStart(2, "0")}-${String(day).padStart(2, "0")}T${String(h).padStart(2, "0")}:${mm}`,
+    );
+    if (!Number.isFinite(startsAt) || startsAt < now - 6 * 3600 * 1000) continue;
+    const seg = md.slice(m.index, m.index + 6000);
+    const agenda = seg.match(/(https:\/\/meetings\.boardbook\.org\/Public\/Agenda\/\d+\?meeting=(\d+))/);
+    const id = agenda ? `lisd-board-${agenda[2]}` : `lisd-board-${year}${String(mon).padStart(2, "0")}${String(day).padStart(2, "0")}-${String(h).padStart(2, "0")}${mm}`;
+    if (seenIds.has(id)) continue;
+    seenIds.add(id);
+    const loc = seg.match(/([A-Z][A-Za-z ]+(?:Center|School|Building))<br>\s*(\d+[^<]+)</);
+    const title = rawTitle.replace(/\s+/g, " ").trim();
+    const rec = {
+      id,
+      body: "Leander ISD Board of Trustees",
+      title: `Board of Trustees — ${title}`,
+      startsAt,
+      sourceUrl: agenda ? agenda[1] : "https://www.leanderisd.org/boardagendas/",
+    };
+    if (loc) rec.location = `${loc[1].trim()}, ${loc[2].replace(/\s+/g, " ").trim()}`;
+    if (agenda) rec.agendaUrl = agenda[1];
+    out.push(rec);
+  }
+  out.sort((a, b) => a.startsAt - b.startsAt);
+  const capped = out.slice(0, 10);
+  if (capped.length === 0) throw new Error("no upcoming LISD board meetings parsed");
+  return capped;
+}
+
 async function main() {
   const prevCivic = loadPrevious(CIVIC_OUT);
   const prevNews = loadPrevious(NEWS_OUT);
+  const prevCity = prevCivic.filter((m) => !String(m.id).startsWith("lisd-board-"));
+  const prevLisd = prevCivic.filter((m) => String(m.id).startsWith("lisd-board-"));
 
-  let meetings;
+  let cityMeetings, lisdMeetings;
   try {
-    meetings = await scrapeMeetings();
-    console.error(`civic meetings: OK (${meetings.length} upcoming)`);
+    cityMeetings = await scrapeMeetings();
+    console.error(`civic meetings: OK (${cityMeetings.length} upcoming)`);
   } catch (e) {
-    console.error(`WARN: civic meetings source failed: ${e.message}; keeping ${prevCivic.length} previous records`);
-    meetings = prevCivic;
+    console.error(`WARN: civic meetings source failed: ${e.message}; keeping ${prevCity.length} previous records`);
+    cityMeetings = prevCity;
   }
+
+  try {
+    lisdMeetings = await scrapeLisdBoard();
+    console.error(`LISD board: OK (${lisdMeetings.length} upcoming)`);
+  } catch (e) {
+    console.error(`WARN: LISD board source failed: ${e.message}; keeping ${prevLisd.length} previous records`);
+    lisdMeetings = prevLisd;
+  }
+
+  const meetings = [...cityMeetings, ...lisdMeetings].sort((a, b) => a.startsAt - b.startsAt);
 
   let news;
   try {

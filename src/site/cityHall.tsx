@@ -20,25 +20,25 @@ const NEWS: NewsItem[] = (newsRaw as NewsItem[])
 
 function MeetingCard({ meeting }: { meeting: CivicMeeting }) {
   return (
-    <Card className="border-[#eadbc3]">
+    <Card className="border-border">
       <CardContent className="flex flex-col gap-3 p-5">
         <div className="flex flex-wrap items-center gap-2">
-          <Badge className="gap-1 rounded-full bg-[#16324f] px-2.5 py-0.5 text-white">
+          <Badge className="gap-1 rounded-md bg-navy px-2.5 py-0.5 text-white">
             <Landmark className="h-3 w-3" aria-hidden="true" />
             {meeting.body}
           </Badge>
         </div>
-        <h3 className="font-display text-lg font-bold leading-snug text-[#16324f]">
+        <h3 className="font-display text-lg font-bold leading-snug text-navy">
           {meeting.title}
         </h3>
-        <div className="flex flex-col gap-1.5 text-sm text-[#5c4f40]">
+        <div className="flex flex-col gap-1.5 text-sm text-foreground/75">
           <span className="flex items-center gap-2">
-            <CalendarDays className="h-4 w-4 shrink-0 text-[#a08b6d]" />
+            <CalendarDays className="h-4 w-4 shrink-0 text-muted-foreground" />
             {formatDate(meeting.startsAt)} · {formatTime(meeting.startsAt)}
           </span>
           {meeting.location && (
             <span className="flex items-center gap-2">
-              <MapPin className="h-4 w-4 shrink-0 text-[#a08b6d]" />
+              <MapPin className="h-4 w-4 shrink-0 text-muted-foreground" />
               {meeting.location}
             </span>
           )}
@@ -78,19 +78,19 @@ function NewsCard({ item }: { item: NewsItem }) {
       href={item.url}
       target="_blank"
       rel="noopener noreferrer"
-      className="group block rounded-xl border border-[#eadbc3] bg-white p-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+      className="group block rounded-xl border border-border bg-white p-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
     >
-      <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-[#b5431f]">
+      <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-primary">
         <Newspaper className="h-3.5 w-3.5" aria-hidden="true" />
         {formatDate(item.publishedAt)}
       </p>
-      <h3 className="font-display mt-1.5 font-bold leading-snug text-[#16324f] group-hover:text-[#b5431f]">
+      <h3 className="font-display mt-1.5 font-bold leading-snug text-navy group-hover:text-primary">
         {item.title}
       </h3>
       {item.summary && (
         <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{item.summary}</p>
       )}
-      <span className="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-[#b5431f]">
+      <span className="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-primary">
         Read on leandertx.gov <ArrowUpRight className="h-3.5 w-3.5" />
       </span>
     </a>
@@ -113,11 +113,11 @@ export function CityHallPage() {
         title="City Hall"
         subtitle="Council and board meetings, agenda packets, and city news — what your local government is up to, in plain sight."
       />
-      <main className="mx-auto max-w-6xl px-4 py-10">
+      <main className="mx-auto max-w-6xl px-4 py-6">
         {/* Upcoming meetings */}
         <section aria-label="Upcoming meetings">
           <div className="mb-4">
-            <h2 className="font-display text-2xl font-bold text-[#16324f]">
+            <h2 className="font-display text-2xl font-bold text-navy">
               Upcoming meetings
             </h2>
             <p className="mt-1 text-[15px] text-stone-600">
@@ -126,14 +126,14 @@ export function CityHallPage() {
             </p>
           </div>
           {MEETINGS.length === 0 ? (
-            <Card className="border-dashed border-[#d9c9a8]">
+            <Card className="border-dashed border-border">
               <CardContent className="p-8 text-center text-sm text-stone-600">
                 No upcoming meetings posted yet —{" "}
                 <a
                   href="https://www.leandertx.gov/AgendaCenter"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="font-semibold text-[#b5431f] underline"
+                  className="font-semibold text-primary underline"
                 >
                   check the city&apos;s Agenda Center
                 </a>
@@ -144,7 +144,7 @@ export function CityHallPage() {
             <div className="flex flex-col gap-8">
               {bodies.map((body) => (
                 <div key={body}>
-                  <h3 className="mb-3 text-sm font-bold uppercase tracking-[0.18em] text-[#b5431f]">
+                  <h3 className="mb-3 text-sm font-bold uppercase tracking-[0.18em] text-primary">
                     {body}
                   </h3>
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -160,9 +160,9 @@ export function CityHallPage() {
 
         {/* Ordinances */}
         <section aria-label="Code of ordinances" className="mt-12">
-          <Card className="overflow-hidden border-0 bg-[#16324f] text-white">
+          <Card className="overflow-hidden border-0 bg-navy text-white">
             <CardContent className="flex flex-col items-start gap-3 p-8">
-              <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.25em] text-amber-300">
+              <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.25em] text-gold">
                 <FileText className="h-4 w-4" aria-hidden="true" /> Code of Ordinances
               </p>
               <h2 className="font-display text-2xl font-bold">
@@ -175,7 +175,7 @@ export function CityHallPage() {
               </p>
               <Button
                 asChild
-                className="rounded-full bg-[#d98a1f] font-bold text-[#16324f] hover:bg-[#e09c2c]"
+                className="rounded-full bg-gold font-bold text-navy hover:bg-gold/85"
               >
                 <a
                   href="https://www.leandertx.gov/DocumentCenter"
@@ -193,19 +193,19 @@ export function CityHallPage() {
         <section aria-label="City news" className="mt-12">
           <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
             <div>
-              <h2 className="font-display text-2xl font-bold text-[#16324f]">City news</h2>
+              <h2 className="font-display text-2xl font-bold text-navy">City news</h2>
               <p className="mt-1 text-[15px] text-stone-600">
                 Fresh from leandertx.gov — announcements, road work, and public notices.
               </p>
             </div>
-            <Button asChild variant="link" className="h-auto px-0 font-semibold text-[#b5431f]">
+            <Button asChild variant="link" className="h-auto px-0 font-semibold text-primary">
               <a href="https://www.leandertx.gov/" target="_blank" rel="noopener noreferrer">
                 leandertx.gov <ArrowUpRight className="h-4 w-4" />
               </a>
             </Button>
           </div>
           {NEWS.length === 0 ? (
-            <Card className="border-dashed border-[#d9c9a8]">
+            <Card className="border-dashed border-border">
               <CardHeader>
                 <CardTitle className="text-base">No recent headlines</CardTitle>
               </CardHeader>

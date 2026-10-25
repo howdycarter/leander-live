@@ -55,6 +55,26 @@ function mapCategory(text, fallback) {
   return fallback || "Community";
 }
 
+const BOILERPLATE_DESC_RE = /see the (City of Leander|Leander Chamber of Commerce) calendar for details/i;
+
+/**
+ * Card blurb: neither source publishes a short hook, so derive one
+ * mechanically from the event's own description — its first sentence,
+ * clamped. Never invented copy; events whose only text is the boilerplate
+ * placeholder get no blurb.
+ */
+function deriveBlurb(ev) {
+  if (ev.blurb && String(ev.blurb).trim()) return;
+  const desc = (ev.description || "").replace(/\s+/g, " ").trim();
+  if (desc.length < 60 || BOILERPLATE_DESC_RE.test(desc)) return;
+  const firstSentence = (desc.match(/^[^.!?]+[.!?]+/) || [desc])[0].trim();
+  let blurb = firstSentence.length >= 40 ? firstSentence : desc;
+  if (blurb.length > 140) {
+    blurb = blurb.slice(0, 140).replace(/\s+\S*$/, "").trim() + "…";
+  }
+  if (blurb) ev.blurb = blurb;
+}
+
 function loadPrevious() {
   if (!existsSync(OUT)) return [];
   try {
@@ -135,8 +155,16 @@ async function scrapeCityCalendar() {
     try {
       const html = await get(ev.url);
       const $ = cheerio.load(html);
-      const desc = $("div[itemprop='description']").first().text().replace(/\s+/g, " ").trim();
+      const descDiv = $("div[itemprop='description']").first();
+      const desc = descDiv.text().replace(/\s+/g, " ").trim();
       if (desc) ev.description = desc;
+      // The city almost never embeds a photo in a calendar description
+      // (verified Oct 2026: text-only, and og:image is one generic site
+      // image for every event) — but take a real one if it ever appears.
+      const embedded = descDiv.find("img").first().attr("src");
+      if (embedded) {
+        ev.image = embedded.startsWith("http") ? embedded : `https://www.leandertx.gov${embedded}`;
+      }
       // detail page may refine the date line
       const dline = $("[id$='eventDate']").first().text().trim();
       if (dline) ev._dateLine = dline;
@@ -194,12 +222,25 @@ async function scrapeChamber() {
       const endsAt = f.DTEND ? parseICSDate(f.DTEND) : undefined;
       const loc = (f.LOCATION || "").replace(/\s+/g, " ").trim();
       const venue = loc.split(",")[0].trim() || "Leander, TX";
+      // Chamber event pages carry a per-event flyer image (CalendarImages)
+      // that the ICS feed omits — fetch the page and take it when present.
+      let image;
+      try {
+        const pageHtml = await get(pageUrl);
+        const $p = cheerio.load(pageHtml);
+        const flyer = $p("img[src*='CalendarImages']").first().attr("src");
+        if (flyer) {
+          const abs = flyer.startsWith("http") ? flyer : `https://leander.chamberspace.net${flyer}`;
+          image = encodeURI(abs);
+        }
+      } catch { /* image is optional; the card falls back to category art */ }
       events.push({
         id: `chamber-${eid}`,
         title: (f.SUMMARY || "Chamber Event").trim(),
         description: (f.DESCRIPTION || "").replace(/\s+/g, " ").trim() || "See the Leander Chamber of Commerce calendar for details.",
         startsAt, endsAt,
         venue, address: loc.includes(",") ? loc : undefined,
+        ...(image ? { image } : {}),
         url: pageUrl, sourceUrl: pageUrl,
         category: mapCategory(`${f.SUMMARY} ${f.DESCRIPTION}`, "Community"),
         source: "chamber",
@@ -269,6 +310,7 @@ async function main() {
   }
 
   const all = [...anchors, ...fresh].sort((a, b) => a.startsAt - b.startsAt);
+  for (const ev of all) deriveBlurb(ev);
   writeFileSync(OUT, JSON.stringify(all, null, 2) + "\n");
   console.log(`events.json: ${all.length} events (${anchors.length} anchors, ${city.length} city-calendar, ${chamber.length} chamber)`);
 }

@@ -1,37 +1,5 @@
 [
   {
-    "id": "civic-951",
-    "body": "Charter Review Commission",
-    "title": "Charter Review Commission",
-    "startsAt": 1792449000000,
-    "location": "Development Services, San Gabriel Conference Room, 201 N. Brushy Street, Leander Texas, 78641",
-    "sourceUrl": "https://leandertx.portal.civicclerk.com/event/951"
-  },
-  {
-    "id": "civic-954",
-    "body": "City Council Retreat",
-    "title": "City Council Retreat",
-    "startsAt": 1792677600000,
-    "location": "200 Hi Circle North, Horseshoe Bay Resort Hotel - Post Oak Room, Horseshoe Bay Texas, 78657",
-    "sourceUrl": "https://leandertx.portal.civicclerk.com/event/954"
-  },
-  {
-    "id": "civic-891",
-    "body": "Planning & Zoning Commission",
-    "title": "Planning and Zoning Commission Meeting",
-    "startsAt": 1792710000000,
-    "location": "Pat Bryson Municipal Hall, Council Chambers, 201 N. Brushy Street, Leander TX, 78641",
-    "sourceUrl": "https://leandertx.portal.civicclerk.com/event/891"
-  },
-  {
-    "id": "civic-955",
-    "body": "City Council Retreat",
-    "title": "City Council Retreat",
-    "startsAt": 1792764000000,
-    "location": "200 Hi Circle North, Horseshoe Bay Resort Hotel - Post Oak Room, Horseshoe Bay Texas, 78657",
-    "sourceUrl": "https://leandertx.portal.civicclerk.com/event/955"
-  },
-  {
     "id": "civic-952",
     "body": "Tax Increment Reinvestment Zone (TIRZ) No. 1",
     "title": "Tax Increment Reinvestment Zone (TIRZ) No. 1",
@@ -46,6 +14,15 @@
     "startsAt": 1793021400000,
     "location": "Pat Bryson Municipal Hall, Council Chambers, 201 N. Brushy Street, Leander Texas, 78641",
     "sourceUrl": "https://leandertx.portal.civicclerk.com/event/953"
+  },
+  {
+    "id": "lisd-board-767398",
+    "body": "Leander ISD Board of Trustees",
+    "title": "Board of Trustees — Special Meeting - Board Workshop",
+    "startsAt": 1793315700000,
+    "sourceUrl": "https://meetings.boardbook.org/Public/Agenda/795?meeting=767398",
+    "location": "Linda Lippe Instructional Materials Center, 1775 W New Hope Drive",
+    "agendaUrl": "https://meetings.boardbook.org/Public/Agenda/795?meeting=767398"
   },
   {
     "id": "civic-865",

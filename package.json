@@ -34,7 +34,8 @@
     "build": "tsc --noEmit && vite build",
     "dev": "vite",
     "preview": "vite preview",
-    "scrape": "node scripts/scrape-events.mjs && node scripts/scrape-jobs.mjs && node scripts/scrape-civic.mjs"
+    "scrape": "node scripts/scrape-events.mjs && node scripts/scrape-jobs.mjs && node scripts/scrape-civic.mjs && node scripts/scrape-signals.mjs",
+    "refresh": "node scripts/run-refresh.mjs"
   },
   "type": "module",
   "version": "0.1.0"

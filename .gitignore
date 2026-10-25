@@ -1,5 +1,6 @@
 node_modules
 dist
+signals/
 .env
 .env.local
 convex/_generated

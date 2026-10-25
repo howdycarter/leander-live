@@ -8,6 +8,7 @@ import {
   ALL_EVENTS,
   ALL_JOBS,
   BusinessForm,
+  BusinessesBoard,
   CrossPromoCard,
   EventCard,
   FeedFilters,
@@ -28,7 +29,7 @@ import {
 } from "./conceptA";
 import { CityHallPage } from "./cityHall";
 import { EventDetailPage } from "./eventDetail";
-import { useSavedEvents, useSiteActions } from "./state";
+import { useSavedEvents } from "./state";
 
 /* ---------------- home — Concept A: Bright & Bold ---------------- */
 
@@ -55,7 +56,6 @@ export { EventDetailPage, CityHallPage };
 
 export function EventsPage() {
   const { saved, toggleSaved } = useSavedEvents();
-  const { openSubmit } = useSiteActions();
   const [searchParams, setSearchParams] = useSearchParams();
   const savedOnly = searchParams.get("saved") === "1";
 
@@ -97,16 +97,16 @@ export function EventsPage() {
             : "Every festival, market, concert, and Friday-night light — all in one place."
         }
       />
-      <main className="mx-auto max-w-6xl px-4 py-10">
+      <main className="mx-auto max-w-6xl px-4 py-6">
       <div className="mb-4 flex items-end justify-between gap-4">
-        <h2 className="font-display text-2xl font-bold text-[#16324f]">
+        <h2 className="font-display text-2xl font-extrabold tracking-tight text-navy">
           {savedOnly ? "Your saved events" : "Find your thing"}
         </h2>
         {hasFilters && (
           <Button
             variant="link"
             onClick={clearFilters}
-            className="h-auto shrink-0 px-0 text-sm font-semibold text-[#b5431f]"
+            className="h-auto shrink-0 px-0 text-sm font-semibold text-primary"
           >
             View All Events <ArrowRight className="h-3.5 w-3.5" />
           </Button>
@@ -119,7 +119,6 @@ export function EventsPage() {
         setDateFilter={setDateFilter}
         category={category}
         setCategory={setCategory}
-        onSubmit={openSubmit}
       />
       <p className="mb-4 text-sm text-muted-foreground">
         {filtered.length === 1 ? "1 event" : `${filtered.length} events`}
@@ -139,7 +138,7 @@ export function EventsPage() {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
           {filtered.map((event) => (
             <EventCard
               key={event.id}
@@ -164,8 +163,25 @@ export function JobsPage() {
         title="Jobs in Leander"
         subtitle="Local work, right here in town — posted by Leander employers."
       />
-      <main className="mx-auto max-w-6xl px-4 py-10">
+      <main className="mx-auto max-w-6xl px-4 py-6">
         <JobsBoard />
+      </main>
+    </>
+  );
+}
+
+/* ---------------- business directory ---------------- */
+
+export function BusinessesPage() {
+  return (
+    <>
+      <PageHero
+        eyebrow="Local directory"
+        title="Businesses in Leander"
+        subtitle="Every storefront, kitchen, salon, and service in town — from official Texas permit records, refreshed twice a day."
+      />
+      <main className="mx-auto max-w-6xl px-4 py-6">
+        <BusinessesBoard />
       </main>
     </>
   );
@@ -232,11 +248,11 @@ export function AboutPage() {
 export function PrivacyPage() {
   return (
     <main className="mx-auto w-full max-w-3xl flex-1 px-4 pb-16 pt-10">
-      <p className="font-script text-[28px] text-[#c05a1e]">Good Things Happen Here</p>
-      <h1 className="font-display mt-2 text-4xl font-bold text-[#b5431f]">
+      <p className="text-xs font-extrabold uppercase tracking-[0.25em] text-primary">Leander Live</p>
+      <h1 className="font-display mt-2 text-4xl font-extrabold tracking-tight text-navy">
         Privacy Policy
       </h1>
-      <p className="mt-2 text-sm text-[#6b5d4f]">Effective September 27, 2026</p>
+      <p className="mt-2 text-sm text-muted-foreground">Effective September 27, 2026</p>
 
       <div className="prose-cream mt-8 space-y-6 text-[15px] leading-relaxed">
         <p>
@@ -247,7 +263,7 @@ export function PrivacyPage() {
         </p>
 
         <section>
-          <h2 className="font-display text-xl font-bold text-[#b5431f]">
+          <h2 className="font-display text-xl font-extrabold text-navy">
             Information we collect
           </h2>
           <ul className="mt-2 list-disc space-y-2 pl-5">
@@ -271,7 +287,7 @@ export function PrivacyPage() {
         </section>
 
         <section>
-          <h2 className="font-display text-xl font-bold text-[#b5431f]">
+          <h2 className="font-display text-xl font-extrabold text-navy">
             How we use it
           </h2>
           <p>
@@ -282,7 +298,7 @@ export function PrivacyPage() {
         </section>
 
         <section>
-          <h2 className="font-display text-xl font-bold text-[#b5431f]">
+          <h2 className="font-display text-xl font-extrabold text-navy">
             Your choices
           </h2>
           <ul className="mt-2 list-disc space-y-2 pl-5">
@@ -291,7 +307,7 @@ export function PrivacyPage() {
               Ask us to remove a submission by emailing{" "}
               <a
                 href="mailto:chris@howdycarter.com"
-                className="font-semibold text-[#b5431f] hover:underline"
+                className="font-semibold text-primary hover:underline"
               >
                 chris@howdycarter.com
               </a>
@@ -301,21 +317,21 @@ export function PrivacyPage() {
         </section>
 
         <section>
-          <h2 className="font-display text-xl font-bold text-[#b5431f]">Contact</h2>
+          <h2 className="font-display text-xl font-extrabold text-navy">Contact</h2>
           <p>
             Leander Live was designed and built by{" "}
             <a
               href="https://howdycarter.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="font-semibold text-[#b5431f] hover:underline"
+              className="font-semibold text-primary hover:underline"
             >
               Howdy Carter
             </a>
             . Questions about this policy? Email{" "}
             <a
               href="mailto:chris@howdycarter.com"
-              className="font-semibold text-[#b5431f] hover:underline"
+              className="font-semibold text-primary hover:underline"
             >
               chris@howdycarter.com
             </a>
@@ -334,7 +350,7 @@ export function NotFoundPage() {
     <main className="mx-auto max-w-6xl px-4 pt-16">
       <Card className="mx-auto max-w-md text-center">
         <CardContent className="flex flex-col items-center gap-4 pt-8">
-          <h1 className="font-display text-5xl font-bold text-[#b5431f]">404</h1>
+          <h1 className="font-display text-5xl font-black tracking-tight text-navy">404</h1>
           <p className="text-muted-foreground">
             That page isn&apos;t on the board. Let&apos;s get you back to what&apos;s happening.
           </p>
@@ -365,7 +381,7 @@ function PackageCard({ pkg, onInterested }: { pkg: AdPackage; onInterested: (pkg
           <h3 className="font-display text-xl font-bold">{pkg.name}</h3>
           <p className="mt-1 text-sm text-muted-foreground">{pkg.tagline}</p>
         </div>
-        <p className="font-display text-4xl font-black text-[#b5431f]">
+        <p className="font-display text-4xl font-black tracking-tight text-navy">
           ${pkg.price}
           <span className="text-base font-semibold text-muted-foreground">{pkg.cadence}</span>
         </p>
@@ -455,7 +471,7 @@ export function AdvertisePage() {
         </div>
 
         <section className="mt-16">
-          <p className="text-xs font-bold uppercase tracking-[0.25em] text-[#b5431f]">
+          <p className="text-xs font-bold uppercase tracking-[0.25em] text-primary">
             Service leads
           </p>
           <h2 className="font-display mt-2 text-3xl font-bold">
@@ -470,7 +486,7 @@ export function AdvertisePage() {
             {SERVICE_LEAD_STEPS.map((s, i) => (
               <Card key={s.title}>
                 <CardContent className="p-6">
-                  <p className="font-display text-3xl font-black text-[#b5431f]">{i + 1}</p>
+                  <p className="font-display text-3xl font-black text-primary">{i + 1}</p>
                   <h3 className="mt-2 font-semibold">{s.title}</h3>
                   <p className="mt-1 text-sm text-muted-foreground">{s.body}</p>
                 </CardContent>

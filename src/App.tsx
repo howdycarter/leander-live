@@ -11,13 +11,14 @@ import {
   EventDetailPage,
   EventsPage,
   HomePage,
+  BusinessesPage,
   JobsPage,
   NotFoundPage,
   PrivacyPage,
   RemindersPage,
 } from "./site/pages";
 
-/** Initializes GA4 once and reports SPA page views on every route change. */
+/** Initializes analytics (GTM dataLayer) once and reports SPA page views on every route change. */
 function Analytics() {
   const location = useLocation();
   useEffect(() => {
@@ -44,6 +45,7 @@ export default function App() {
               <Route path="events" element={<EventsPage />} />
               <Route path="events/:id" element={<EventDetailPage />} />
               <Route path="jobs" element={<JobsPage />} />
+              <Route path="businesses" element={<BusinessesPage />} />
               <Route path="city-hall" element={<CityHallPage />} />
               <Route path="community" element={<CommunityPage />} />
               <Route path="reminders" element={<RemindersPage />} />
