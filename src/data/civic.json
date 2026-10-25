@@ -1,21 +1,5 @@
 [
   {
-    "id": "civic-952",
-    "body": "Tax Increment Reinvestment Zone (TIRZ) No. 1",
-    "title": "Tax Increment Reinvestment Zone (TIRZ) No. 1",
-    "startsAt": 1793021400000,
-    "location": "Pat Bryson Municipal Hall, Council Chambers, 201 N. Brushy Street, Leander Texas, 78641",
-    "sourceUrl": "https://leandertx.portal.civicclerk.com/event/952"
-  },
-  {
-    "id": "civic-953",
-    "body": "Development Authority Board",
-    "title": "Development Authority Board",
-    "startsAt": 1793021400000,
-    "location": "Pat Bryson Municipal Hall, Council Chambers, 201 N. Brushy Street, Leander Texas, 78641",
-    "sourceUrl": "https://leandertx.portal.civicclerk.com/event/953"
-  },
-  {
     "id": "lisd-board-767398",
     "body": "Leander ISD Board of Trustees",
     "title": "Board of Trustees — Special Meeting - Board Workshop",
@@ -31,6 +15,30 @@
     "startsAt": 1793923200000,
     "location": "Pat Bryson Municipal Hall, Council Chambers, 201 N. Brushy Street, Leander TX, 78641",
     "sourceUrl": "https://leandertx.portal.civicclerk.com/event/865"
+  },
+  {
+    "id": "civic-952",
+    "body": "Tax Increment Reinvestment Zone (TIRZ) No. 1",
+    "title": "Tax Increment Reinvestment Zone (TIRZ) No. 1",
+    "startsAt": 1794234600000,
+    "location": "Pat Bryson Municipal Hall, Council Chambers, 201 N. Brushy Street, Leander Texas, 78641",
+    "sourceUrl": "https://leandertx.portal.civicclerk.com/event/952"
+  },
+  {
+    "id": "civic-953",
+    "body": "Development Authority Board",
+    "title": "Development Authority Board",
+    "startsAt": 1794234600000,
+    "location": "Pat Bryson Municipal Hall, Council Chambers, 201 N. Brushy Street, Leander Texas, 78641",
+    "sourceUrl": "https://leandertx.portal.civicclerk.com/event/953"
+  },
+  {
+    "id": "civic-956",
+    "body": "City Council",
+    "title": "City Council Special Meeting",
+    "startsAt": 1794357000000,
+    "location": "Pat Bryson Municipal Hall, Council Chambers, 201 N. Brushy Street, Leander Texas, 78641",
+    "sourceUrl": "https://leandertx.portal.civicclerk.com/event/956"
   },
   {
     "id": "civic-880",
