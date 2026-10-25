@@ -8,7 +8,14 @@
  *
  * The container snippet is in index.html (head script + noscript iframe).
  * This module only guarantees the dataLayer exists and provides typed
- * push helpers. VITE_GTM_ID can override the container at build time:
+ * push helpers.
+ *
+ * Container ID resolution — ONE build-time source, applied in both places:
+ * index.html substitutes %VITE_GTM_ID% and this module reads
+ * import.meta.env.VITE_GTM_ID, so the HTML loader and the TS helper can
+ * never disagree. Order: (1) VITE_GTM_ID from the build environment or a
+ * committed env file (.env default: the production container), (2) the
+ * FALLBACK_GTM_ID literal below, only if the env value is somehow absent.
  *   VITE_GTM_ID=GTM-XXXXXXX npm run build
  */
 
