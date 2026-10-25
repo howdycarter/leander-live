@@ -10,12 +10,14 @@
  * This module only guarantees the dataLayer exists and provides typed
  * push helpers.
  *
- * Container ID resolution — ONE build-time source, applied in both places:
- * index.html substitutes %VITE_GTM_ID% and this module reads
- * import.meta.env.VITE_GTM_ID, so the HTML loader and the TS helper can
- * never disagree. Order: (1) VITE_GTM_ID from the build environment or a
- * committed env file (.env default: the production container), (2) the
- * FALLBACK_GTM_ID literal below, only if the env value is somehow absent.
+ * Container ID resolution — ONE rule, applied in both places:
+ * vite.config.ts resolves the ID into index.html and this module reads
+ * import.meta.env.VITE_GTM_ID, both with the identical rule, so the HTML
+ * loader and the TS helper can never disagree: trim the configured value;
+ * a value that is absent, empty, whitespace-only, or not a GTM- container
+ * id counts as UNSET and falls back to the production container. In
+ * particular an explicitly empty VITE_GTM_ID (build env or an overriding
+ * env file) must never emit a broken `gtm.js?id=` loader (Codex P2, PR #7).
  *   VITE_GTM_ID=GTM-XXXXXXX npm run build
  */
 
@@ -29,8 +31,9 @@ const FALLBACK_GTM_ID = "GTM-T5HS9CSJ";
 
 /** Container ID for this build (env override, else the production container). */
 export function getGtmId(): string {
-  const id = import.meta.env.VITE_GTM_ID as string | undefined;
-  return id && id.startsWith("GTM-") ? id : FALLBACK_GTM_ID;
+  const raw = import.meta.env.VITE_GTM_ID as string | undefined;
+  const id = typeof raw === "string" ? raw.trim() : "";
+  return id.startsWith("GTM-") ? id : FALLBACK_GTM_ID;
 }
 
 function ensureDataLayer(): void {

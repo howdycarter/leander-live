@@ -337,6 +337,11 @@ async function main() {
     if (j.id && Number.isFinite(j.firstSeenAt)) prevFirstSeen.set(j.id, j.firstSeenAt);
   }
 
+  // Featured flags are set by hand (paid placements) — preserve them by
+  // stable id across regenerations instead of wiping them every run (the
+  // same carry-forward scrape-businesses.mjs applies to its listings).
+  const prevFeatured = new Map(prev.filter((j) => j.featured).map((j) => [j.id, true]));
+
   // Dedupe by id; drop postings closed more than a day ago; newest first.
   // The normalization pass also cleans records kept from a previous run
   // (trimmed titles, plain-text descriptions), so a source outage can
@@ -352,6 +357,7 @@ async function main() {
     j.title = decodeEntities(j.title || "").replace(/\s+/g, " ").trim();
     if (j.description) j.description = cleanDescription(j.description);
     j.firstSeenAt = prevFirstSeen.get(j.id) ?? now;
+    if (prevFeatured.has(j.id)) j.featured = true;
     all.push(j);
   }
   all.sort((a, b) => (b.postedAt || 0) - (a.postedAt || 0));

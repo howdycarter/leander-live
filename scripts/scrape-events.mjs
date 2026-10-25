@@ -256,6 +256,13 @@ async function scrapeChamber() {
 
 async function main() {
   const prev = loadPrevious();
+  // Featured pins are set by hand (paid placements): an event's pin is its
+  // featuredUntil timestamp. Preserve pins by stable id across
+  // regenerations instead of wiping them every run — the same
+  // carry-forward scrape-businesses.mjs applies to its `featured` flag.
+  const prevFeaturedUntil = new Map(
+    prev.filter((e) => e.id && e.featuredUntil).map((e) => [e.id, e.featuredUntil]),
+  );
   const anchors = prev.filter((e) => typeof e.id === "string" && e.id.startsWith("anchor-"));
   const prevBySource = new Map();
   for (const e of prev) {
@@ -310,7 +317,10 @@ async function main() {
   }
 
   const all = [...anchors, ...fresh].sort((a, b) => a.startsAt - b.startsAt);
-  for (const ev of all) deriveBlurb(ev);
+  for (const ev of all) {
+    if (prevFeaturedUntil.has(ev.id)) ev.featuredUntil = prevFeaturedUntil.get(ev.id);
+    deriveBlurb(ev);
+  }
   writeFileSync(OUT, JSON.stringify(all, null, 2) + "\n");
   console.log(`events.json: ${all.length} events (${anchors.length} anchors, ${city.length} city-calendar, ${chamber.length} chamber)`);
 }

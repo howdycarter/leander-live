@@ -28,6 +28,7 @@ import {
 import { downloadEventIcs } from "./ics";
 import { useSavedEvents } from "./state";
 import { trackEvent } from "./analytics";
+import { buildEventJsonLd } from "./eventJsonLd";
 
 function eventImage(event: EventItem) {
   return event.image ?? "/images/event-night-market.jpg";
@@ -114,6 +115,20 @@ export function EventDetailPage() {
 
   useEffect(() => {
     if (event) trackEvent("event_detail_view", { event_id: event.id });
+  }, [event?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // schema.org Event JSON-LD for this page. Client-rendered app, so inject
+  // into document.head (the Canonical/RouteMeta pattern) and remove on exit.
+  useEffect(() => {
+    if (!event) return;
+    const el = document.createElement("script");
+    el.type = "application/ld+json";
+    el.dataset.eventJsonld = event.id;
+    el.textContent = JSON.stringify(buildEventJsonLd(event));
+    document.head.appendChild(el);
+    return () => {
+      el.remove();
+    };
   }, [event?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
