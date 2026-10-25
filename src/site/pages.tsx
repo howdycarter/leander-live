@@ -97,7 +97,7 @@ export function EventsPage() {
             : "Every festival, market, concert, and Friday-night light — all in one place."
         }
       />
-      <main className="mx-auto max-w-6xl px-4 py-6">
+      <main className="mx-auto max-w-6xl px-4 py-6 @container">
       <div className="mb-4 flex items-end justify-between gap-4">
         <h2 className="font-display text-2xl font-extrabold tracking-tight text-navy">
           {savedOnly ? "Your saved events" : "Find your thing"}
@@ -138,7 +138,7 @@ export function EventsPage() {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+        <div className="grid grid-cols-1 gap-3 @min-[40rem]:grid-cols-2 @min-[68rem]:grid-cols-3 pane-split">
           {filtered.map((event) => (
             <EventCard
               key={event.id}

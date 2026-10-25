@@ -78,6 +78,33 @@
   }
 }
 
+/*
+ * Foldable / dual-screen support (progressive enhancement).
+ *
+ * Continuous inner displays (Galaxy Z Fold, Pixel Fold, and the reported
+ * iPhone Fold) are handled by the fluid container-query grids in the
+ * components — they need nothing here. This block is only for book-style
+ * devices whose browser reports TWO horizontal viewport segments
+ * (Surface Duo-class, or a spanned window on a hinged device): the
+ * two-pane layouts marked .pane-split align their columns to the
+ * physical panes, with the column gap sized to the hinge, so no card or
+ * text column sits under the fold. Browsers without viewport segments
+ * never match the query, so this is a strict no-op everywhere else.
+ * Spec: https://www.w3.org/TR/css-foldables-1/ (media features +
+ * viewport-segment env() variables).
+ */
+@media (horizontal-viewport-segments: 2) {
+  .pane-split {
+    grid-template-columns:
+      env(viewport-segment-width 0 0, 50%)
+      env(viewport-segment-width 1 0, 50%);
+    column-gap: calc(
+      100vw - env(viewport-segment-width 0 0, 50vw) -
+        env(viewport-segment-width 1 0, 50vw)
+    );
+  }
+}
+
 @utility font-display {
   font-family: var(--font-display);
 }

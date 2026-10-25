@@ -47,7 +47,10 @@ function Header() {
     <header className="sticky top-0 z-40 border-b border-border bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/85">
       <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-3 px-4">
         <BrandLockup className="h-9" />
-        <nav className="hidden items-center gap-6 text-[15px] font-semibold lg:flex" aria-label="Primary">
+        {/* Nav appears at md (768px), not lg: the bottom TabBar is md:hidden,
+            so gating the header nav to lg left 768–1023px viewports
+            (unfolded foldables, small tablets) with no navigation at all. */}
+        <nav className="hidden items-center gap-3 text-sm font-semibold md:flex lg:gap-6 lg:text-[15px]" aria-label="Primary">
           {NAV_LINKS.map(({ to, label }) => (
             <NavLink
               key={to}
