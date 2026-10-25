@@ -51,6 +51,8 @@ export interface Job {
   description: string;
   /** Employer application URL. */
   applyUrl: string;
+  /** Epoch ms when the posting was published, when the source reports it. */
+  postedAt?: number;
   /** Epoch ms when the posting closes. Optional. */
   closesAt?: number;
   featured?: boolean;

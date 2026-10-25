@@ -2,9 +2,12 @@
  * Scrape job postings from:
  *   1. governmentjobs.com — City of Leander
  *   2. governmentjobs.com — Williamson County (filtered to Leander-area)
- *   3. Leander ISD AppliTrack (best effort; skipped if it fights back)
+ *   3. Leander ISD AppliTrack — via Firecrawl (the board is JS-rendered and
+ *      bot-walled to plain fetches; Firecrawl renders it to markdown, which
+ *      this script parses). Replaced the old direct-fetch attempt that never
+ *      parsed a single posting.
  *
- * Output: src/data/jobs.json (array of Job).
+ * Output: src/data/jobs.json (array of Job), newest first by postedAt.
  *
  * Robustness: idempotent; a failed source logs WARN: to stderr, keeps the
  * previous records for that source, and the script still exits 0.
@@ -12,6 +15,7 @@
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
+import { execFile } from "node:child_process";
 import * as cheerio from "cheerio";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -19,6 +23,13 @@ const OUT = join(ROOT, "src/data/jobs.json");
 const UA = "LeanderLive-Scraper/1.0 (community-events-bot; contact chris@howdycarter.com)";
 const SLEEP_MS = 300;
 const MAX_DETAIL_PAGES = 40;
+const ISD_MAX_JOBS = 60;
+const ISD_MAX_AGE_DAYS = 150;
+
+const FIRECRAWL_BIN =
+  process.env.LL_FIRECRAWL_BIN ||
+  "/home/hatch/workspace/custom-connectors/custom.legacy-firecrawl/bin/firecrawl";
+const FIRECRAWL_PYTHONPATH = "/opt/muse/skills/custom-connector-setup/bin";
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -26,6 +37,32 @@ async function get(url) {
   const res = await fetch(url, { headers: { "User-Agent": UA } });
   if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
   return res.text();
+}
+
+/** Render a JS-heavy page to markdown via the Firecrawl connector CLI. */
+function firecrawlScrape(url) {
+  return new Promise((resolve, reject) => {
+    execFile(
+      FIRECRAWL_BIN,
+      ["scrape", "--url", url],
+      {
+        env: { ...process.env, PYTHONPATH: FIRECRAWL_PYTHONPATH },
+        maxBuffer: 32 * 1024 * 1024,
+        timeout: 240000,
+      },
+      (err, stdout, stderr) => {
+        if (err) {
+          reject(new Error(`firecrawl scrape failed: ${(stderr || err.message || "").slice(0, 200)}`));
+          return;
+        }
+        if (!stdout || stdout.length < 500) {
+          reject(new Error("firecrawl returned suspiciously little content"));
+          return;
+        }
+        resolve(stdout);
+      },
+    );
+  });
 }
 
 function loadPrevious() {
@@ -105,6 +142,7 @@ async function scrapeGovJobs(orgQuery, company, areaFilter) {
       if (!ld) throw new Error("no JobPosting JSON-LD");
       const desc = (ld.description || "").replace(/\s+/g, " ").trim().slice(0, 2000);
       const closesAt = ld.validThrough ? Date.parse(ld.validThrough) : undefined;
+      const postedAt = ld.datePosted ? Date.parse(ld.datePosted) : undefined;
       jobs.push({
         id: `govjobs-${c.jobId}`,
         title: ld.title || c.title,
@@ -114,6 +152,7 @@ async function scrapeGovJobs(orgQuery, company, areaFilter) {
         payRange: formatPay(ld.baseSalary, c.infoLine),
         description: desc || `${c.title} at ${company}.`,
         applyUrl: c.detailUrl,
+        ...(postedAt && !Number.isNaN(postedAt) ? { postedAt } : {}),
         ...(closesAt && !Number.isNaN(closesAt) ? { closesAt } : {}),
         source: "governmentjobs",
         sourceUrl: c.detailUrl,
@@ -125,24 +164,82 @@ async function scrapeGovJobs(orgQuery, company, areaFilter) {
   return jobs;
 }
 
+/* ---------------- Leander ISD via Firecrawl ---------------- */
+
+const APPLITRACK_LIST = "https://www.applitrack.com/leander/onlineapp/JobPostings/view.asp?all=1";
+const APPLITRACK_DETAIL = (id) =>
+  `https://www.applitrack.com/leander/onlineapp/default.aspx?AppliTrackJobId=${id}`;
+
+function unescMd(s) {
+  return (s || "").replace(/\\(.)/g, "$1").replace(/\s+/g, " ").trim();
+}
+
+function parseAppliTrackMarkdown(md) {
+  const headerRe = /\|\s*(.+?)\s*\|\s*JobID:\s*(\d+)\s*\|/g;
+  const heads = [...md.matchAll(headerRe)];
+  if (heads.length === 0) throw new Error("no JobID blocks in AppliTrack markdown");
+  const jobs = [];
+  for (let i = 0; i < heads.length; i++) {
+    const [, rawTitle, jobId] = heads[i];
+    const segStart = heads[i].index + heads[i][0].length;
+    const segEnd = i + 1 < heads.length ? heads[i + 1].index : md.length;
+    const seg = md.slice(segStart, segEnd);
+    const pick = (re) => {
+      const m = seg.match(re);
+      return m ? unescMd(m[1]) : "";
+    };
+    const positionType = pick(/Position Type:\s+([^\n]+)/);
+    const datePostedStr = pick(/Date Posted:\s+([^\n]+)/);
+    const location = pick(/Location:\s+([^\n]+)/) || "Leander, TX";
+    const closingStr = pick(/Closing Date:\s+([^\n]+)/);
+    // Salary / full-part-time table (best effort; often blank).
+    let salary = "", ftpt = "";
+    const sm = seg.match(/Salary Range:\s*\|\s*Full\/Part-Time:[^|\n]*\|[^|\n]*\|\s*\n\|\s*([^|]*)\|\s*([^|]*)\|/);
+    if (sm) { salary = unescMd(sm[1]); ftpt = unescMd(sm[2]); }
+
+    const postedAt = datePostedStr ? Date.parse(datePostedStr) : NaN;
+    if (!Number.isFinite(postedAt)) continue; // can't freshness-rank it; skip
+    const closesAt = closingStr && /\d{1,2}\/\d{1,2}\/\d{4}/.test(closingStr)
+      ? Date.parse(closingStr.match(/\d{1,2}\/\d{1,2}\/\d{4}/)[0])
+      : undefined;
+
+    let type = "full-time";
+    if (/part/i.test(ftpt)) type = "part-time";
+    else if (/substitute|temporary/i.test(positionType)) type = "temporary";
+
+    const title = unescMd(rawTitle).replace(/^\|+\s*/, "").replace(/\|+\s*$/, "").trim();
+    jobs.push({
+      id: `applitrack-${jobId}`,
+      title,
+      company: "Leander ISD",
+      location,
+      type,
+      ...(salary ? { payRange: salary } : {}),
+      description:
+        `${positionType || "District"} position at Leander ISD — ${location}. ` +
+        `Posted ${datePostedStr}${closingStr ? `; closing: ${closingStr}` : ""}. ` +
+        `See the Leander ISD job board for the full posting and application.`,
+      applyUrl: APPLITRACK_DETAIL(jobId),
+      postedAt,
+      ...(closesAt && Number.isFinite(closesAt) ? { closesAt } : {}),
+      source: "applitrack",
+      sourceUrl: APPLITRACK_LIST,
+    });
+  }
+  return jobs;
+}
+
 async function scrapeAppliTrack() {
-  // Leander ISD postings load via JS/AJAX behind bot detection; best effort.
-  await sleep(SLEEP_MS);
-  const html = await get("https://www.applitrack.com/leander/onlineapp/JobPostings/view.asp?all=1");
-  const $ = cheerio.load(html);
-  const rows = [];
-  $("a").each((_, a) => {
-    const href = $(a).attr("href") || "";
-    if (/posting/i.test(href) && $(a).text().trim().length > 3) rows.push({ t: $(a).text().trim(), href });
-  });
-  if (rows.length === 0) throw new Error("no parseable postings (JS-rendered/AJAX page)");
-  return rows.slice(0, 20).map((r, i) => ({
-    id: `applitrack-${i}`,
-    title: r.t, company: "Leander ISD", location: "Leander, TX",
-    type: "full-time", description: `${r.t} — Leander ISD.`,
-    applyUrl: r.href.startsWith("http") ? r.href : `https://www.applitrack.com/leander/onlineapp/${r.href}`,
-    source: "applitrack",
-  }));
+  const md = await firecrawlScrape(APPLITRACK_LIST);
+  const all = parseAppliTrackMarkdown(md);
+  const cutoff = Date.now() - ISD_MAX_AGE_DAYS * 24 * 3600 * 1000;
+  const fresh = all
+    .filter((j) => j.postedAt >= cutoff)
+    .sort((a, b) => b.postedAt - a.postedAt)
+    .slice(0, ISD_MAX_JOBS);
+  console.error(`Leander ISD: ${all.length} postings parsed, ${fresh.length} within ${ISD_MAX_AGE_DAYS}d (cap ${ISD_MAX_JOBS})`);
+  if (fresh.length === 0) throw new Error("no fresh ISD postings parsed");
+  return fresh;
 }
 
 async function main() {
@@ -175,11 +272,11 @@ async function main() {
     isd = await scrapeAppliTrack();
     console.error(`Leander ISD: OK (${isd.length} jobs)`);
   } catch (e) {
-    console.error(`WARN: Leander ISD (AppliTrack) skipped: ${e.message}; keeping ${prevByCompany.get("Leander ISD")?.length || 0} previous`);
+    console.error(`WARN: Leander ISD (AppliTrack/Firecrawl) failed: ${e.message}; keeping ${prevByCompany.get("Leander ISD")?.length || 0} previous`);
     isd = prevByCompany.get("Leander ISD") || [];
   }
 
-  // Dedupe by id; drop postings closed more than a day ago.
+  // Dedupe by id; drop postings closed more than a day ago; newest first.
   const seen = new Set();
   const now = Date.now();
   const all = [];
@@ -190,6 +287,7 @@ async function main() {
     if (!j.payRange) delete j.payRange;
     all.push(j);
   }
+  all.sort((a, b) => (b.postedAt || 0) - (a.postedAt || 0));
   writeFileSync(OUT, JSON.stringify(all, null, 2) + "\n");
   console.log(`jobs.json: ${all.length} jobs (${leander.length} City of Leander, ${williamson.length} Williamson County, ${isd.length} Leander ISD)`);
 }

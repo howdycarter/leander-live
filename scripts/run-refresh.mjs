@@ -1,0 +1,139 @@
+/**
+ * Leander Live refresh orchestrator — one full pipeline cycle.
+ *
+ * Runs the four scrapers in order (events, jobs, civic, signals), diffs the
+ * published data files before/after, and writes a machine-readable run
+ * report to signals/last-run.json for the scheduler (build/deploy/commit
+ * and Chris's news-signal alert are driven off this report).
+ *
+ * The scrapers themselves are failure-tolerant (a dead source keeps its old
+ * data and logs WARN:). This script never builds or deploys — that stays a
+ * deliberate step in the cron run, gated on `changed` and build success.
+ *
+ * Always exits 0; failures are reported in the JSON + stdout summary.
+ */
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { dirname, join } from "node:path";
+import { execFile } from "node:child_process";
+import { createHash } from "node:crypto";
+
+const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
+const SIG_DIR = join(ROOT, "signals");
+const DATA_FILES = {
+  events: "src/data/events.json",
+  jobs: "src/data/jobs.json",
+  civic: "src/data/civic.json",
+  news: "src/data/news.json",
+};
+const SCRAPERS = ["scrape-events.mjs", "scrape-jobs.mjs", "scrape-civic.mjs", "scrape-signals.mjs"];
+
+function snapshot() {
+  const snap = {};
+  for (const [name, rel] of Object.entries(DATA_FILES)) {
+    const path = join(ROOT, rel);
+    if (!existsSync(path)) { snap[name] = { ids: [], hash: null, total: 0 }; continue; }
+    const raw = readFileSync(path, "utf8");
+    let ids = [];
+    try {
+      const arr = JSON.parse(raw);
+      if (Array.isArray(arr)) ids = arr.map((x) => x.id).filter(Boolean);
+    } catch { /* leave ids empty */ }
+    snap[name] = {
+      ids,
+      hash: createHash("sha1").update(raw).digest("hex"),
+      total: ids.length,
+    };
+  }
+  return snap;
+}
+
+function diff(before, after) {
+  const out = {};
+  for (const name of Object.keys(DATA_FILES)) {
+    const b = new Set(before[name].ids);
+    const a = new Set(after[name].ids);
+    out[name] = {
+      total: after[name].total,
+      added: [...a].filter((id) => !b.has(id)).length,
+      removed: [...b].filter((id) => !a.has(id)).length,
+      changed: before[name].hash !== after[name].hash,
+    };
+  }
+  return out;
+}
+
+function runScraper(script) {
+  return new Promise((resolve) => {
+    execFile(
+      process.execPath,
+      [join(ROOT, "scripts", script)],
+      { cwd: ROOT, maxBuffer: 32 * 1024 * 1024, timeout: 1200000 },
+      (err, stdout, stderr) => {
+        const warnings = (stderr || "")
+          .split(/\r?\n/)
+          .filter((l) => l.startsWith("WARN:"))
+          .map((l) => `${script}: ${l.replace(/^WARN:\s*/, "")}`);
+        const summary = (stdout || "").trim().split(/\r?\n/).filter(Boolean).pop() || "";
+        resolve({
+          script,
+          ok: !err,
+          exitError: err ? String(err.message || err).slice(0, 200) : null,
+          summary,
+          warnings,
+        });
+      },
+    );
+  });
+}
+
+async function main() {
+  mkdirSync(SIG_DIR, { recursive: true });
+  const startedAt = Date.now();
+  const before = snapshot();
+
+  const scrapers = [];
+  for (const script of SCRAPERS) {
+    const r = await runScraper(script);
+    scrapers.push(r);
+    console.log(`[${script}] ${r.summary || r.exitError || "(no summary)"}`);
+    for (const w of r.warnings) console.error(w);
+  }
+
+  const after = snapshot();
+  const files = diff(before, after);
+  const anyChanged = Object.values(files).some((f) => f.changed);
+
+  let signalsReport = { newSignals: [], warnings: [] };
+  const sigRunPath = join(SIG_DIR, "last-run.json");
+  if (existsSync(sigRunPath)) {
+    try {
+      const parsed = JSON.parse(readFileSync(sigRunPath, "utf8"));
+      if (parsed && Array.isArray(parsed.newSignals)) signalsReport = parsed;
+    } catch { /* keep empty */ }
+  }
+
+  const report = {
+    at: startedAt,
+    durationMs: Date.now() - startedAt,
+    changed: anyChanged,
+    files,
+    scrapers: Object.fromEntries(
+      scrapers.map((s) => [s.script, { ok: s.ok, summary: s.summary, warnings: s.warnings }]),
+    ),
+    scrapersFailed: scrapers.filter((s) => !s.ok).map((s) => s.script),
+    newSignals: signalsReport.newSignals || [],
+    signalWarnings: signalsReport.warnings || [],
+  };
+  writeFileSync(sigRunPath, JSON.stringify(report, null, 2) + "\n");
+
+  const counts = Object.entries(files)
+    .map(([n, f]) => `${n} ${f.total} (+${f.added}/-${f.removed})`)
+    .join(", ");
+  console.log(
+    `refresh: ${anyChanged ? "CHANGED" : "no changes"} — ${counts}; ` +
+    `${report.newSignals.length} new signal(s); ${report.scrapersFailed.length} scraper process failure(s)`,
+  );
+}
+
+main().catch((e) => { console.error(`WARN: orchestrator fatal: ${e.message}`); process.exit(0); });
