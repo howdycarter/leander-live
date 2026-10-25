@@ -1,7 +1,7 @@
 import { useMemo, useState, type ButtonHTMLAttributes, type FormEvent } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Input } from "@/components/ui/input";
@@ -29,13 +29,13 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import {
-  ArrowRight,
   ArrowUpRight,
   Bell,
   BookOpen,
-  Briefcase,
+
   Building2,
   CalendarDays,
+  ChevronRight,
   CalendarPlus,
   CircleCheck,
   Clock,
@@ -148,6 +148,156 @@ export function formatTime(ms: number) {
   });
 }
 
+/** "Sat, Oct 24" — compact card date (no year). */
+export function formatShortDate(ms: number) {
+  return new Date(ms).toLocaleDateString("en-US", {
+    timeZone: SITE_TZ,
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+  });
+}
+
+/** "5:00 PM" or "5:00–8:00 PM" when the event ends the same Central day. */
+export function formatTimeRange(event: { startsAt: number; endsAt?: number }) {
+  const start = formatTime(event.startsAt);
+  if (!event.endsAt || event.endsAt <= event.startsAt) return start;
+  const sameDay =
+    centralParts(new Date(event.startsAt)).day === centralParts(new Date(event.endsAt)).day &&
+    centralParts(new Date(event.startsAt)).month === centralParts(new Date(event.endsAt)).month;
+  if (!sameDay) return start;
+  const end = formatTime(event.endsAt);
+  // "5:00 PM" + "8:00 PM" reads better as "5:00–8:00 PM".
+  const startShort = start.replace(/ ([AP]M)$/, (m) =>
+    end.endsWith(m.trim()) ? "" : m,
+  );
+  return `${startShort}–${end}`;
+}
+
+/** "Today" / "Tomorrow" for near-in events, else null. */
+export function relativeDayLabel(startsAt: number, now = new Date()): string | null {
+  const a = centralParts(new Date(startsAt));
+  const b = centralParts(now);
+  const dayMs = 86400000;
+  const diff =
+    Math.round(
+      (centralMidnightMs(a.year, a.month, a.day) -
+        centralMidnightMs(b.year, b.month, b.day)) /
+        dayMs,
+    );
+  if (diff === 0) return "Today";
+  if (diff === 1) return "Tomorrow";
+  return null;
+}
+
+/* The scrapers store some descriptions as entity-encoded HTML
+   ("&lt;div style=&quot;…&quot;&gt;…") — governmentjobs postings are the
+   worst offenders, and rendering them raw printed markup on the cards.
+   Decode + strip to plain text at display time; the schema is unchanged. */
+let entityDecoder: HTMLTextAreaElement | null = null;
+function decodeEntities(raw: string): string {
+  if (typeof document === "undefined") return raw;
+  entityDecoder ??= document.createElement("textarea");
+  entityDecoder.innerHTML = raw;
+  return entityDecoder.value;
+}
+
+export function plainText(raw: string | undefined | null): string {
+  if (!raw) return "";
+  return decodeEntities(raw).replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+}
+
+/** Paragraphs for detail views: block tags become paragraph breaks, and
+    over-long blocks are re-chunked at sentence boundaries. */
+export function textParagraphs(raw: string | undefined | null): string[] {
+  if (!raw) return [];
+  const withBreaks = decodeEntities(raw)
+    .replace(/<\/(p|div|li|h[1-6]|tr)>/gi, "\n")
+    .replace(/<br\s*\/?>/gi, "\n");
+  const blocks = withBreaks
+    .replace(/<[^>]*>/g, " ")
+    .split(/\n+/)
+    .map((s) => s.replace(/\s+/g, " ").trim())
+    .filter(Boolean);
+  const out: string[] = [];
+  for (const block of blocks) {
+    if (block.length <= 420) {
+      out.push(block);
+      continue;
+    }
+    const sentences = block.match(/[^.!?]+[.!?]+["']?\s*/g) ?? [block];
+    let cur = "";
+    for (const s of sentences) {
+      if (cur && (cur + s).length > 420) {
+        out.push(cur.trim());
+        cur = s;
+      } else {
+        cur += s;
+      }
+    }
+    if (cur.trim()) out.push(cur.trim());
+  }
+  return out;
+}
+
+/** City-calendar boilerplate ("X — see the City of Leander calendar for
+    details.") carries no information — cards hide it instead of truncating it. */
+export function isBoilerplateText(text: string | undefined | null): boolean {
+  if (!text) return true;
+  return /see the .* calendar for details/i.test(text) && plainText(text).length < 140;
+}
+
+/** "$57,241.6 - $68,681.6 Annually" → "$57k–$69k/yr"; "$27.52 Hourly" → "$27.52/hr". */
+export function formatPay(payRange: string): string {
+  const annual = /annual/i.test(payRange);
+  const nums = (payRange.match(/[\d,]+(?:\.\d+)?/g) ?? [])
+    .map((x) => parseFloat(x.replace(/,/g, "")))
+    .filter((n) => Number.isFinite(n));
+  if (nums.length === 0) return payRange.trim();
+  const fmt = (n: number) =>
+    annual && n >= 1000
+      ? `$${Math.round(n / 1000)}k`
+      : `$${Number.isInteger(n) ? n : n.toFixed(2)}`;
+  const range =
+    nums.length > 1 ? `${fmt(nums[0])}–${fmt(nums[1])}` : fmt(nums[0]);
+  return annual ? `${range}/yr` : `${range}/hr`;
+}
+
+/** Two-letter employer mark initials ("City of Leander" → "CL"). */
+export function companyInitials(name: string): string {
+  const words = name.replace(/[^a-zA-Z0-9 ]/g, " ").split(/\s+/).filter(Boolean);
+  const skip = new Set(["of", "the", "and", "&"]);
+  const picked = words.filter((w) => !skip.has(w.toLowerCase()));
+  const list = (picked.length > 0 ? picked : words).slice(0, 2);
+  return list.map((w) => w[0]!.toUpperCase()).join("");
+}
+
+const MARK_PALETTE = [
+  { bg: "#e2eefb", fg: "#205d99" },
+  { bg: "#fceedb", fg: "#96600f" },
+  { bg: "#e6f2e3", fg: "#3c6b39" },
+  { bg: "#ece5fa", fg: "#5d43a8" },
+  { bg: "#fbe7e7", fg: "#a52f2f" },
+];
+
+export function CompanyMark({ name, className }: { name: string; className?: string }) {
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) hash = (hash * 31 + name.charCodeAt(i)) >>> 0;
+  const palette = MARK_PALETTE[hash % MARK_PALETTE.length];
+  return (
+    <span
+      aria-hidden="true"
+      className={cn(
+        "flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-[13px] font-extrabold tracking-wide",
+        className,
+      )}
+      style={{ backgroundColor: palette.bg, color: palette.fg }}
+    >
+      {companyInitials(name)}
+    </span>
+  );
+}
+
 function toLocalInputValue(d: Date) {
   const pad = (n: number) => String(n).padStart(2, "0");
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
@@ -250,17 +400,25 @@ const PRIVACY_NOTE =
 
 /* ---------------- event feed ---------------- */
 
+/** Category identity as a small dot + label chip. Used on photo banners
+    (detail page) where a white chip reads cleanly; list cards use the
+    colored edge + label row inside EventCard instead of a floating pill. */
 export function CategoryBadge({ event, className }: { event: EventItem; className?: string }) {
   const style = CATEGORY_STYLE[event.category ?? ""] ?? DEFAULT_CATEGORY;
-  const Icon = style.Icon;
   return (
-    <Badge
-      className={cn("gap-1.5 rounded-full px-3 py-1", className)}
-      style={{ backgroundColor: style.soft, color: style.color }}
+    <span
+      className={cn(
+        "inline-flex items-center gap-1.5 rounded-full bg-white/95 px-2.5 py-1 text-xs font-bold text-navy shadow-sm",
+        className,
+      )}
     >
-      <Icon className="h-3.5 w-3.5" aria-hidden="true" />
+      <span
+        aria-hidden="true"
+        className="h-2 w-2 rounded-full"
+        style={{ backgroundColor: style.color }}
+      />
       {style.label}
-    </Badge>
+    </span>
   );
 }
 
@@ -283,7 +441,7 @@ export function SaveButton({
       aria-label={saved ? "Remove from saved" : "Save this event"}
       className={cn(
         "rounded-full [&_svg]:size-5",
-        saved ? "text-[#c05a1e]" : "text-[#b09a7d] hover:text-[#c05a1e]",
+        saved ? "text-primary" : "text-foreground/30 hover:text-primary",
         className,
       )}
     >
@@ -292,151 +450,118 @@ export function SaveButton({
   );
 }
 
-function DateBadge({ startsAt, className }: { startsAt: number; className?: string }) {
+/** Mini date block overlaid on the card photo: "OCT / 24". */
+function ThumbDateChip({ startsAt }: { startsAt: number }) {
   const d = new Date(startsAt);
-  const month = d.toLocaleDateString("en-US", { timeZone: SITE_TZ, month: "short" }).toUpperCase();
-  const day = Number(
-    d.toLocaleDateString("en-US", { timeZone: SITE_TZ, day: "numeric" }),
-  );
+  const month = d
+    .toLocaleDateString("en-US", { timeZone: SITE_TZ, month: "short" })
+    .toUpperCase();
+  const day = d.toLocaleDateString("en-US", { timeZone: SITE_TZ, day: "numeric" });
   return (
-    <div
-      className={cn(
-        "flex h-14 w-14 flex-col items-center justify-center rounded-xl bg-white/95 shadow-md",
-        className,
-      )}
-      aria-label={formatDate(startsAt)}
+    <span
+      aria-hidden="true"
+      className="absolute bottom-1.5 left-1.5 flex flex-col items-center rounded-md bg-navy/90 px-1.5 py-0.5 leading-none text-white backdrop-blur-sm"
     >
-      <span className="text-xs font-bold tracking-widest text-[#b5431f]">{month}</span>
-      <span className="font-display -mt-0.5 text-xl font-black leading-none text-[#16324f]">
-        {day}
-      </span>
-    </div>
+      <span className="text-[9px] font-bold tracking-[0.14em] text-gold">{month}</span>
+      <span className="text-[15px] font-extrabold">{day}</span>
+    </span>
   );
 }
 
+/**
+ * Compact event card — one layout at every width (v2).
+ *
+ * Fixes from Chris's Oct 24 screenshots: the category pill no longer sits
+ * beside the title (it starved the title into one-word lines and overlapped
+ * it); category is now a colored left edge + a small label row ABOVE the
+ * title, the title gets the full text column at a 2-line clamp, and the
+ * card is ~110px tall so 3–4 fit a phone viewport.
+ */
 export function EventCard({
   event,
   saved,
   onToggleSaved,
   className,
-  forceVertical = false,
 }: {
   event: EventItem;
   saved: boolean;
   onToggleSaved: () => void;
   className?: string;
-  /** Render the vertical card at every width (narrow rails like the weekend
-      strip, where the horizontal phone layout gets squeezed). */
-  forceVertical?: boolean;
 }) {
   const img = event.image ?? CATEGORY_IMAGE[event.category ?? ""] ?? CATEGORY_IMAGE.Community;
+  const style = CATEGORY_STYLE[event.category ?? ""] ?? DEFAULT_CATEGORY;
   const detailUrl = `/events/${event.id}`;
-  const title = (
-    <Link to={detailUrl} className="transition-colors hover:text-[#b5431f]">
-      {event.title}
-    </Link>
-  );
+  const relative = relativeDayLabel(event.startsAt);
+  const featured = isEventFeatured(event);
+  const rawBlurb = event.blurb ?? event.description;
+  const blurb = rawBlurb && !isBoilerplateText(rawBlurb) ? plainText(rawBlurb) : null;
   return (
-    <Card
+    <article
       className={cn(
-        "group flex flex-col overflow-hidden border-[#eadbc3] transition-all duration-200 hover:-translate-y-1 hover:shadow-lg",
+        "group relative flex gap-3 overflow-hidden rounded-2xl border border-border bg-card p-3 pl-4 shadow-[0_1px_2px_rgba(22,50,79,0.07)] transition-shadow hover:shadow-md",
         className,
       )}
     >
-      {/* Desktop: vertical card */}
-      <div className={forceVertical ? "flex flex-col flex-1" : "hidden flex-col sm:flex sm:flex-1"}>
-        <Link
-          to={detailUrl}
-          className="relative block h-44 shrink-0 overflow-hidden"
-          aria-label={`${event.title} — view details`}
-        >
-          <img
-            src={img}
-            alt=""
-            loading="lazy"
-            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-          />
-          <DateBadge startsAt={event.startsAt} className="absolute left-3 top-3" />
-          {isEventFeatured(event) && (
-            <div className="absolute right-3 top-3">
-              <FeaturedEventBadge />
-            </div>
-          )}
-          <CategoryBadge
-            event={event}
-            className="absolute bottom-0 right-4 translate-y-1/2 shadow-sm"
-          />
-        </Link>
-        <CardHeader className="px-4 pb-1 pt-6">
-          <CardTitle className="text-[17px] font-bold leading-snug">{title}</CardTitle>
-        </CardHeader>
-        <CardContent className="flex-1 px-4 py-0">
-          <div className="flex flex-col gap-1.5 text-sm text-[#5c4f40]">
-            <span className="flex items-center gap-2">
-              <Clock className="h-4 w-4 shrink-0 text-[#a08b6d]" />
-              {formatDate(event.startsAt)} · {formatTime(event.startsAt)}
-            </span>
-            <span className="flex items-center gap-2">
-              <MapPin className="h-4 w-4 shrink-0 text-[#a08b6d]" />
-              <span className="truncate">{event.venue}</span>
-            </span>
-          </div>
-          {(event.blurb ?? event.description) && (
-            <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">
-              {event.blurb ?? event.description}
-            </p>
-          )}
-        </CardContent>
-        <CardFooter className="items-center justify-between px-3 pb-3 pt-1">
-          <Link
-            to={detailUrl}
-            className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-sm font-semibold text-[#b5431f] hover:underline"
+      <span
+        aria-hidden="true"
+        className="absolute inset-y-0 left-0 w-1"
+        style={{ backgroundColor: style.color }}
+      />
+      <Link
+        to={detailUrl}
+        className="relative block h-[92px] w-[92px] shrink-0 overflow-hidden rounded-xl sm:h-[104px] sm:w-[104px]"
+        aria-label={`${event.title} — view details`}
+      >
+        <img
+          src={img}
+          alt=""
+          loading="lazy"
+          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+        />
+        <ThumbDateChip startsAt={event.startsAt} />
+      </Link>
+      <div className="flex min-w-0 flex-1 flex-col">
+        <div className="flex items-center gap-2">
+          <span
+            className="text-[11px] font-extrabold uppercase tracking-[0.12em]"
+            style={{ color: style.color }}
           >
-            Details <ArrowRight className="h-3.5 w-3.5" />
-          </Link>
-          <SaveButton saved={saved} onToggleSaved={onToggleSaved} />
-        </CardFooter>
-      </div>
-      {/* Mobile: horizontal card */}
-      <div className={forceVertical ? "hidden" : "flex gap-3 p-3 sm:hidden"}>
-        <Link
-          to={detailUrl}
-          className="relative block h-28 w-28 shrink-0 overflow-hidden rounded-xl"
-          aria-label={`${event.title} — view details`}
-        >
-          <img src={img} alt="" loading="lazy" className="h-full w-full object-cover" />
-        </Link>
-        <div className="min-w-0 flex-1">
-          <div className="flex items-start justify-between gap-2">
-            <div className="min-w-0">
-              {isEventFeatured(event) && (
-                <div className="mb-1">
-                  <FeaturedEventBadge />
-                </div>
-              )}
-              <CardTitle className="text-[17px] font-bold leading-snug">{title}</CardTitle>
-            </div>
-            <CategoryBadge event={event} className="shrink-0 px-2 py-0.5 text-[11px]" />
-          </div>
-          <div className="mt-1.5 flex flex-col gap-1 text-sm text-[#5c4f40]">
-            <span className="flex items-center gap-1.5">
-              <CalendarDays className="h-3.5 w-3.5 shrink-0 text-[#a08b6d]" />
-              {formatDate(event.startsAt)} · {formatTime(event.startsAt)}
+            {style.label}
+          </span>
+          {relative && (
+            <span className="rounded bg-gold/20 px-1.5 py-px text-[11px] font-bold text-[#8a5a12]">
+              {relative}
             </span>
-            <span className="flex items-center gap-1.5">
-              <MapPin className="h-3.5 w-3.5 shrink-0 text-[#a08b6d]" />
-              <span className="truncate">{event.venue}</span>
-            </span>
-          </div>
-          {(event.blurb ?? event.description) && (
-            <p className="mt-1 truncate text-[13px] text-muted-foreground">
-              {event.blurb ?? event.description}
-            </p>
           )}
+          {featured && (
+            <span className="inline-flex items-center gap-1 rounded bg-gold px-1.5 py-px text-[11px] font-bold text-navy">
+              <Star className="h-3 w-3 fill-current" aria-hidden="true" /> Sponsored
+            </span>
+          )}
+          <SaveButton
+            saved={saved}
+            onToggleSaved={onToggleSaved}
+            className="-mr-1.5 -mt-1.5 ml-auto h-8 w-8 [&_svg]:size-[18px]"
+          />
         </div>
-        <SaveButton saved={saved} onToggleSaved={onToggleSaved} className="self-center" />
+        <h3 className="mt-0.5 line-clamp-2 text-[15px] font-bold leading-snug text-navy">
+          <Link to={detailUrl} className="transition-colors hover:text-primary">
+            {event.title.trim()}
+          </Link>
+        </h3>
+        <p className="mt-1 flex items-center gap-1.5 text-[13px] font-medium text-foreground/80">
+          <Clock className="h-3.5 w-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
+          {formatShortDate(event.startsAt)} · {formatTimeRange(event)}
+        </p>
+        <p className="flex items-center gap-1.5 text-[13px] text-muted-foreground">
+          <MapPin className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+          <span className="truncate">{event.venue}</span>
+        </p>
+        {blurb && (
+          <p className="mt-0.5 line-clamp-1 text-[13px] text-muted-foreground">{blurb}</p>
+        )}
       </div>
-    </Card>
+    </article>
   );
 }
 
@@ -454,9 +579,9 @@ export function FilterPill({
       variant={active ? "default" : "outline"}
       aria-pressed={active}
       className={cn(
-        "h-auto cursor-pointer rounded-full border border-transparent px-4 py-2 text-sm font-medium hover:bg-primary/80",
+        "h-auto cursor-pointer rounded-full border border-transparent px-4 py-2 text-sm font-semibold hover:bg-primary/85",
         !active &&
-          "border-[#eadbc3] bg-white text-[#4a3d2f] shadow-none hover:border-[#db5a1e] hover:bg-white hover:text-[#b5431f]",
+          "border-border bg-card text-foreground/75 shadow-none hover:border-primary/50 hover:bg-card hover:text-primary",
         className,
       )}
       {...props}
@@ -471,7 +596,6 @@ export function FeedFilters({
   setDateFilter,
   category,
   setCategory,
-  onSubmit,
 }: {
   query: string;
   setQuery: (v: string) => void;
@@ -479,10 +603,9 @@ export function FeedFilters({
   setDateFilter: (v: DateFilter) => void;
   category: string;
   setCategory: (v: string) => void;
-  onSubmit: () => void;
 }) {
   return (
-    <div className="mb-6 flex flex-col gap-3">
+    <div className="mb-5 flex flex-col gap-3">
       <div className="relative">
         <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input
@@ -491,14 +614,9 @@ export function FeedFilters({
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search events, places, or categories…"
           aria-label="Search events"
-          className="h-12 rounded-full border-[#eadbc3] bg-white pl-11"
+          className="h-11 rounded-full bg-card pl-11 shadow-sm"
         />
       </div>
-
-      <Button onClick={onSubmit} className="h-12 rounded-full text-base font-semibold md:hidden">
-        <Plus className="h-5 w-5 rounded-full bg-white/25" /> Submit Event
-        <ArrowRight className="h-4 w-4" />
-      </Button>
 
       {/* Desktop filter row */}
       <div className="hidden items-center gap-2 md:flex" role="group" aria-label="Filter events">
@@ -507,11 +625,11 @@ export function FeedFilters({
             {f}
           </FilterPill>
         ))}
-        <Separator orientation="vertical" className="mx-2 h-6 bg-[#eadbc3]" />
+        <Separator orientation="vertical" className="mx-2 h-6" />
         <Select value={category} onValueChange={setCategory}>
           <SelectTrigger
             aria-label="Filter by category"
-            className="h-10 w-auto gap-2 rounded-full border-[#eadbc3] bg-white px-4 text-sm font-medium text-[#4a3d2f]"
+            className="h-10 w-auto gap-2 rounded-full bg-card px-4 text-sm font-semibold text-foreground/80 shadow-sm"
           >
             <SelectValue>{category === "All" ? "All Categories" : category}</SelectValue>
           </SelectTrigger>
@@ -525,11 +643,12 @@ export function FeedFilters({
         </Select>
       </div>
 
-      {/* Mobile filter rows: dates + categories */}
+      {/* Mobile: one scrolling strip for dates + categories (the header
+          already carries Submit — no duplicate full-width button). */}
       <div
-        className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 md:hidden"
+        className="-mx-4 flex items-center gap-2 overflow-x-auto px-4 pb-1 md:hidden"
         role="group"
-        aria-label="Filter by date"
+        aria-label="Filter events"
       >
         {DATE_FILTERS.map((f) => (
           <FilterPill
@@ -541,12 +660,7 @@ export function FeedFilters({
             {f}
           </FilterPill>
         ))}
-      </div>
-      <div
-        className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 md:hidden"
-        role="group"
-        aria-label="Filter by category"
-      >
+        <span aria-hidden="true" className="h-5 w-px shrink-0 bg-border" />
         {["All", ...CATEGORIES].map((c) => (
           <FilterPill
             key={c}
@@ -676,31 +790,33 @@ const JOB_TYPE_LABEL: Record<string, string> = {
   temporary: "Temporary",
 };
 
-/* Job-type badge accents (same soft-pill language as the event categories). */
-const JOB_TYPE_STYLE: Record<string, { color: string; soft: string }> = {
-  "full-time": { color: "#286cb1", soft: "#e2eefb" },
-  "part-time": { color: "#7053c1", soft: "#ece5fa" },
-  contract: { color: "#a15a17", soft: "#fceedb" },
-  temporary: { color: "#60712f", soft: "#ebf1da" },
+/* Job-type accent dots — v2 drops the pastel pill badges for a colored
+   dot + label, which keeps rows compact and scannable. */
+const JOB_TYPE_STYLE: Record<string, { color: string }> = {
+  "full-time": { color: "#286cb1" },
+  "part-time": { color: "#7053c1" },
+  contract: { color: "#a15a17" },
+  temporary: { color: "#60712f" },
 };
 
-function JobTypeBadge({ type }: { type: string }) {
+function JobTypeTag({ type, className }: { type: string; className?: string }) {
   const style = JOB_TYPE_STYLE[type] ?? JOB_TYPE_STYLE["full-time"];
   return (
-    <Badge
-      className="gap-1 rounded-full px-2.5 py-0.5"
-      style={{ backgroundColor: style.soft, color: style.color }}
-    >
-      <Briefcase className="h-3 w-3" aria-hidden="true" />
+    <span className={cn("inline-flex items-center gap-1.5 font-semibold", className)}>
+      <span
+        aria-hidden="true"
+        className="h-1.5 w-1.5 rounded-full"
+        style={{ backgroundColor: style.color }}
+      />
       {JOB_TYPE_LABEL[type] ?? type}
-    </Badge>
+    </span>
   );
 }
 
 function FeaturedJobBadge() {
   return (
-    <Badge className="gap-1 rounded-full bg-accent px-2.5 py-0.5 text-accent-foreground">
-      <Star className="h-3 w-3" aria-hidden="true" />
+    <Badge className="gap-1 rounded-md bg-accent px-2 py-0.5 font-bold text-accent-foreground">
+      <Star className="h-3 w-3 fill-current" aria-hidden="true" />
       Featured
     </Badge>
   );
@@ -720,89 +836,107 @@ export function FeaturedEventBadge() {
   );
 }
 
-function PayBadge({ payRange }: { payRange: string }) {
-  return (
-    <Badge variant="outline" className="rounded-full px-2.5 py-0.5">
-      {payRange}
-    </Badge>
-  );
-}
-
-function JobCard({ job, onSelect }: { job: JobItem; onSelect: () => void }) {
-  return (
-    <Card
-      className="flex cursor-pointer flex-col transition-shadow hover:shadow-md"
-      onClick={onSelect}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          onSelect();
-        }
-      }}
-      role="button"
-      tabIndex={0}
-      aria-label={`${job.title} at ${job.company} — view details`}
-    >
-      <CardHeader className="pb-2">
-        <div className="flex flex-wrap items-center gap-1.5">
-          {job.featured && <FeaturedJobBadge />}
-          <JobTypeBadge type={job.type} />
-          {job.payRange && <PayBadge payRange={job.payRange} />}
-        </div>
-        <CardTitle className="pt-1.5 font-display text-xl leading-snug">
-          {job.title}
-        </CardTitle>
-        <CardDescription className="flex items-center gap-1.5">
-          <Building2 className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-          {job.company}
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="flex-1">
-        <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
-          <MapPin className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-          {job.location}
-        </p>
-        <p className="mt-2 line-clamp-3 text-sm">{job.description}</p>
-      </CardContent>
-      <CardFooter>
-        <span className="inline-flex items-center gap-1 text-sm font-semibold text-[#b5431f]">
-          View details &amp; apply <ArrowRight className="h-3.5 w-3.5" />
+/**
+ * Dense job row (v2) — replaces the giant near-empty cards: employer
+ * initial-mark, title, company · location, then a metadata line with
+ * formatted pay, job type, and close date. ~76px tall, so a phone shows
+ * 5+ openings at once instead of one.
+ *
+ * NOTE: jobs.json has no posted-date field (see redesign report), so the
+ * meta line shows the close date when the source provides one instead of
+ * inventing a "posted" date.
+ */
+export function JobRow({
+  job,
+  onSelect,
+}: {
+  job: JobItem;
+  onSelect?: () => void;
+}) {
+  const inner = (
+    <>
+      <CompanyMark name={job.company} />
+      <span className="min-w-0 flex-1">
+        <span className="flex items-start gap-1.5">
+          <span className="line-clamp-2 text-[15px] font-bold leading-snug text-navy">
+            {job.title.trim()}
+          </span>
+          {job.featured && (
+            <Star className="h-3.5 w-3.5 shrink-0 fill-gold text-gold" aria-label="Featured job" />
+          )}
         </span>
-      </CardFooter>
-    </Card>
+        <span className="mt-0.5 block truncate text-[13px] text-muted-foreground">
+          {job.company} · {job.location}
+        </span>
+        <span className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[13px] text-foreground/75">
+          {job.payRange && (
+            <span className="font-extrabold text-navy">{formatPay(job.payRange)}</span>
+          )}
+          <JobTypeTag type={job.type} />
+          {job.closesAt && (
+            <span className="text-muted-foreground">
+              Closes {formatShortDate(job.closesAt)}
+            </span>
+          )}
+        </span>
+      </span>
+      <ChevronRight className="h-4 w-4 shrink-0 text-foreground/30" aria-hidden="true" />
+    </>
+  );
+  const rowClass =
+    "flex w-full items-center gap-3 px-3.5 py-3 text-left transition-colors hover:bg-muted/70 sm:px-4";
+  if (!onSelect) {
+    return <div className={rowClass}>{inner}</div>;
+  }
+  return (
+    <button
+      type="button"
+      onClick={onSelect}
+      className={cn(rowClass, "cursor-pointer")}
+      aria-label={`${job.title.trim()} at ${job.company} — view details`}
+    >
+      {inner}
+    </button>
   );
 }
 
 function JobDetailContent({ job }: { job: JobItem }) {
+  const paragraphs = textParagraphs(job.description);
   return (
     <DialogContent className="max-h-[85vh] overflow-y-auto">
       <DialogHeader>
-        <div className="flex flex-wrap items-center gap-1.5 pb-1">
-          {job.featured && <FeaturedJobBadge />}
-          <JobTypeBadge type={job.type} />
-          {job.payRange && <PayBadge payRange={job.payRange} />}
-        </div>
-        <DialogTitle className="font-display text-2xl">{job.title}</DialogTitle>
+        <DialogTitle className="text-[22px] font-extrabold leading-tight tracking-tight text-navy">
+          {job.title.trim()}
+        </DialogTitle>
         <DialogDescription asChild>
-          <div className="flex flex-col gap-1 pt-1">
-            <span className="flex items-center gap-1.5">
-              <Building2 className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+          <div className="flex flex-col gap-1 pt-0.5 text-sm">
+            <span className="flex items-center gap-1.5 font-semibold text-foreground">
+              <Building2 className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
               {job.company}
             </span>
             <span className="flex items-center gap-1.5">
-              <MapPin className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+              <MapPin className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
               {job.location}
             </span>
           </div>
         </DialogDescription>
       </DialogHeader>
-      <p className="whitespace-pre-line text-sm leading-relaxed">{job.description}</p>
-      {job.closesAt && (
-        <p className="text-sm text-muted-foreground">
-          <strong>Closes:</strong> {formatDate(job.closesAt)}
-        </p>
-      )}
-      <Button asChild className="w-full">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 rounded-xl bg-muted px-4 py-3 text-sm">
+        {job.payRange && (
+          <span className="text-base font-extrabold text-navy">{formatPay(job.payRange)}</span>
+        )}
+        <JobTypeTag type={job.type} className="text-foreground/80" />
+        {job.closesAt && (
+          <span className="text-muted-foreground">Closes {formatDate(job.closesAt)}</span>
+        )}
+        {job.featured && <FeaturedJobBadge />}
+      </div>
+      <div className="space-y-3 text-sm leading-relaxed text-foreground/90">
+        {paragraphs.slice(0, 20).map((p, i) => (
+          <p key={i}>{p}</p>
+        ))}
+      </div>
+      <Button asChild className="w-full rounded-full" size="lg">
         <a href={job.applyUrl} target="_blank" rel="noopener noreferrer">
           Apply now <ArrowUpRight className="h-4 w-4" />
         </a>
@@ -978,41 +1112,35 @@ export function JobsBoard() {
 
   return (
     <div>
-      <div className="mb-4 flex justify-end">
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <p className="text-sm font-semibold text-foreground/70">
+          {filtered.length === 1 ? "1 opening" : `${filtered.length} openings`}
+          {typeFilter !== "All" ? " · filtered" : " in Leander"}
+        </p>
         <Button
           onClick={() => setPostOpen(true)}
-          className="rounded-full bg-[#b5431f] font-semibold text-white hover:bg-[#9c3a1a]"
+          size="sm"
+          className="shrink-0 rounded-full font-bold"
         >
           <Plus className="h-4 w-4" /> Post a job
         </Button>
       </div>
 
-      <div className="mb-5 flex flex-wrap items-center gap-3">
-        <Label htmlFor="job-type-filter" className="text-sm font-medium">
-          Job type
-        </Label>
-        <Select value={typeFilter} onValueChange={setTypeFilter}>
-          <SelectTrigger id="job-type-filter" className="w-44">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="All">All types</SelectItem>
-            {JOB_TYPES.map((t) => (
-              <SelectItem key={t} value={t}>
-                {JOB_TYPE_LABEL[t]}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        {typeFilter !== "All" && (
-          <Button
-            variant="link"
-            onClick={() => setTypeFilter("All")}
-            className="h-auto px-0 text-sm font-semibold text-[#b5431f]"
+      <div
+        className="-mx-4 mb-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:px-0"
+        role="group"
+        aria-label="Filter by job type"
+      >
+        {["All", ...JOB_TYPES].map((t) => (
+          <FilterPill
+            key={t}
+            active={typeFilter === t}
+            onClick={() => setTypeFilter(t)}
+            className="shrink-0"
           >
-            Clear filter
-          </Button>
-        )}
+            {t === "All" ? "All types" : JOB_TYPE_LABEL[t]}
+          </FilterPill>
+        ))}
       </div>
 
       {filtered.length === 0 ? (
@@ -1027,16 +1155,11 @@ export function JobsBoard() {
           </CardContent>
         </Card>
       ) : (
-        <>
-          <p className="mb-4 text-sm text-muted-foreground">
-            {filtered.length === 1 ? "1 opening" : `${filtered.length} openings`}
-          </p>
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {filtered.map((job) => (
-              <JobCard key={job.id} job={job} onSelect={() => setSelected(job)} />
-            ))}
-          </div>
-        </>
+        <div className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card shadow-[0_1px_2px_rgba(22,50,79,0.07)]">
+          {filtered.map((job) => (
+            <JobRow key={job.id} job={job} onSelect={() => setSelected(job)} />
+          ))}
+        </div>
       )}
 
       <Dialog open={postOpen} onOpenChange={setPostOpen}>
@@ -1081,7 +1204,7 @@ export function RemindersContent() {
             No upcoming events right now — check back soon.
           </p>
         ) : (
-          <ul className="flex flex-col divide-y divide-[#eadbc3]">
+          <ul className="flex flex-col divide-y divide-border">
             {upcoming.map((event) => (
               <li key={event.id} className="flex items-center gap-3 py-3">
                 <div className="min-w-0 flex-1">

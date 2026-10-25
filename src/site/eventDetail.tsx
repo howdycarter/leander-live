@@ -22,6 +22,7 @@ import {
   formatTime,
   inRange,
   isEventFeatured,
+  textParagraphs,
   type EventItem,
 } from "./content";
 import { downloadEventIcs } from "./ics";
@@ -87,12 +88,12 @@ function RelatedEvents({ event, all }: { event: EventItem; all: EventItem[] }) {
   return (
     <section aria-label="More events you might like" className="mt-14">
       <div className="mb-4 flex items-end justify-between gap-3">
-        <h2 className="font-display text-2xl font-bold text-[#16324f]">More to explore</h2>
-        <Button asChild variant="link" className="h-auto px-0 font-semibold text-[#b5431f]">
+        <h2 className="font-display text-2xl font-extrabold tracking-tight text-navy">More to explore</h2>
+        <Button asChild variant="link" className="h-auto px-0 font-semibold text-primary">
           <Link to="/events">View all events</Link>
         </Button>
       </div>
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
         {picks.map((e) => (
           <EventCard
             key={e.id}
@@ -126,7 +127,7 @@ export function EventDetailPage() {
       {!event ? (
         <Card className="mx-auto max-w-md text-center">
           <CardContent className="flex flex-col items-center gap-4 pt-8">
-            <h1 className="font-display text-4xl font-bold text-[#b5431f]">Hmm.</h1>
+            <h1 className="font-display text-4xl font-bold text-primary">Hmm.</h1>
             <p className="text-muted-foreground">
               That event isn&apos;t on the board anymore — it may have passed or been
               removed. Here&apos;s what&apos;s coming up instead.
@@ -160,60 +161,62 @@ export function EventDetailPage() {
 
             {/* blurb */}
             {event.blurb && (
-              <blockquote className="mt-6 border-l-4 border-[#d98a1f] pl-4">
-                <p className="font-display text-xl italic leading-relaxed text-[#4a3d2f] md:text-2xl">
-                  {event.blurb}
-                </p>
-              </blockquote>
+              <p className="mt-6 border-l-4 border-gold pl-4 text-lg font-semibold leading-relaxed text-foreground md:text-xl">
+                {event.blurb}
+              </p>
             )}
 
-            <div className="mt-8 grid gap-8 lg:grid-cols-[1.5fr_1fr]">
+            <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-[1.5fr_1fr]">
               {/* details */}
-              <div>
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <Card>
-                    <CardContent className="flex items-center gap-3 p-4">
-                      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#fbe7e7] text-[#c93a3a]">
-                        <CalendarDays className="h-5 w-5" />
+              <div className="min-w-0">
+                <Card className="overflow-hidden">
+                  <ul className="divide-y divide-border">
+                    <li className="flex items-center gap-3 px-4 py-3">
+                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#fbe7e7] text-[#a52f2f]">
+                        <CalendarDays className="h-4.5 w-4.5" />
                       </span>
-                      <span>
-                        <span className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                      <span className="min-w-0">
+                        <span className="block text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
                           Date
                         </span>
                         <span className="font-semibold">{formatDate(event.startsAt)}</span>
                       </span>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardContent className="flex items-center gap-3 p-4">
-                      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#e2eefb] text-[#2f7fd0]">
-                        <Clock className="h-5 w-5" />
+                    </li>
+                    <li className="flex items-center gap-3 px-4 py-3">
+                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#e2eefb] text-[#205d99]">
+                        <Clock className="h-4.5 w-4.5" />
                       </span>
-                      <span>
-                        <span className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                      <span className="min-w-0">
+                        <span className="block text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
                           Time
                         </span>
-                        <span className="font-semibold">{formatTime(event.startsAt)}</span>
+                        <span className="font-semibold">
+                          {formatTime(event.startsAt)}
+                          {event.endsAt ? ` – ${formatTime(event.endsAt)}` : ""}
+                        </span>
                       </span>
-                    </CardContent>
-                  </Card>
-                  <Card className="sm:col-span-2">
-                    <CardContent className="flex items-center gap-3 p-4">
-                      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#e6f2e3] text-[#4c8c4a]">
-                        <MapPin className="h-5 w-5" />
+                    </li>
+                    <li className="flex items-center gap-3 px-4 py-3">
+                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#e6f2e3] text-[#3c6b39]">
+                        <MapPin className="h-4.5 w-4.5" />
                       </span>
-                      <span>
-                        <span className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                      <span className="min-w-0 flex-1 overflow-hidden">
+                        <span className="block text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
                           Venue
                         </span>
-                        <span className="font-semibold">{event.venue}</span>
+                        <span className="block font-semibold">{event.venue}</span>
+                        {event.address && (
+                          <span className="block truncate text-sm text-muted-foreground">
+                            {event.address}
+                          </span>
+                        )}
                       </span>
-                    </CardContent>
-                  </Card>
-                </div>
+                    </li>
+                  </ul>
+                </Card>
 
-                <div className="prose-cream mt-6 text-[16px] leading-relaxed">
-                  {event.description.split("\n").map((p, i) => (
+                <div className="mt-6 text-[16px] leading-relaxed text-foreground/90 [overflow-wrap:anywhere]">
+                  {textParagraphs(event.description).map((p, i) => (
                     <p key={i} className="mb-4">
                       {p}
                     </p>
@@ -222,7 +225,7 @@ export function EventDetailPage() {
               </div>
 
               {/* action rail */}
-              <aside>
+              <aside className="min-w-0">
                 <Card className="lg:sticky lg:top-24">
                   <CardContent className="flex flex-col gap-3 p-5">
                     <div className="flex items-center justify-between">
@@ -232,7 +235,7 @@ export function EventDetailPage() {
                       <SaveButton
                         saved={saved.has(event.id)}
                         onToggleSaved={() => toggleSaved(event.id)}
-                        className="border border-[#eadbc3]"
+                        className="border border-border"
                       />
                     </div>
                     <Button

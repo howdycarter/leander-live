@@ -1,50 +1,63 @@
 @import "tailwindcss";
 
 /*
- * Leander Live design tokens — driven by Chris's approved mockups
- * (design/desktop-mockup.png, design/mobile-mockup.png): warm cream
- * surfaces, burnt-orange brand color, serif display type, handwritten
- * script accents. The earlier City-of-Leander-logo sampling is kept in
- * SOURCES.md for reference.
+ * Leander Live design tokens — v2 (redesign/v2).
+ *
+ * Derived from the logo lockup (public/brand/logo-leander-live.png):
+ * deep navy "Leander", gold star, gold script "Live". The v1 system
+ * (uniform cream surfaces, Georgia serif display type, pastel pill
+ * badges) read as a generic AI template, so v2 moves to:
+ *   - warm paper-white surfaces with pure-white cards and real borders
+ *   - navy as the structural color (headings, header/footer, chips)
+ *   - burnt orange reserved for calls to action and links
+ *   - gold for featured/sponsored highlights
+ *   - Archivo (geometric grotesque) for display + UI type; the Caveat
+ *     script survives only as a rare one-line accent.
  */
 
 @theme {
-  --color-background: #fdf8f0;
-  --color-foreground: #2b2118;
+  --color-background: #f6f4f0;
+  --color-foreground: #1d2733;
 
   --color-card: #ffffff;
-  --color-card-foreground: #2b2118;
+  --color-card-foreground: #1d2733;
 
   --color-popover: #ffffff;
-  --color-popover-foreground: #2b2118;
+  --color-popover-foreground: #1d2733;
 
-  --color-primary: #bb4d1a;
+  /* Burnt orange — CTAs and links only. */
+  --color-primary: #bc4519;
   --color-primary-foreground: #ffffff;
 
-  --color-secondary: #47704c;
+  /* Navy — structure: headings, footer, active states. */
+  --color-secondary: #16324f;
   --color-secondary-foreground: #ffffff;
 
-  --color-accent: #deae49;
-  --color-accent-foreground: #2b2118;
+  /* Star gold — featured highlights, small accents. */
+  --color-accent: #d98a1f;
+  --color-accent-foreground: #16324f;
 
-  --color-muted: #f4eada;
-  --color-muted-foreground: #7a6a58;
+  --color-muted: #efece5;
+  --color-muted-foreground: #6d6455;
 
-  --color-destructive: #a33b1f;
+  --color-destructive: #b3261e;
   --color-destructive-foreground: #ffffff;
 
-  --color-border: #eadbc3;
-  --color-input: #d8c6a8;
-  --color-ring: #bb4d1a;
+  --color-border: #e2ddd2;
+  --color-input: #cfc8b8;
+  --color-ring: #bc4519;
 
-  --color-cream: #fffbf3;
+  --color-cream: #fbfaf7;
+  --color-navy: #16324f;
+  --color-navy-deep: #0e2236;
+  --color-gold: #d98a1f;
 
-  --radius-lg: 0.9rem;
-  --radius-md: 0.65rem;
-  --radius-sm: 0.45rem;
+  --radius-lg: 1rem;
+  --radius-md: 0.7rem;
+  --radius-sm: 0.5rem;
 
-  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --font-display: Georgia, "Times New Roman", serif;
+  --font-sans: "Archivo", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Archivo", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-script: "Caveat", "Segoe Script", cursive;
 }
 
@@ -60,9 +73,8 @@
   }
   section[id],
   footer[id] {
-    /* Must clear the sticky header (nav bar + skyline strip ≈ 149px desktop / 133px mobile)
-       so anchor jumps from the nav don't hide section headings behind it. */
-    scroll-margin-top: 160px;
+    /* Clear the sticky header (~64px) so anchor jumps don't hide headings. */
+    scroll-margin-top: 88px;
   }
 }
 

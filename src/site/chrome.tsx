@@ -43,10 +43,10 @@ const NAV_LINKS = [
 function Header() {
   const { openSubmit } = useSiteActions();
   return (
-    <header className="sticky top-0 z-40 border-b border-[#eadbc3] bg-cream/95 backdrop-blur supports-[backdrop-filter]:bg-cream/80">
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4">
-        <BrandLockup />
-        <nav className="hidden items-center gap-6 text-[15px] font-medium lg:flex" aria-label="Primary">
+    <header className="sticky top-0 z-40 border-b border-border bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/85">
+      <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-3 px-4">
+        <BrandLockup className="h-9" />
+        <nav className="hidden items-center gap-6 text-[15px] font-semibold lg:flex" aria-label="Primary">
           {NAV_LINKS.map(({ to, label }) => (
             <NavLink
               key={to}
@@ -55,8 +55,8 @@ function Header() {
                 cn(
                   "py-2",
                   isActive
-                    ? "text-[#b5431f] underline decoration-2 underline-offset-8"
-                    : "text-[#4a3d2f] hover:text-[#b5431f]",
+                    ? "text-navy underline decoration-gold decoration-[3px] underline-offset-8"
+                    : "text-foreground/60 hover:text-navy",
                 )
               }
             >
@@ -70,7 +70,7 @@ function Header() {
               trackEvent("submit_event_opened");
               openSubmit();
             }}
-            className="rounded-full px-4"
+            className="rounded-full px-4 font-bold"
           >
             <Plus className="h-4 w-4" />
             <span className="hidden sm:inline">Submit Event</span>
@@ -89,7 +89,7 @@ function FooterLink({ to, children }: { to: string; children: React.ReactNode })
     <li>
       <Link
         to={to}
-        className="inline-block py-1 text-[15px] text-[#4a3d2f] hover:text-[#b5431f]"
+        className="inline-block py-1 text-[15px] text-white/80 hover:text-white"
       >
         {children}
       </Link>
@@ -99,7 +99,7 @@ function FooterLink({ to, children }: { to: string; children: React.ReactNode })
 
 function FooterHeading({ children }: { children: React.ReactNode }) {
   return (
-    <p className="mb-2 text-xs font-semibold uppercase tracking-[0.14em] text-[#6b5d4f]">
+    <p className="mb-2 text-xs font-bold uppercase tracking-[0.14em] text-gold">
       {children}
     </p>
   );
@@ -108,15 +108,17 @@ function FooterHeading({ children }: { children: React.ReactNode }) {
 function Footer() {
   const { openSubmit } = useSiteActions();
   return (
-    <footer className="mt-16 border-t border-[#eadbc3] bg-[#fff6ea]">
+    <footer className="mt-16 bg-navy text-white">
       <div className="mx-auto grid max-w-6xl grid-cols-2 gap-x-6 gap-y-8 px-4 py-8 sm:py-12 lg:grid-cols-[1.4fr_1fr_1fr_1fr] lg:gap-10">
         <div className="col-span-2 lg:col-span-1">
-          <BrandLockup />
-          <p className="mt-3 max-w-xs text-[15px] leading-relaxed text-[#6b5d4f]">
+          <span className="inline-flex rounded-xl bg-white px-2.5 py-1.5">
+            <BrandLockup className="h-9" />
+          </span>
+          <p className="mt-3 max-w-xs text-[15px] leading-relaxed text-white/75">
             Real events, local people, a stronger Leander — one community board for
             the whole town.
           </p>
-          <p className="mt-3 hidden text-xs font-medium tracking-[0.22em] text-[#6b5d4f] lg:block">
+          <p className="mt-3 hidden text-xs font-semibold tracking-[0.22em] text-white/50 lg:block">
             SMALL TOWN SPIRIT. A BRIGHTER TOMORROW.
           </p>
         </div>
@@ -139,7 +141,7 @@ function Footer() {
               <button
                 type="button"
                 onClick={openSubmit}
-                className="inline-block py-1 text-left text-[15px] text-[#4a3d2f] hover:text-[#b5431f]"
+                className="inline-block py-1 text-left text-[15px] text-white/80 hover:text-white"
               >
                 Submit an event
               </button>
@@ -153,15 +155,15 @@ function Footer() {
           </ul>
         </nav>
       </div>
-      <Separator className="bg-[#eadbc3]" />
-      <div className="mx-auto max-w-6xl px-4 py-3.5 text-center text-[13px] text-muted-foreground">
+      <Separator className="bg-white/15" />
+      <div className="mx-auto max-w-6xl px-4 py-3.5 text-center text-[13px] text-white/60">
         <p>
           © 2026 Leander Live · Built by{" "}
           <a
             href="https://howdycarter.com"
             target="_blank"
             rel="noopener noreferrer"
-            className="font-semibold text-primary hover:underline"
+            className="font-semibold text-gold hover:underline"
           >
             Howdy Carter
           </a>
@@ -205,8 +207,8 @@ function TabBar() {
   const { pathname, search } = useLocation();
   const params = new URLSearchParams(search);
   return (
-    <div className="fixed inset-x-0 bottom-0 z-40 border-t border-[#eadbc3] bg-cream/95 backdrop-blur md:hidden">
-      <nav className="grid grid-cols-5 py-2" aria-label="Mobile">
+    <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden">
+      <nav className="grid grid-cols-5" aria-label="Mobile">
         {TABS.map(({ id, label, to, Icon, isActive }) => {
           const active = isActive(pathname, params);
           return (
@@ -215,10 +217,16 @@ function TabBar() {
               to={to}
               aria-current={active ? "page" : undefined}
               className={cn(
-                "flex flex-col items-center gap-1 rounded-none py-1 text-xs font-medium",
-                active ? "text-[#b5431f]" : "text-muted-foreground",
+                "relative flex flex-col items-center gap-0.5 py-2 text-[11px] font-semibold",
+                active ? "text-navy" : "text-foreground/45",
               )}
             >
+              {active && (
+                <span
+                  aria-hidden="true"
+                  className="absolute inset-x-6 top-0 h-[3px] rounded-full bg-gold"
+                />
+              )}
               <Icon className={cn("h-5 w-5", id === "saved" && active && "fill-current")} />
               {label}
             </Link>
@@ -335,7 +343,7 @@ export function Canonical() {
 
 export function SiteLayout() {
   return (
-    <div className="min-h-screen bg-cream pb-20 text-[#2e2620] md:pb-0" id="top">
+    <div className="min-h-screen bg-background pb-20 text-foreground md:pb-0" id="top">
       <Header />
       <Outlet />
       <Footer />
