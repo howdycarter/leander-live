@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import {
   ArrowRight,
   Bell,
-  Briefcase,
+
   Building2,
   CalendarSearch,
   Heart,
@@ -15,7 +15,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { ALL_EVENTS, ALL_JOBS, EventCard, inRange, type EventItem, type JobItem } from "./content";
+import { ALL_EVENTS, ALL_JOBS, CompanyMark, EventCard, formatPay, inRange, type EventItem, type JobItem } from "./content";
 import { useSavedEvents } from "./state";
 
 /* ================================================================
@@ -50,10 +50,10 @@ export function PageHero({
         <img src={SUNSET} alt="" className="h-full w-full object-cover" />
         <div className="absolute inset-0" style={{ backgroundColor: NAVY, opacity: 0.6 }} />
       </div>
-      <div className="relative mx-auto max-w-6xl px-4 py-12 md:py-16">
-        <p className="text-xs font-bold uppercase tracking-[0.25em] text-amber-300">{eyebrow}</p>
-        <h1 className="font-display mt-2 text-4xl font-black text-white md:text-5xl">{title}</h1>
-        {subtitle && <div className="mt-3 max-w-2xl text-white/80">{subtitle}</div>}
+      <div className="relative mx-auto max-w-6xl px-4 py-5 md:py-10">
+        <p className="text-[11px] font-extrabold uppercase tracking-[0.25em] text-gold">{eyebrow}</p>
+        <h1 className="font-display mt-1.5 text-[28px] font-black leading-[1.08] tracking-tight text-white md:text-[44px]">{title}</h1>
+        {subtitle && <div className="mt-2 max-w-2xl text-[15px] text-white/80">{subtitle}</div>}
         {children}
       </div>
     </div>
@@ -77,16 +77,16 @@ export function HomeHero() {
         className="absolute inset-0 bg-gradient-to-r from-[#16324f]/90 via-[#16324f]/60 to-[#16324f]/30"
         aria-hidden="true"
       />
-      <div className="relative mx-auto flex max-w-6xl flex-col items-start gap-5 px-4 pb-20 pt-12 text-white md:pb-36 md:pt-24">
-        <Badge className="bg-amber-400/90 px-3 py-1 text-xs font-bold uppercase tracking-widest text-[#16324f]">
+      <div className="relative mx-auto flex max-w-6xl flex-col items-start gap-4 px-4 pb-12 pt-9 text-white md:pb-20 md:pt-16">
+        <Badge className="bg-gold px-3 py-1 text-xs font-extrabold uppercase tracking-widest text-navy hover:bg-gold">
           <MapPin className="mr-1 h-3.5 w-3.5" aria-hidden="true" /> Leander, Texas
         </Badge>
-        <h1 className="font-display max-w-3xl text-4xl font-black leading-[1.05] sm:text-5xl md:text-6xl">
+        <h1 className="font-display max-w-3xl text-4xl font-black leading-[1.05] tracking-tight sm:text-5xl md:text-6xl">
           What&apos;s happening in Leander this week?
         </h1>
         <p className="max-w-xl text-lg text-white/85">
-          People <span className="text-amber-300">•</span> Places{" "}
-          <span className="text-amber-300">•</span> Opportunities — your front porch for
+          People <span className="text-gold">•</span> Places{" "}
+          <span className="text-gold">•</span> Opportunities — your front porch for
           everything happening in town.
         </p>
         <form
@@ -112,7 +112,7 @@ export function HomeHero() {
             />
             <Button
               type="submit"
-              className="absolute right-1.5 top-1/2 h-11 -translate-y-1/2 rounded-full bg-[#d98a1f] px-6 font-bold text-[#16324f] hover:bg-[#e09c2c]"
+              className="absolute right-1.5 top-1/2 h-11 -translate-y-1/2 rounded-full bg-gold px-6 font-bold text-navy hover:bg-gold/85"
             >
               Search
             </Button>
@@ -131,7 +131,7 @@ export function HomeHero() {
             </strong>{" "}
             local jobs
           </span>
-          <Link to="/events" className="font-semibold text-amber-300 hover:underline">
+          <Link to="/events" className="font-semibold text-gold hover:underline">
             Browse everything <ArrowRight className="inline h-4 w-4" />
           </Link>
         </div>
@@ -154,7 +154,7 @@ const TRIO = [
     icon: "/brand/icon-businesses.png",
     title: "Businesses",
     blurb: "Shop local. Dine local. Support Leander.",
-    to: "#businesses",
+    to: "/community",
     chip: "Meet your neighbors",
   },
   {
@@ -176,7 +176,7 @@ export function IconTrio({ overlap = false }: { overlap?: boolean }) {
     >
       {TRIO.map((t) => (
         <Link key={t.title} to={t.to} className="group">
-          <Card className="h-full border-[#eadbc3] bg-white/95 shadow-lg backdrop-blur transition-transform duration-200 group-hover:-translate-y-1">
+          <Card className="h-full border-border bg-white/95 shadow-lg backdrop-blur transition-transform duration-200 group-hover:-translate-y-1">
             <CardContent className="flex items-center gap-3 p-4 sm:gap-4 sm:p-5">
               <img
                 src={t.icon}
@@ -188,11 +188,11 @@ export function IconTrio({ overlap = false }: { overlap?: boolean }) {
                 <p className="text-xs font-semibold uppercase tracking-wider text-[#d98a1f]">
                   {t.chip}
                 </p>
-                <h3 className="font-display text-xl font-bold text-[#16324f]">{t.title}</h3>
+                <h3 className="font-display text-xl font-bold text-navy">{t.title}</h3>
                 <p className="hidden text-sm text-stone-600 sm:block">{t.blurb}</p>
               </div>
               <ArrowRight
-                className="ml-auto h-5 w-5 shrink-0 text-stone-300 transition-colors group-hover:text-[#b5431f]"
+                className="ml-auto h-5 w-5 shrink-0 text-stone-300 transition-colors group-hover:text-primary"
                 aria-hidden="true"
               />
             </CardContent>
@@ -217,14 +217,14 @@ export function WeekendSpotlight() {
     <section aria-label="This weekend in Leander" className="mx-auto max-w-6xl px-4 pt-10 sm:pt-14">
       <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.25em] text-[#b5431f]">
+          <p className="text-xs font-bold uppercase tracking-[0.25em] text-primary">
             Don&apos;t miss it
           </p>
-          <h2 className="font-display mt-1 text-3xl font-bold text-[#16324f]">
+          <h2 className="font-display mt-1 text-3xl font-bold text-navy">
             This weekend in Leander
           </h2>
         </div>
-        <Button asChild variant="link" className="h-auto px-0 font-semibold text-[#b5431f]">
+        <Button asChild variant="link" className="h-auto px-0 font-semibold text-primary">
           <Link to="/events">
             All events <ArrowRight className="h-4 w-4" />
           </Link>
@@ -232,10 +232,10 @@ export function WeekendSpotlight() {
       </div>
 
       {weekend.length === 0 ? (
-        <Card className="border-dashed border-[#d9c9a8] bg-[#fff6ea]">
+        <Card className="border-dashed border-border bg-muted">
           <CardContent className="flex flex-col items-center gap-3 p-8 text-center">
-            <CalendarSearch className="h-10 w-10 text-[#c05a1e]" aria-hidden="true" />
-            <p className="font-semibold text-[#4a3d2f]">
+            <CalendarSearch className="h-10 w-10 text-primary" aria-hidden="true" />
+            <p className="font-semibold text-foreground">
               Nothing posted for this weekend yet — be the first.
             </p>
             <Button asChild className="rounded-full">
@@ -250,12 +250,12 @@ export function WeekendSpotlight() {
           aria-label="Weekend events"
         >
           {weekend.map((event) => (
-            <div key={event.id} role="listitem" className="w-64 shrink-0 snap-start sm:w-72">
+            <div key={event.id} role="listitem" className="w-[86%] max-w-sm shrink-0 snap-start sm:w-[26rem] sm:max-w-none">
               <EventCard
                 event={event}
                 saved={saved.has(event.id)}
                 onToggleSaved={() => toggleSaved(event.id)}
-                forceVertical
+                className="h-full"
               />
             </div>
           ))}
@@ -278,17 +278,17 @@ export function JobsPreview() {
     <section aria-label="Featured jobs" className="mx-auto max-w-6xl px-4 pt-10 sm:pt-14">
       <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.25em] text-[#b5431f]">
+          <p className="text-xs font-bold uppercase tracking-[0.25em] text-primary">
             Work local
           </p>
-          <h2 className="font-display mt-1 text-3xl font-bold text-[#16324f]">
+          <h2 className="font-display mt-1 text-3xl font-bold text-navy">
             Jobs in Leander
           </h2>
           <p className="mt-1.5 text-[15px] text-stone-600">
             Local work, right here in town — posted by Leander employers.
           </p>
         </div>
-        <Button asChild variant="link" className="h-auto px-0 font-semibold text-[#b5431f]">
+        <Button asChild variant="link" className="h-auto px-0 font-semibold text-primary">
           <Link to="/jobs">
             All jobs <ArrowRight className="h-4 w-4" />
           </Link>
@@ -296,33 +296,39 @@ export function JobsPreview() {
       </div>
 
       {preview.length === 0 ? (
-        <Card className="border-dashed border-[#d9c9a8]">
+        <Card className="border-dashed border-border">
           <CardContent className="p-8 text-center text-sm text-stone-600">
             No openings posted yet —{" "}
-            <Link to="/jobs" className="font-semibold text-[#b5431f] underline">
+            <Link to="/jobs" className="font-semibold text-primary underline">
               post the first one
             </Link>
             .
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-5 sm:grid-cols-3">
+        <div className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card shadow-[0_1px_2px_rgba(22,50,79,0.07)]">
           {preview.map((job: JobItem) => (
-            <Link key={job.id} to="/jobs" className="group">
-              <Card className="h-full border-[#eadbc3] transition-all duration-200 group-hover:-translate-y-1 group-hover:shadow-lg">
-                <CardContent className="flex h-full flex-col gap-2 p-5">
-                  <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#e2eefb] text-[#2f7fd0]">
-                    <Briefcase className="h-5 w-5" aria-hidden="true" />
+            <Link
+              key={job.id}
+              to="/jobs"
+              className="flex items-center gap-3 px-3.5 py-3 transition-colors hover:bg-muted/70 sm:px-4"
+              aria-label={`${job.title.trim()} at ${job.company} — view on the jobs board`}
+            >
+              <CompanyMark name={job.company} />
+              <span className="min-w-0 flex-1">
+                <span className="line-clamp-2 text-[15px] font-bold leading-snug text-navy">
+                  {job.title.trim()}
+                </span>
+                <span className="mt-0.5 block truncate text-[13px] text-muted-foreground">
+                  {job.company} · {job.location}
+                </span>
+                {job.payRange && (
+                  <span className="mt-0.5 block text-[13px] font-extrabold text-navy">
+                    {formatPay(job.payRange)}
                   </span>
-                  <h3 className="font-display text-lg font-bold leading-snug text-[#16324f] group-hover:text-[#b5431f]">
-                    {job.title}
-                  </h3>
-                  <p className="text-sm text-muted-foreground">{job.company}</p>
-                  <span className="mt-auto inline-flex items-center gap-1 pt-2 text-sm font-semibold text-[#b5431f]">
-                    View on the jobs board <ArrowRight className="h-3.5 w-3.5" />
-                  </span>
-                </CardContent>
-              </Card>
+                )}
+              </span>
+              <ArrowRight className="h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
             </Link>
           ))}
         </div>
@@ -361,16 +367,16 @@ export function HowItWorks() {
   return (
     <section aria-label="How Leander Live works" className="mx-auto max-w-6xl px-4 pt-10 sm:pt-14">
       <div className="mb-6 text-center">
-        <p className="text-xs font-bold uppercase tracking-[0.25em] text-[#b5431f]">
+        <p className="text-xs font-bold uppercase tracking-[0.25em] text-primary">
           How it works
         </p>
-        <h2 className="font-display mt-1 text-3xl font-bold text-[#16324f]">
+        <h2 className="font-display mt-1 text-3xl font-bold text-navy">
           Your town, on one board
         </h2>
       </div>
       <div className="grid gap-5 sm:grid-cols-3">
         {STEPS.map(({ Icon, title, body, tint, color }, i) => (
-          <Card key={title} className="border-[#eadbc3]">
+          <Card key={title} className="border-border">
             <CardContent className="flex flex-col gap-3 p-6">
               <div className="flex items-center justify-between">
                 <span
@@ -379,11 +385,11 @@ export function HowItWorks() {
                 >
                   <Icon className="h-6 w-6" aria-hidden="true" />
                 </span>
-                <span className="font-display text-4xl font-black text-[#eadbc3]">
+                <span className="font-display text-4xl font-black text-border">
                   {i + 1}
                 </span>
               </div>
-              <h3 className="font-display text-xl font-bold text-[#16324f]">{title}</h3>
+              <h3 className="font-display text-xl font-bold text-navy">{title}</h3>
               <p className="text-sm leading-relaxed text-stone-600">{body}</p>
             </CardContent>
           </Card>
@@ -398,7 +404,7 @@ export function HowItWorks() {
 export function BusinessCtaBand() {
   return (
     <section aria-label="For local businesses" className="mx-auto max-w-6xl px-4 pt-10 sm:pt-14">
-      <Card className="overflow-hidden border-0 bg-[#16324f] text-white">
+      <Card className="overflow-hidden border-0 bg-navy text-white">
         <CardContent className="relative flex flex-col items-start gap-4 p-8 sm:p-10">
           <div
             className="pointer-events-none absolute inset-0 opacity-20"
@@ -412,7 +418,7 @@ export function BusinessCtaBand() {
             />
           </div>
           <div className="relative flex flex-col items-start gap-4">
-            <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.25em] text-amber-300">
+            <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.25em] text-gold">
               <Building2 className="h-4 w-4" aria-hidden="true" /> For Leander businesses
             </p>
             <h2 className="font-display max-w-xl text-3xl font-bold leading-tight">
@@ -425,7 +431,7 @@ export function BusinessCtaBand() {
             <div className="flex flex-wrap gap-3">
               <Button
                 asChild
-                className="rounded-full bg-[#d98a1f] font-bold text-[#16324f] hover:bg-[#e09c2c]"
+                className="rounded-full bg-gold font-bold text-navy hover:bg-gold/85"
               >
                 <Link to="/advertise">
                   <Sparkles className="h-4 w-4" aria-hidden="true" /> See packages
@@ -475,10 +481,10 @@ export function FeaturedEvents({
     <section aria-label={title} className="mx-auto max-w-6xl px-4 pt-10 sm:pt-16">
       <div className="mb-2 flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h2 className="font-display text-3xl font-bold text-[#16324f]">{title}</h2>
+          <h2 className="font-display text-3xl font-bold text-navy">{title}</h2>
           {subtitle && <p className="mt-1.5 text-[15px] text-stone-600">{subtitle}</p>}
         </div>
-        <Button asChild variant="link" className="h-auto px-0 font-semibold text-[#b5431f]">
+        <Button asChild variant="link" className="h-auto px-0 font-semibold text-primary">
           <Link to="/events">
             View all events <ArrowRight className="h-4 w-4" />
           </Link>
@@ -498,8 +504,8 @@ export function FeaturedEvents({
             className={cn(
               "shrink-0 rounded-full",
               chip === c
-                ? "bg-[#16324f] text-white hover:bg-[#16324f]/90"
-                : "border-[#d9c9a8] bg-white/70 hover:bg-white"
+                ? "bg-navy text-white hover:bg-navy/90"
+                : "border-border bg-white/70 hover:bg-white"
             )}
             onClick={() => setChip(c)}
           >
@@ -509,11 +515,11 @@ export function FeaturedEvents({
       </div>
 
       {filtered.length === 0 ? (
-        <Card className="border-dashed border-[#d9c9a8]">
+        <Card className="border-dashed border-border">
           <CardContent className="p-8 text-center text-sm text-stone-600">
             Nothing in “{chip}” right now —{" "}
             <button
-              className="font-semibold text-[#b5431f] underline"
+              className="font-semibold text-primary underline"
               onClick={() => setChip("All")}
             >
               show everything
@@ -522,14 +528,14 @@ export function FeaturedEvents({
           </CardContent>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {filtered.map((event: EventItem, i: number) => (
             <EventCard
               key={event.id}
               event={event}
               saved={saved.has(event.id)}
               onToggleSaved={() => toggleSaved(event.id)}
-              className={i >= 4 ? "hidden lg:flex" : i >= 3 ? "hidden sm:flex" : undefined}
+              className={i >= 4 ? "hidden sm:flex" : i >= 3 ? "hidden sm:flex" : undefined}
             />
           ))}
         </div>
@@ -544,14 +550,14 @@ export function NavyCtaBand() {
   return (
     <section className="mt-10 sm:mt-16" style={{ backgroundColor: NAVY }} aria-label="Join the community">
       <div className="mx-auto flex max-w-6xl flex-col items-center gap-4 px-4 py-10 text-center sm:py-14">
-        <p className="font-script text-3xl text-amber-300">Same town. More together.</p>
+        <p className="font-script text-3xl text-gold">Same town. More together.</p>
         <h2 className="font-display max-w-2xl text-3xl font-bold text-white">
           Leander Live is your community hub — connecting people, places, and opportunities.
         </h2>
         <div className="flex flex-wrap justify-center gap-3">
           <Button
             asChild
-            className="rounded-full bg-[#d98a1f] font-semibold text-[#16324f] hover:bg-[#e09c2c]"
+            className="rounded-full bg-gold font-semibold text-navy hover:bg-gold/85"
           >
             <Link to="/community">
               Be part of it <ArrowRight className="h-4 w-4" />
