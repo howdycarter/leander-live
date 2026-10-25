@@ -478,7 +478,7 @@ export function FeaturedEvents({
   }, [chip, limit, now]);
 
   return (
-    <section aria-label={title} className="mx-auto max-w-6xl px-4 pt-10 sm:pt-16">
+    <section aria-label={title} className="mx-auto max-w-6xl px-4 pt-10 sm:pt-16 @container">
       <div className="mb-2 flex flex-wrap items-end justify-between gap-3">
         <div>
           <h2 className="font-display text-3xl font-bold text-navy">{title}</h2>
@@ -528,7 +528,7 @@ export function FeaturedEvents({
           </CardContent>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-3 @min-[40rem]:grid-cols-2 @min-[68rem]:grid-cols-3 pane-split">
           {filtered.map((event: EventItem, i: number) => (
             <EventCard
               key={event.id}

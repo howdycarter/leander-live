@@ -903,7 +903,7 @@ export function JobRow({
     </>
   );
   const rowClass =
-    "flex w-full items-center gap-3 px-3.5 py-3 text-left transition-colors hover:bg-muted/70 sm:px-4";
+    "flex w-full items-center gap-3 px-3.5 py-3 text-left transition-colors hover:bg-muted/70 sm:px-4 @min-[42rem]:rounded-2xl @min-[42rem]:border @min-[42rem]:border-border @min-[42rem]:bg-card @min-[42rem]:shadow-[0_1px_2px_rgba(22,50,79,0.07)]";
   if (!onSelect) {
     return <div className={rowClass}>{inner}</div>;
   }
@@ -1133,7 +1133,7 @@ export function JobsBoard() {
   );
 
   return (
-    <div>
+    <div className="@container">
       <div className="mb-4 flex items-center justify-between gap-3">
         <p className="text-sm font-semibold text-foreground/70">
           {filtered.length === 1 ? "1 opening" : `${filtered.length} openings`}
@@ -1177,7 +1177,7 @@ export function JobsBoard() {
           </CardContent>
         </Card>
       ) : (
-        <div className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card shadow-[0_1px_2px_rgba(22,50,79,0.07)]">
+        <div className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card shadow-[0_1px_2px_rgba(22,50,79,0.07)] @min-[42rem]:grid @min-[42rem]:grid-cols-2 @min-[42rem]:gap-3 @min-[42rem]:divide-y-0 @min-[42rem]:overflow-visible @min-[42rem]:rounded-none @min-[42rem]:border-0 @min-[42rem]:bg-transparent @min-[42rem]:shadow-none @min-[64rem]:grid-cols-3">
           {filtered.map((job) => (
             <JobRow key={job.id} job={job} onSelect={() => setSelected(job)} />
           ))}
@@ -1247,7 +1247,7 @@ export function BusinessRow({
     </>
   );
   const rowClass =
-    "flex w-full items-center gap-3 px-3.5 py-3 text-left transition-colors hover:bg-muted/70 sm:px-4";
+    "flex w-full items-center gap-3 px-3.5 py-3 text-left transition-colors hover:bg-muted/70 sm:px-4 @min-[42rem]:rounded-2xl @min-[42rem]:border @min-[42rem]:border-border @min-[42rem]:bg-card @min-[42rem]:shadow-[0_1px_2px_rgba(22,50,79,0.07)]";
   if (!onSelect) {
     return <div className={rowClass}>{inner}</div>;
   }
@@ -1344,7 +1344,7 @@ export function BusinessesBoard() {
   }, [query, category]);
 
   return (
-    <div>
+    <div className="@container">
       <div className="mb-4 flex items-center justify-between gap-3">
         <p className="text-sm font-semibold text-foreground/70">
           {filtered.length === 1 ? "1 business" : `${filtered.length} businesses`}
@@ -1394,7 +1394,7 @@ export function BusinessesBoard() {
           </CardContent>
         </Card>
       ) : (
-        <div className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card shadow-[0_1px_2px_rgba(22,50,79,0.07)]">
+        <div className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card shadow-[0_1px_2px_rgba(22,50,79,0.07)] @min-[42rem]:grid @min-[42rem]:grid-cols-2 @min-[42rem]:gap-3 @min-[42rem]:divide-y-0 @min-[42rem]:overflow-visible @min-[42rem]:rounded-none @min-[42rem]:border-0 @min-[42rem]:bg-transparent @min-[42rem]:shadow-none @min-[64rem]:grid-cols-3">
           {filtered.map((business) => (
             <BusinessRow
               key={business.id}

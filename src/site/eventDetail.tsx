@@ -86,14 +86,14 @@ function RelatedEvents({ event, all }: { event: EventItem; all: EventItem[] }) {
   const picks = [...related, ...fill].slice(0, 3);
   if (picks.length === 0) return null;
   return (
-    <section aria-label="More events you might like" className="mt-14">
+    <section aria-label="More events you might like" className="mt-14 @container">
       <div className="mb-4 flex items-end justify-between gap-3">
         <h2 className="font-display text-2xl font-extrabold tracking-tight text-navy">More to explore</h2>
         <Button asChild variant="link" className="h-auto px-0 font-semibold text-primary">
           <Link to="/events">View all events</Link>
         </Button>
       </div>
-      <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-3 @min-[40rem]:grid-cols-2 @min-[68rem]:grid-cols-3 pane-split">
         {picks.map((e) => (
           <EventCard
             key={e.id}
@@ -117,7 +117,7 @@ export function EventDetailPage() {
   }, [event?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <main className="mx-auto max-w-6xl px-4 py-8 md:py-10">
+    <main className="mx-auto max-w-6xl px-4 py-8 md:py-10 @container">
       <Button asChild variant="ghost" className="-ml-2 mb-5 rounded-full">
         <Link to="/events">
           <ArrowLeft className="h-4 w-4" /> All events
@@ -166,7 +166,7 @@ export function EventDetailPage() {
               </p>
             )}
 
-            <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-[1.5fr_1fr]">
+            <div className="mt-8 grid grid-cols-1 gap-8 @min-[42rem]:grid-cols-[1.5fr_1fr] pane-split">
               {/* details */}
               <div className="min-w-0">
                 <Card className="overflow-hidden">
@@ -226,7 +226,7 @@ export function EventDetailPage() {
 
               {/* action rail */}
               <aside className="min-w-0">
-                <Card className="lg:sticky lg:top-24">
+                <Card className="@min-[42rem]:sticky @min-[42rem]:top-24">
                   <CardContent className="flex flex-col gap-3 p-5">
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
