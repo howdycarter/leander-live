@@ -76,6 +76,58 @@ function loadPrevious() {
   }
 }
 
+const NAMED_ENTITIES = {
+  nbsp: " ", amp: "&", lt: "<", gt: ">", quot: '"', apos: "'",
+  rsquo: "’", lsquo: "‘", rdquo: "”", ldquo: "“",
+  ndash: "–", mdash: "—", hellip: "…", bull: "•",
+  copy: "©", reg: "®", trade: "™", deg: "°", middot: "·",
+};
+
+/** Decode HTML entities (named + numeric), repeating until stable so
+ *  double-encoded text like "&amp;lt;" fully resolves. */
+function decodeEntities(s) {
+  let out = String(s ?? "");
+  for (let pass = 0; pass < 3; pass++) {
+    const next = out
+      .replace(/&#x([0-9a-fA-F]+);/g, (_, h) => {
+        const cp = parseInt(h, 16);
+        return cp > 0 && cp < 0x110000 ? String.fromCodePoint(cp) : " ";
+      })
+      .replace(/&#(\d+);/g, (_, d) => {
+        const cp = parseInt(d, 10);
+        return cp > 0 && cp < 0x110000 ? String.fromCodePoint(cp) : " ";
+      })
+      .replace(/&([a-zA-Z][a-zA-Z0-9]+);/g, (m, name) =>
+        Object.prototype.hasOwnProperty.call(NAMED_ENTITIES, name) ? NAMED_ENTITIES[name] : m,
+      );
+    if (next === out) break;
+    out = next;
+  }
+  return out;
+}
+
+/**
+ * Store descriptions as clean plain text, never markup: governmentjobs.com
+ * JSON-LD ships entity-encoded HTML, which the old scraper stored verbatim
+ * (and the site then printed as raw code). Block tags become line breaks;
+ * everything else is stripped.
+ */
+function cleanDescription(raw) {
+  if (!raw) return "";
+  let t = decodeEntities(String(raw));
+  t = t
+    .replace(/<\s*br\s*\/?\s*>/gi, "\n")
+    .replace(/<\/\s*(p|div|li|ul|ol|h[1-6]|tr|section|article)\s*>/gi, "\n")
+    .replace(/<[^>]*>/g, " ");
+  t = decodeEntities(t);
+  return t
+    .split(/\n+/)
+    .map((line) => line.replace(/\s+/g, " ").trim())
+    .filter(Boolean)
+    .join("\n")
+    .slice(0, 2000);
+}
+
 function inferType(text) {
   const t = (text || "").toLowerCase();
   if (/\bpart[\s-]?time\b/.test(t)) return "part-time";
@@ -140,12 +192,12 @@ async function scrapeGovJobs(orgQuery, company, areaFilter) {
         } catch { /* ignore */ }
       });
       if (!ld) throw new Error("no JobPosting JSON-LD");
-      const desc = (ld.description || "").replace(/\s+/g, " ").trim().slice(0, 2000);
+      const desc = cleanDescription(ld.description || "");
       const closesAt = ld.validThrough ? Date.parse(ld.validThrough) : undefined;
       const postedAt = ld.datePosted ? Date.parse(ld.datePosted) : undefined;
       jobs.push({
         id: `govjobs-${c.jobId}`,
-        title: ld.title || c.title,
+        title: (ld.title || c.title || "").trim(),
         company,
         location: ld.jobLocation?.address?.addressLocality || c.location,
         type: inferType(`${ld.employmentType} ${c.infoLine}`),
@@ -276,7 +328,19 @@ async function main() {
     isd = prevByCompany.get("Leander ISD") || [];
   }
 
+  // First-seen tracking: carry each posting's firstSeenAt forward by id.
+  // Postings already on the board get this run's timestamp as their
+  // backfill — it is the board's first *tracked* sighting, labeled as such,
+  // never presented as the employer's original post date (that's postedAt).
+  const prevFirstSeen = new Map();
+  for (const j of prev) {
+    if (j.id && Number.isFinite(j.firstSeenAt)) prevFirstSeen.set(j.id, j.firstSeenAt);
+  }
+
   // Dedupe by id; drop postings closed more than a day ago; newest first.
+  // The normalization pass also cleans records kept from a previous run
+  // (trimmed titles, plain-text descriptions), so a source outage can
+  // never resurrect the old entity-encoded text.
   const seen = new Set();
   const now = Date.now();
   const all = [];
@@ -285,6 +349,9 @@ async function main() {
     seen.add(j.id);
     if (j.closesAt && j.closesAt < now - 24 * 3600 * 1000) continue;
     if (!j.payRange) delete j.payRange;
+    j.title = decodeEntities(j.title || "").replace(/\s+/g, " ").trim();
+    if (j.description) j.description = cleanDescription(j.description);
+    j.firstSeenAt = prevFirstSeen.get(j.id) ?? now;
     all.push(j);
   }
   all.sort((a, b) => (b.postedAt || 0) - (a.postedAt || 0));

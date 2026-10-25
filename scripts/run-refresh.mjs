@@ -1,7 +1,8 @@
 /**
  * Leander Live refresh orchestrator — one full pipeline cycle.
  *
- * Runs the four scrapers in order (events, jobs, civic, signals), diffs the
+ * Runs the scrapers in order (events, jobs, civic, businesses, signals),
+ * diffs the
  * published data files before/after, and writes a machine-readable run
  * report to signals/last-run.json for the scheduler (build/deploy/commit
  * and Chris's news-signal alert are driven off this report).
@@ -25,8 +26,9 @@ const DATA_FILES = {
   jobs: "src/data/jobs.json",
   civic: "src/data/civic.json",
   news: "src/data/news.json",
+  businesses: "src/data/businesses.json",
 };
-const SCRAPERS = ["scrape-events.mjs", "scrape-jobs.mjs", "scrape-civic.mjs", "scrape-signals.mjs"];
+const SCRAPERS = ["scrape-events.mjs", "scrape-jobs.mjs", "scrape-civic.mjs", "scrape-businesses.mjs", "scrape-signals.mjs"];
 
 function snapshot() {
   const snap = {};

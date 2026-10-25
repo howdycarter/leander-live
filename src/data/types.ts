@@ -55,6 +55,13 @@ export interface Job {
   postedAt?: number;
   /** Epoch ms when the posting closes. Optional. */
   closesAt?: number;
+  /**
+   * Epoch ms when the Leander Live scraper first saw this posting. This is
+   * the board's own first-seen date (backfilled with the first tracked run
+   * for older postings), NOT the employer's original post date — postedAt
+   * is that, when the source reports it.
+   */
+  firstSeenAt?: number;
   featured?: boolean;
   source: string;
   sourceUrl?: string;
@@ -71,6 +78,34 @@ export interface CivicMeeting {
   /** Direct PDF link to the agenda packet. */
   agendaUrl?: string;
   minutesUrl?: string;
+  sourceUrl?: string;
+}
+
+/**
+ * A local business listing in the directory. Built by
+ * scripts/scrape-businesses.mjs from the Texas sales-tax permit dataset
+ * (data.texas.gov) — the same source the openings radar watches — gated to
+ * storefront/service NAICS categories a resident would actually look up.
+ */
+export interface Business {
+  /** Stable string id (e.g. "biz-32012345678-1"). */
+  id: string;
+  /** Display name (DBA name when the permit carries one). */
+  name: string;
+  /** Human category label derived from the NAICS code. */
+  category: string;
+  /** NAICS code from the permit record. */
+  naics: string;
+  /** Street address (no city/state — everything here is Leander, TX). */
+  address: string;
+  zip: string;
+  /** Epoch ms when the sales-tax permit was issued. */
+  permitIssuedAt?: number;
+  /** Epoch ms of the outlet's first sales date, when reported. */
+  firstSalesAt?: number;
+  /** Paid featured placement (set by hand; default false). */
+  featured: boolean;
+  source: string;
   sourceUrl?: string;
 }
 
