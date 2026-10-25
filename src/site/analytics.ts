@@ -1,63 +1,80 @@
 /**
- * Google Analytics 4 wiring for Leander Live.
+ * Analytics for Leander Live — Google Tag Manager owns all tags (GA4 incl.).
  *
- * Setup (Chris): create a GA4 property at analytics.google.com, copy the
- * Measurement ID (G-XXXXXXXXXX), then:
- *   VITE_GA_MEASUREMENT_ID=G-XXXXXXXXXX npm run build
+ * The app never loads gtag.js directly. Code reports behavior by pushing
+ * events onto window.dataLayer; the GTM container (GTM-T5HS9CSJ, account
+ * Newton & Carter) decides which tags fire. The GA4 configuration tag and
+ * event tags live in the GTM workspace — add new vendor tags there, not here.
  *
- * Everything is no-op until the ID is present — the site works fine without it.
+ * The container snippet is in index.html (head script + noscript iframe).
+ * This module only guarantees the dataLayer exists and provides typed
+ * push helpers. VITE_GTM_ID can override the container at build time:
+ *   VITE_GTM_ID=GTM-XXXXXXX npm run build
  */
 
 declare global {
   interface Window {
-    dataLayer?: unknown[];
-    gtag?: (...args: unknown[]) => void;
+    dataLayer: Record<string, unknown>[];
   }
+}
+
+const FALLBACK_GTM_ID = "GTM-T5HS9CSJ";
+
+/** Container ID for this build (env override, else the production container). */
+export function getGtmId(): string {
+  const id = import.meta.env.VITE_GTM_ID as string | undefined;
+  return id && id.startsWith("GTM-") ? id : FALLBACK_GTM_ID;
+}
+
+function ensureDataLayer(): void {
+  window.dataLayer = window.dataLayer || [];
 }
 
 let initialized = false;
 
-export function getMeasurementId(): string | null {
-  const id = import.meta.env.VITE_GA_MEASUREMENT_ID as string | undefined;
-  return id && id.startsWith("G-") ? id : null;
-}
-
-/** Inject gtag.js once. Safe to call repeatedly. */
+/**
+ * Prepare analytics. The GTM snippet in index.html loads the container;
+ * this is a safety net (e.g. alternate HTML shells) that injects gtm.js
+ * only when the snippet is absent. Safe to call repeatedly.
+ */
 export function initAnalytics(): void {
   if (initialized) return;
   initialized = true;
-  const id = getMeasurementId();
-  if (!id) return;
   try {
-    const script = document.createElement("script");
-    script.async = true;
-    script.src = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(id)}`;
-    document.head.appendChild(script);
-    window.dataLayer = window.dataLayer || [];
-    window.gtag = function gtag(...args: unknown[]) {
-      window.dataLayer!.push(args);
-    };
-    window.gtag("js", new Date());
-    window.gtag("config", id, { send_page_view: false });
+    ensureDataLayer();
+    if (!document.querySelector('script[src*="googletagmanager.com/gtm.js"]')) {
+      const script = document.createElement("script");
+      script.async = true;
+      script.src = `https://www.googletagmanager.com/gtm.js?id=${encodeURIComponent(getGtmId())}`;
+      document.head.appendChild(script);
+      window.dataLayer.push({
+        "gtm.start": new Date().getTime(),
+        event: "gtm.js",
+      });
+    }
   } catch {
     /* analytics must never break the site */
   }
 }
 
-/** Fire a GA4 event. No-op when analytics isn't configured. */
+/**
+ * Report an event to GTM via the dataLayer. Tags in the GTM workspace
+ * (GA4 events etc.) subscribe with Custom Event triggers on `name`.
+ * Fire-and-forget: pushes are queued even before the container loads.
+ */
 export function trackEvent(
   name: string,
   params?: Record<string, string | number | boolean>,
 ): void {
   try {
-    if (!initialized || !getMeasurementId() || typeof window.gtag !== "function") return;
-    window.gtag("event", name, params ?? {});
+    ensureDataLayer();
+    window.dataLayer.push({ event: name, ...(params ?? {}) });
   } catch {
     /* never break the site */
   }
 }
 
-/** Manual page_view for SPA route changes. */
+/** Manual page_view for SPA route changes (GTM forwards it to GA4). */
 export function trackPageView(path: string): void {
   trackEvent("page_view", {
     page_path: path,

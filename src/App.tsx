@@ -18,7 +18,7 @@ import {
   RemindersPage,
 } from "./site/pages";
 
-/** Initializes GA4 once and reports SPA page views on every route change. */
+/** Initializes analytics (GTM dataLayer) once and reports SPA page views on every route change. */
 function Analytics() {
   const location = useLocation();
   useEffect(() => {
