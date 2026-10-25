@@ -35,6 +35,7 @@ export function BrandLockup({ className = "h-10" }: { className?: string }) {
 const NAV_LINKS = [
   { to: "/events", label: "Events" },
   { to: "/jobs", label: "Jobs" },
+  { to: "/businesses", label: "Businesses" },
   { to: "/city-hall", label: "City Hall" },
   { to: "/community", label: "Community" },
   { to: "/about", label: "About" },
@@ -127,6 +128,7 @@ function Footer() {
           <ul className="flex flex-col gap-1 font-medium">
             <FooterLink to="/events">Events</FooterLink>
             <FooterLink to="/jobs">Jobs</FooterLink>
+            <FooterLink to="/businesses">Businesses</FooterLink>
             <FooterLink to="/city-hall">City Hall</FooterLink>
             <FooterLink to="/community">Community</FooterLink>
           </ul>
@@ -266,6 +268,11 @@ const ROUTE_META: Record<string, { title: string; description: string }> = {
     title: "Jobs in Leander, TX — Leander Live",
     description:
       "Local jobs posted by Leander employers — full-time, part-time, and contract work in Leander, Texas.",
+  },
+  "/businesses": {
+    title: "Businesses in Leander, TX — Leander Live",
+    description:
+      "The Leander business directory — restaurants, shops, salons, services, and new openings, built from official Texas sales-tax permit records and refreshed twice daily.",
   },
   "/city-hall": {
     title: "City Hall — Leander Live",

@@ -8,7 +8,8 @@
     "url": "https://visitleandertx.com/",
     "category": "Community",
     "image": "/images/real/artfest.jpg",
-    "source": "anchor"
+    "source": "anchor",
+    "blurb": "The city's Public Arts and Culture Commission takes over the Lakewood Park Sculpture Trail: live entertainment, food, art contests, and…"
   },
   {
     "id": "anchor-floating-pumpkin-patch",
@@ -19,352 +20,8 @@
     "url": "https://visitleandertx.com/",
     "category": "Family",
     "image": "/images/real/floating-pumpkin-patch.jpg",
-    "source": "anchor"
-  },
-  {
-    "id": "citycal-3313",
-    "title": "Charter Review Commission",
-    "startsAt": 1792449000000,
-    "venue": "Development Services – San Gabriel Conference Room",
-    "address": "201 N. Brushy Street, Leander TX, 78641",
-    "description": "Charter Review Commission — see the City of Leander calendar for details.",
-    "url": "https://www.leandertx.gov/Calendar.aspx?EID=3313",
-    "sourceUrl": "https://www.leandertx.gov/Calendar.aspx?EID=3313",
-    "category": "Community",
-    "source": "city-calendar"
-  },
-  {
-    "id": "citycal-3314",
-    "title": "BCRUA Meeting",
-    "startsAt": 1792450800000,
-    "venue": "Round Rock City Hall, 221 E. Main Street, Round Rock, Texas 78664",
-    "address": "Leander TX, 78641",
-    "description": "BCRUA Meeting — see the City of Leander calendar for details.",
-    "url": "https://www.leandertx.gov/Calendar.aspx?EID=3314",
-    "sourceUrl": "https://www.leandertx.gov/Calendar.aspx?EID=3314",
-    "category": "Community",
-    "source": "city-calendar"
-  },
-  {
-    "id": "citycal-3247",
-    "title": "Star Party",
-    "startsAt": 1792456200000,
-    "endsAt": 1792461600000,
-    "venue": "Mason Homestead",
-    "address": "1101 S Bagdad, Leander TX, 78641",
-    "description": "Is there anything better than a night out under the stars? Come join us for an evening of star-gazing. Enjoy the constellations at a distance or get an up-close look at Saturn and more through our friends at the Williamson County Astronomy Club’s telescopes! Weather permitting.",
-    "url": "https://www.leandertx.gov/Calendar.aspx?EID=3247",
-    "sourceUrl": "https://www.leandertx.gov/Calendar.aspx?EID=3247",
-    "category": "Learn",
-    "source": "city-calendar",
-    "_dateLine": "Monday, October 19, 2026"
-  },
-  {
-    "id": "citycal-3255",
-    "title": "Storytime (Ages 18m-4yr)",
-    "startsAt": 1792510200000,
-    "endsAt": 1792513800000,
-    "venue": "Library Annex Studio",
-    "address": "1011 S. Bagdad Rd., Leander TX, 78641",
-    "description": "Join us for a storytelling adventure designed to captivate the imagination of toddlers through stories, music, and interactive fun! Playtime after.",
-    "url": "https://www.leandertx.gov/Calendar.aspx?EID=3255",
-    "sourceUrl": "https://www.leandertx.gov/Calendar.aspx?EID=3255",
-    "category": "Family",
-    "source": "city-calendar",
-    "_dateLine": "Tuesday, October 20, 2026"
-  },
-  {
-    "id": "citycal-3263",
-    "title": "Pokemon Club (Ages 5-10)",
-    "startsAt": 1792527300000,
-    "endsAt": 1792530900000,
-    "venue": "Library Annex Studio",
-    "address": "1011 S. Bagdad Rd., Leander TX, 78641",
-    "description": "Drop by Pokémon Club, a come-and-go program where kids can trade cards, engage in battles, and immerse themselves in the thrilling world of Pokémon!*Pokémon cards not provided.",
-    "url": "https://www.leandertx.gov/Calendar.aspx?EID=3263",
-    "sourceUrl": "https://www.leandertx.gov/Calendar.aspx?EID=3263",
-    "category": "Learn",
-    "source": "city-calendar",
-    "_dateLine": "Tuesday, October 20, 2026"
-  },
-  {
-    "id": "citycal-3294",
-    "title": "Craft Lab for Tweens/Teens (9-17): Sugar Skulls and Frames - CANCELLED",
-    "startsAt": 1792531800000,
-    "endsAt": 1792537200000,
-    "venue": "Library Annex Studio",
-    "address": "1011 S. Bagdad Rd., Leander TX, 78641",
-    "description": "THIS EVENT HAS BEEN CANCELLEDDecorate sugar skulls and picture frames in honor of Dia de los Muertos.",
-    "url": "https://www.leandertx.gov/Calendar.aspx?EID=3294",
-    "sourceUrl": "https://www.leandertx.gov/Calendar.aspx?EID=3294",
-    "category": "Family",
-    "source": "city-calendar",
-    "_dateLine": "Tuesday, October 20, 2026"
-  },
-  {
-    "id": "citycal-3299",
-    "title": "Gaming For Grown-Ups (Ages 18+)",
-    "startsAt": 1792537200000,
-    "endsAt": 1792548000000,
-    "venue": "Library Annex Conference Room",
-    "address": "1011 S. Bagdad Rd., Leander TX, 78641",
-    "description": "Connect with others through the joy of board games! Come to learn new games or bring some games to share and teach. Players of all skill levels are welcome!",
-    "url": "https://www.leandertx.gov/Calendar.aspx?EID=3299",
-    "sourceUrl": "https://www.leandertx.gov/Calendar.aspx?EID=3299",
-    "category": "Learn",
-    "source": "city-calendar",
-    "_dateLine": "Tuesday, October 20, 2026"
-  },
-  {
-    "id": "chamber-168618",
-    "title": "Leander Power Hour",
-    "description": "Join us for a morning of updates, light bites, and networking.",
-    "startsAt": 1792591200000,
-    "venue": "Pat Bryson Municipal Hall 201 N Brushy St.",
-    "address": "Pat Bryson Municipal Hall 201 N Brushy St., Leander Tx 78641",
-    "url": "https://leander.chamberspace.net/event/leander-power-hour/168618",
-    "sourceUrl": "https://leander.chamberspace.net/event/leander-power-hour/168618",
-    "category": "Community",
-    "source": "chamber"
-  },
-  {
-    "id": "citycal-3261",
-    "title": "Babytime (Ages 0-18m)",
-    "startsAt": 1792596600000,
-    "endsAt": 1792600200000,
-    "venue": "Library Annex Studio",
-    "address": "1011 S. Bagdad Rd., Leander TX, 78641",
-    "description": "An interactive storytime for babies and their caregivers to connect, play, and sing in a relaxed environment. Playtime after.",
-    "url": "https://www.leandertx.gov/Calendar.aspx?EID=3261",
-    "sourceUrl": "https://www.leandertx.gov/Calendar.aspx?EID=3261",
-    "category": "Learn",
-    "source": "city-calendar",
-    "_dateLine": "Wednesday, October 21, 2026"
-  },
-  {
-    "id": "chamber-168868",
-    "title": "Ribbon Cutting; Leander Union",
-    "description": "Join the Leander Chamber of Commerce as we celebrate the official Ribbon Cutting for Leander Union!",
-    "startsAt": 1792598400000,
-    "venue": "Leander Union 10860 E. Crystal Falls Parkway",
-    "address": "Leander Union 10860 E. Crystal Falls Parkway, Leander TX 78641",
-    "url": "https://leander.chamberspace.net/event/ribbon-cutting-leander-union/168868",
-    "sourceUrl": "https://leander.chamberspace.net/event/ribbon-cutting-leander-union/168868",
-    "category": "Community",
-    "source": "chamber"
-  },
-  {
-    "id": "citycal-3278",
-    "title": "Tween Homeschool Hangout (Ages 9-12)",
-    "startsAt": 1792607400000,
-    "endsAt": 1792612800000,
-    "venue": "Library Annex Studio",
-    "address": "1011 S. Bagdad Rd., Leander TX, 78641",
-    "description": "Meet up with friends, play games, draw/craft, or simply enjoy some hang-time at the library.",
-    "url": "https://www.leandertx.gov/Calendar.aspx?EID=3278",
-    "sourceUrl": "https://www.leandertx.gov/Calendar.aspx?EID=3278",
-    "category": "Learn",
-    "source": "city-calendar",
-    "_dateLine": "Wednesday, October 21, 2026"
-  },
-  {
-    "id": "citycal-3291",
-    "title": "Teen Gamers (Ages 11-17)",
-    "startsAt": 1792618200000,
-    "endsAt": 1792623600000,
-    "venue": "Library Annex Conference Room",
-    "address": "1011 S. Bagdad Rd., Leander TX, 78641",
-    "description": "Level up your week during Teen Gamers; meets every Wednesday. Video games to tabletop favorites provided.",
-    "url": "https://www.leandertx.gov/Calendar.aspx?EID=3291",
-    "sourceUrl": "https://www.leandertx.gov/Calendar.aspx?EID=3291",
-    "category": "Family",
-    "source": "city-calendar",
-    "_dateLine": "Wednesday, October 21, 2026"
-  },
-  {
-    "id": "citycal-3308",
-    "title": "Open Craft Night (Adults 18+)",
-    "startsAt": 1792623600000,
-    "endsAt": 1792629000000,
-    "venue": "Library Annex Studio",
-    "address": "1011 S. Bagdad Rd., Leander TX, 78641",
-    "description": "Why settle for a craft night centered around one specific craft when you could just go nuts with whatever materials we have available? Unleash your creative spirit in whatever form it takes!",
-    "url": "https://www.leandertx.gov/Calendar.aspx?EID=3308",
-    "sourceUrl": "https://www.leandertx.gov/Calendar.aspx?EID=3308",
-    "category": "Learn",
-    "source": "city-calendar",
-    "_dateLine": "Wednesday, October 21, 2026"
-  },
-  {
-    "id": "citycal-3315",
-    "title": "City Council Retreat",
-    "startsAt": 1792677600000,
-    "venue": "Horseshoe Bay ResortPost Oak Meeting Room200 Hi Circle North, Horseshoe Bay, TX 78657",
-    "address": "Horseshoe Bay Resort, Post Oak Meeting Room 200, Horseshoe Bay TX, 78657",
-    "description": "City Council Retreat — see the City of Leander calendar for details.",
-    "url": "https://www.leandertx.gov/Calendar.aspx?EID=3315",
-    "sourceUrl": "https://www.leandertx.gov/Calendar.aspx?EID=3315",
-    "category": "Community",
-    "source": "city-calendar"
-  },
-  {
-    "id": "citycal-3256",
-    "title": "Storytime (Ages 18m-4yr)",
-    "startsAt": 1792683000000,
-    "endsAt": 1792686600000,
-    "venue": "Library Annex Studio",
-    "address": "1011 S. Bagdad Rd., Leander TX, 78641",
-    "description": "Join us for a storytelling adventure designed to captivate the imagination of toddlers through stories, music, and interactive fun! Playtime after.",
-    "url": "https://www.leandertx.gov/Calendar.aspx?EID=3256",
-    "sourceUrl": "https://www.leandertx.gov/Calendar.aspx?EID=3256",
-    "category": "Family",
-    "source": "city-calendar",
-    "_dateLine": "Thursday, October 22, 2026"
-  },
-  {
-    "id": "citycal-3306",
-    "title": "Evening Puzzle Swap",
-    "startsAt": 1792710000000,
-    "endsAt": 1792711800000,
-    "venue": "Library Annex Conference Room",
-    "address": "1011 S. Bagdad Rd., Leander TX, 78641",
-    "description": "Tired of piecing together old puzzles? Swap them out for new ones at the Leander Public Library.",
-    "url": "https://www.leandertx.gov/Calendar.aspx?EID=3306",
-    "sourceUrl": "https://www.leandertx.gov/Calendar.aspx?EID=3306",
-    "category": "Learn",
-    "source": "city-calendar",
-    "_dateLine": "Thursday, October 22, 2026"
-  },
-  {
-    "id": "citycal-2619",
-    "title": "P&Z Commission Regular Meeting",
-    "startsAt": 1792710000000,
-    "venue": "Pat Bryson Municipal Hall - Council Chambers",
-    "address": "201 N. Brushy Street, Leander TX, 78641",
-    "description": "P&Z Commission Regular Meeting — see the City of Leander calendar for details.",
-    "url": "https://www.leandertx.gov/Calendar.aspx?EID=2619",
-    "sourceUrl": "https://www.leandertx.gov/Calendar.aspx?EID=2619",
-    "category": "Community",
-    "source": "city-calendar"
-  },
-  {
-    "id": "citycal-3316",
-    "title": "City Council Retreat",
-    "startsAt": 1792764000000,
-    "venue": "Horseshoe Bay ResortPost Oak Meeting Room200 Hi Circle North, Horseshoe Bay, TX 78657",
-    "address": "Horseshoe Bay Resort, Post Oak Meeting Room 200, Horseshoe Bay TX, 78657",
-    "description": "City Council Retreat — see the City of Leander calendar for details.",
-    "url": "https://www.leandertx.gov/Calendar.aspx?EID=3316",
-    "sourceUrl": "https://www.leandertx.gov/Calendar.aspx?EID=3316",
-    "category": "Community",
-    "source": "city-calendar"
-  },
-  {
-    "id": "chamber-168964",
-    "title": "October Picture your success Headshots",
-    "description": "LIMITED TIMEProfessional Headshot Session",
-    "startsAt": 1792767600000,
-    "endsAt": 1792782000000,
-    "venue": "Portrait Design by Esmeralda 11880 Hero Way W.",
-    "address": "Portrait Design by Esmeralda 11880 Hero Way W., Ste 702-G, Leander TX 78641",
-    "url": "https://leander.chamberspace.net/event/october-picture-your-success-headshots/168964",
-    "sourceUrl": "https://leander.chamberspace.net/event/october-picture-your-success-headshots/168964",
-    "category": "Community",
-    "source": "chamber"
-  },
-  {
-    "id": "citycal-3274",
-    "title": "Teen Homeschool Hangout (Ages 12-17)",
-    "startsAt": 1792778400000,
-    "endsAt": 1792783800000,
-    "venue": "Library Annex Conference Room",
-    "address": "1011 S. Bagdad Rd., Leander TX, 78641",
-    "description": "Meet up with friends, play games, draw/craft, or simply enjoy some hang-time at the library.",
-    "url": "https://www.leandertx.gov/Calendar.aspx?EID=3274",
-    "sourceUrl": "https://www.leandertx.gov/Calendar.aspx?EID=3274",
-    "category": "Family",
-    "source": "city-calendar",
-    "_dateLine": "Friday, October 23, 2026"
-  },
-  {
-    "id": "citycal-3309",
-    "title": "AI Prompting 101",
-    "startsAt": 1792785600000,
-    "endsAt": 1792791000000,
-    "venue": "Library Annex Conference Room",
-    "address": "1011 S. Bagdad Rd., Leander TX, 78641",
-    "description": "The results with AI depend a lot on what prompts you give it. Never fear, our friends at Goodwill Industries are back for a class on how to get the most out of your prompts. Bring your own laptop or reserve your laptop for use during the class here: https://tinyurl.com/gwclassai",
-    "url": "https://www.leandertx.gov/Calendar.aspx?EID=3309",
-    "sourceUrl": "https://www.leandertx.gov/Calendar.aspx?EID=3309",
-    "category": "Learn",
-    "source": "city-calendar",
-    "_dateLine": "Friday, October 23, 2026"
-  },
-  {
-    "id": "citycal-3266",
-    "title": "Brick Builders (Ages 3-10)",
-    "startsAt": 1792785600000,
-    "endsAt": 1792791000000,
-    "venue": "Library Annex Studio",
-    "address": "1011 S. Bagdad Rd., Leander TX, 78641",
-    "description": "Come create marvelous structures with LEGO bricks.Brick Builders will now take place in the Library Annex Small Room.",
-    "url": "https://www.leandertx.gov/Calendar.aspx?EID=3266",
-    "sourceUrl": "https://www.leandertx.gov/Calendar.aspx?EID=3266",
-    "category": "Learn",
-    "source": "city-calendar",
-    "_dateLine": "Friday, October 23, 2026"
-  },
-  {
-    "id": "citycal-3287",
-    "title": "Movie Matinee/ESL Movie Club: The Addams Family",
-    "startsAt": 1792796400000,
-    "endsAt": 1792801800000,
-    "venue": "Library Annex Conference Room",
-    "address": "1011 S. Bagdad Rd., Leander TX, 78641",
-    "description": "It's movie time at Leander Public Library! All are welcome at these movie screenings, but parents, please be wary of movie ratings!This will also serve as this month's ESL Movie Discussion screening.This showing: The Addams Family, PG-13 (1 hr. 39 min.)",
-    "url": "https://www.leandertx.gov/Calendar.aspx?EID=3287",
-    "sourceUrl": "https://www.leandertx.gov/Calendar.aspx?EID=3287",
-    "category": "Family",
-    "source": "city-calendar",
-    "_dateLine": "Friday, October 23, 2026"
-  },
-  {
-    "id": "chamber-168956",
-    "title": "A Court of Thorns and Roses (ACOTAR) Art Party",
-    "description": "Join us for A Court of Thorns and Roses (ACOTAR) Art Party! We will be painting the pictured design inspired by the book series with music and wine! There will be a guided demonstration as well. Tickets are $15 with all supplies included. RSVP here!Admission and pricing Details$15/Ticket",
-    "startsAt": 1792796400000,
-    "endsAt": 1792805400000,
-    "venue": "Lioness Books 208 N Gabriel St",
-    "address": "Lioness Books 208 N Gabriel St, Leander TX 78641",
-    "url": "https://leander.chamberspace.net/event/a-court-of-thorns-and-roses-acotar-art-party/168956",
-    "sourceUrl": "https://leander.chamberspace.net/event/a-court-of-thorns-and-roses-acotar-art-party/168956",
-    "category": "Music",
-    "source": "chamber"
-  },
-  {
-    "id": "chamber-168972",
-    "title": "Learning Experience; Trunk or Treat",
-    "description": "See the Leander Chamber of Commerce calendar for details.",
-    "startsAt": 1792798200000,
-    "endsAt": 1792803600000,
-    "venue": "The Learning Express 248 Metro Dr",
-    "address": "The Learning Express 248 Metro Dr, Leander TX 78641",
-    "url": "https://leander.chamberspace.net/event/learning-experience-trunk-or-treat/168972",
-    "sourceUrl": "https://leander.chamberspace.net/event/learning-experience-trunk-or-treat/168972",
-    "category": "Learn",
-    "source": "chamber"
-  },
-  {
-    "id": "chamber-168969",
-    "title": "Witches Night Out - Medium/Gallery Reading - Vendors & Live Music with Shawn Austin",
-    "description": "Its Witches Night out !&nbsp; &nbsp;Presenting a Gallery Reading from popular local&nbsp; Medium Virginia Belliveau.&nbsp; Tickets available at ;&nbsp; &nbsp; https;//morningmoon.phonesites.com/booking&nbsp;or at the door.&nbsp; &nbsp;seating is limited.&nbsp; VIP/Party area available&nbsp;",
-    "startsAt": 1792861200000,
-    "venue": "Nameless Saloon & Event Center 23296 Nameless Road",
-    "address": "Nameless Saloon & Event Center 23296 Nameless Road, Leander TX 78641",
-    "url": "https://leander.chamberspace.net/event/witches-night-out-medium-gallery-reading-vendors-live-music-with-shawn-austin/168969",
-    "sourceUrl": "https://leander.chamberspace.net/event/witches-night-out-medium-gallery-reading-vendors-live-music-with-shawn-austin/168969",
-    "category": "Music",
-    "source": "chamber"
+    "source": "anchor",
+    "blurb": "A uniquely Leander fall tradition: pick your pumpkin straight out of the pool, then decorate it."
   },
   {
     "id": "anchor-spooktacular",
@@ -375,7 +32,8 @@
     "url": "https://visitleandertx.com/",
     "category": "Family",
     "image": "/images/event-movie-night.jpg",
-    "source": "anchor"
+    "source": "anchor",
+    "blurb": "Trick-or-treating, costumes, and family fun hosted by Leander Parks & Recreation and the Leander Police Department."
   },
   {
     "id": "citycal-2960",
@@ -413,7 +71,8 @@
     "sourceUrl": "https://www.leandertx.gov/Calendar.aspx?EID=3268",
     "category": "Family",
     "source": "city-calendar",
-    "_dateLine": "Monday, October 26, 2026"
+    "_dateLine": "Monday, October 26, 2026",
+    "blurb": "Celebrate spooky season by joining us for festive Halloween-themed crafts!"
   },
   {
     "id": "citycal-3281",
@@ -427,7 +86,8 @@
     "sourceUrl": "https://www.leandertx.gov/Calendar.aspx?EID=3281",
     "category": "Learn",
     "source": "city-calendar",
-    "_dateLine": "Monday, October 26, 2026"
+    "_dateLine": "Monday, October 26, 2026",
+    "blurb": "THIS EVENT HAS BEEN CANCELLEDJoin other service-minded tweens/teens and work on service projects that will help the library and the…"
   },
   {
     "id": "citycal-3257",
@@ -441,7 +101,8 @@
     "sourceUrl": "https://www.leandertx.gov/Calendar.aspx?EID=3257",
     "category": "Family",
     "source": "city-calendar",
-    "_dateLine": "Tuesday, October 27, 2026"
+    "_dateLine": "Tuesday, October 27, 2026",
+    "blurb": "Join us for a storytelling adventure designed to captivate the imagination of toddlers through stories, music, and interactive fun!"
   },
   {
     "id": "chamber-168653",
@@ -451,6 +112,7 @@
     "endsAt": 1793118600000,
     "venue": "Facilities Resource",
     "address": "Facilities Resource, Inc. 1641 Scottsdale Dr., Cedar Park TX 78641",
+    "image": "https://leander.chamberspace.net/virDirEditorAssets/LeanderTX/chamberAccess/CalendarImages/Maximize%20Your%20Membership(3).png",
     "url": "https://leander.chamberspace.net/event/october-new-member-orientation-maximize-your-membership/168653",
     "sourceUrl": "https://leander.chamberspace.net/event/october-new-member-orientation-maximize-your-membership/168653",
     "category": "Community",
@@ -464,6 +126,7 @@
     "endsAt": 1793124000000,
     "venue": "Facilities Resource Inc. 1641 Scottsdale Dr.",
     "address": "Facilities Resource Inc. 1641 Scottsdale Dr., Cedar Park TX 78641",
+    "image": "https://leander.chamberspace.net/virDirEditorAssets/LeanderTX/chamberAccess/CalendarImages/oct%206.png",
     "url": "https://leander.chamberspace.net/event/monthly-lunch-learn-member-fix-it-fair/168559",
     "sourceUrl": "https://leander.chamberspace.net/event/monthly-lunch-learn-member-fix-it-fair/168559",
     "category": "Food & Drink",
@@ -481,7 +144,8 @@
     "sourceUrl": "https://www.leandertx.gov/Calendar.aspx?EID=3269",
     "category": "Family",
     "source": "city-calendar",
-    "_dateLine": "Tuesday, October 27, 2026"
+    "_dateLine": "Tuesday, October 27, 2026",
+    "blurb": "Homeschooling families can meet, socialize, and design and build a pumpkin launcher in this fall-themed STEM challenge."
   },
   {
     "id": "citycal-3300",
@@ -495,7 +159,8 @@
     "sourceUrl": "https://www.leandertx.gov/Calendar.aspx?EID=3300",
     "category": "Learn",
     "source": "city-calendar",
-    "_dateLine": "Tuesday, October 27, 2026"
+    "_dateLine": "Tuesday, October 27, 2026",
+    "blurb": "Connect with others through the joy of board games!"
   },
   {
     "id": "chamber-168906",
@@ -505,10 +170,12 @@
     "endsAt": 1793215800000,
     "venue": "6843 Main St",
     "address": "6843 Main St, Frisco TX 75034",
+    "image": "https://leander.chamberspace.net/virDirEditorAssets/LeanderTX/chamberAccess/CalendarImages/city2city%20graphics.png",
     "url": "https://leander.chamberspace.net/event/city-2-city-experience-frisco/168906",
     "sourceUrl": "https://leander.chamberspace.net/event/city-2-city-experience-frisco/168906",
     "category": "Learn",
-    "source": "chamber"
+    "source": "chamber",
+    "blurb": "The City 2 City Experience - Frisco is an immersive opportunity for Leander&rsquo;s business executives and city officials to visit another…"
   },
   {
     "id": "citycal-3279",
@@ -570,10 +237,27 @@
     "endsAt": 1793323800000,
     "venue": "Junior League of Austin 5330 Bluffstone Ln",
     "address": "Junior League of Austin 5330 Bluffstone Ln, Austin TX 78759",
+    "image": "https://leander.chamberspace.net/virDirEditorAssets/LeanderTX/chamberAccess/CalendarImages/LAP%20Save%20the%20Date%20.jpg",
     "url": "https://leander.chamberspace.net/event/light-a-path-2026-gala/168936",
     "sourceUrl": "https://leander.chamberspace.net/event/light-a-path-2026-gala/168936",
     "category": "Family",
-    "source": "chamber"
+    "source": "chamber",
+    "blurb": "Join us for an unforgettable evening where community, cuisine, and compassion come together to help Central Texas children and families…"
+  },
+  {
+    "id": "chamber-168978",
+    "title": "Halloween Flash Tattoo Day",
+    "description": "Reserve a time slot to get a fangtastic flash tattoo from Lizzy Smith on Friday, October 30th at Lioness Books! All tattoos are $60 and can be done on arms and legs only! You must bring an ID to your appointment. Book your appointment here!Admission and pricing DetailsRSVP is required",
+    "startsAt": 1793372400000,
+    "endsAt": 1793401200000,
+    "venue": "Lioness Books 208 N Gabriel St",
+    "address": "Lioness Books 208 N Gabriel St, Leander TX 78641",
+    "image": "https://leander.chamberspace.net/virDirEditorAssets/LeanderTX/chamberAccess/CalendarImages/Flash%20Day%20promo%20(1).png",
+    "url": "https://leander.chamberspace.net/event/halloween-flash-tattoo-day/168978",
+    "sourceUrl": "https://leander.chamberspace.net/event/halloween-flash-tattoo-day/168978",
+    "category": "Family",
+    "source": "chamber",
+    "blurb": "Reserve a time slot to get a fangtastic flash tattoo from Lizzy Smith on Friday, October 30th at Lioness Books!"
   },
   {
     "id": "citycal-3275",
@@ -609,10 +293,12 @@
     "endsAt": 1793480400000,
     "venue": "Lioness Books 208 N Gabriel St",
     "address": "Lioness Books 208 N Gabriel St, Leander TX 78641",
+    "image": "https://leander.chamberspace.net/virDirEditorAssets/LeanderTX/chamberAccess/CalendarImages/Nightfall%20at%20Lioness%20promo%20(1).png",
     "url": "https://leander.chamberspace.net/event/little-monster-mash-kids-halloween-party/168957",
     "sourceUrl": "https://leander.chamberspace.net/event/little-monster-mash-kids-halloween-party/168957",
     "category": "Family",
-    "source": "chamber"
+    "source": "chamber",
+    "blurb": "Join us in costume before your night of trick-or-treating for a day time Halloween Party at Lioness Books!"
   },
   {
     "id": "citycal-3270",
@@ -642,12 +328,12 @@
   },
   {
     "id": "citycal-3288",
-    "title": "Movie Matinee: Beetlejuice Beetlejuice",
+    "title": "Movie Matinee: Beetlejuice Beetlejuice - CANCELLED",
     "startsAt": 1793476800000,
     "endsAt": 1793484000000,
     "venue": "Library Annex Conference Room",
     "address": "1011 S. Bagdad Rd., Leander TX, 78641",
-    "description": "Movie Matinee: Beetlejuice Beetlejuice — see the City of Leander calendar for details.",
+    "description": "Movie Matinee: Beetlejuice Beetlejuice - CANCELLED — see the City of Leander calendar for details.",
     "url": "https://www.leandertx.gov/Calendar.aspx?EID=3288",
     "sourceUrl": "https://www.leandertx.gov/Calendar.aspx?EID=3288",
     "category": "Learn",
@@ -672,10 +358,12 @@
     "startsAt": 1793811600000,
     "venue": "FIERCE Futsal Facility 401 Chitalpa St. #250",
     "address": "FIERCE Futsal Facility 401 Chitalpa St. #250, Leander TX 78641",
+    "image": "https://leander.chamberspace.net/virDirEditorAssets/LeanderTX/chamberAccess/CalendarImages/fierce(1).png",
     "url": "https://leander.chamberspace.net/event/ribbon-cutting-fierce/168967",
     "sourceUrl": "https://leander.chamberspace.net/event/ribbon-cutting-fierce/168967",
     "category": "Community",
-    "source": "chamber"
+    "source": "chamber",
+    "blurb": "The Leander Chamber of Commerce is excited to celebrate the grand opening of FIERCE United&rsquo;s new FIERCE Futsal Facility!"
   },
   {
     "id": "chamber-168950",
@@ -685,10 +373,12 @@
     "endsAt": 1793818800000,
     "venue": "Estancia Brazillian Steakhouse 2132 Raider Way",
     "address": "Estancia Brazillian Steakhouse 2132 Raider Way, Leander TX 78641",
+    "image": "https://leander.chamberspace.net/virDirEditorAssets/LeanderTX/chamberAccess/CalendarImages/nov%20(1).png",
     "url": "https://leander.chamberspace.net/event/lunch-with-the-mayor/168950",
     "sourceUrl": "https://leander.chamberspace.net/event/lunch-with-the-mayor/168950",
     "category": "Food & Drink",
-    "source": "chamber"
+    "source": "chamber",
+    "blurb": "Join us for an engaging and informative Lunch with the Mayor, where community members, local leaders, and business professionals come…"
   },
   {
     "id": "chamber-168679",
@@ -698,10 +388,12 @@
     "endsAt": 1793898000000,
     "venue": "ActionCOACH CTX 190 N Bagdad Rd. Ste. 100B",
     "address": "ActionCOACH CTX 190 N Bagdad Rd. Ste. 100B, Leander TX 78641",
+    "image": "https://leander.chamberspace.net/virDirEditorAssets/LeanderTX/chamberAccess/CalendarImages/nov%205.png",
     "url": "https://leander.chamberspace.net/event/chamber-workshop-with-actioncoach-community-based-growth-strategies/168679",
     "sourceUrl": "https://leander.chamberspace.net/event/chamber-workshop-with-actioncoach-community-based-growth-strategies/168679",
     "category": "Learn",
-    "source": "chamber"
+    "source": "chamber",
+    "blurb": "Using partnerships, local ecosystems, and community influence to grow without heavy ad spend."
   },
   {
     "id": "citycal-2595",
@@ -722,10 +414,12 @@
     "startsAt": 1793991600000,
     "venue": "ClearWater Express Wash 11560 Hero Way W",
     "address": "ClearWater Express Wash 11560 Hero Way W, Leander TX 78641",
+    "image": "https://leander.chamberspace.net/virDirEditorAssets/LeanderTX/chamberAccess/CalendarImages/clear%20water.png",
     "url": "https://leander.chamberspace.net/event/ribbon-cutting-clearwater-express-wash/168960",
     "sourceUrl": "https://leander.chamberspace.net/event/ribbon-cutting-clearwater-express-wash/168960",
     "category": "Community",
-    "source": "chamber"
+    "source": "chamber",
+    "blurb": "Help us welcome ClearWater Express Wash to the Leander community with a special Ribbon Cutting Ceremony!"
   },
   {
     "id": "chamber-168962",
@@ -735,6 +429,7 @@
     "endsAt": 1794078000000,
     "venue": "Gupton Stadium 200 Gupton Way",
     "address": "Gupton Stadium 200 Gupton Way, Cedar Park TX 78613",
+    "image": "https://leander.chamberspace.net/virDirEditorAssets/LeanderTX/chamberAccess/CalendarImages/Car%20Show%20-%20Round.png",
     "url": "https://leander.chamberspace.net/event/6th-annual-heroes-choice-car-show/168962",
     "sourceUrl": "https://leander.chamberspace.net/event/6th-annual-heroes-choice-car-show/168962",
     "category": "Community",
@@ -748,10 +443,26 @@
     "endsAt": 1794088800000,
     "venue": "Texas Humane Heroes 10930 E Crystal Falls Pkwy",
     "address": "Texas Humane Heroes 10930 E Crystal Falls Pkwy, Leander TX 78641",
+    "image": "https://leander.chamberspace.net/virDirEditorAssets/LeanderTX/chamberAccess/CalendarImages/17th%20Annual%20CCO.png",
     "url": "https://leander.chamberspace.net/event/17th-annual-chili-cook-off/168931",
     "sourceUrl": "https://leander.chamberspace.net/event/17th-annual-chili-cook-off/168931",
     "category": "Food & Drink",
     "source": "chamber"
+  },
+  {
+    "id": "chamber-168979",
+    "title": "Documentary Screening; Join or Die",
+    "description": "Join or Die is a film about why you should join a club &mdash; and why the fate of America depends on it. It''s also the best explanation of LW+P we''ve ever seen.",
+    "startsAt": 1794099600000,
+    "endsAt": 1794110400000,
+    "venue": "Lioness Books 208 N Gabriel St",
+    "address": "Lioness Books 208 N Gabriel St, Leander TX 78641",
+    "image": "https://leander.chamberspace.net/virDirEditorAssets/LeanderTX/chamberAccess/CalendarImages/Join+or+Die.webp",
+    "url": "https://leander.chamberspace.net/event/documentary-screening-join-or-die/168979",
+    "sourceUrl": "https://leander.chamberspace.net/event/documentary-screening-join-or-die/168979",
+    "category": "Community",
+    "source": "chamber",
+    "blurb": "Join or Die is a film about why you should join a club &mdash; and why the fate of America depends on it."
   },
   {
     "id": "chamber-168917",
@@ -761,10 +472,12 @@
     "endsAt": 1794346200000,
     "venue": "UT Commons Conference Center 2901 Read Granberry Trail",
     "address": "UT Commons Conference Center 2901 Read Granberry Trail, Austin TX 78758",
+    "image": "https://leander.chamberspace.net/virDirEditorAssets/LeanderTX/chamberAccess/CalendarImages/Copy%20of%20BTP%20General%201080%20x%201080.png",
     "url": "https://leander.chamberspace.net/event/board-training-program/168917",
     "sourceUrl": "https://leander.chamberspace.net/event/board-training-program/168917",
     "category": "Learn",
-    "source": "chamber"
+    "source": "chamber",
+    "blurb": "I Live Here I Give Here&rsquo;s annual Board Training Program is a full-day immersive educational opportunity featuring two tracks to serve…"
   },
   {
     "id": "chamber-168935",
@@ -773,8 +486,23 @@
     "startsAt": 1794322800000,
     "venue": "Chicken Salad Chick 1060 Hero Way",
     "address": "Chicken Salad Chick 1060 Hero Way, Ste 100, Leander TX 78641",
+    "image": "https://leander.chamberspace.net/virDirEditorAssets/LeanderTX/chamberAccess/CalendarImages/chicken%20salad%20(2).png",
     "url": "https://leander.chamberspace.net/event/ribbon-cutting-chicken-salad-chick/168935",
     "sourceUrl": "https://leander.chamberspace.net/event/ribbon-cutting-chicken-salad-chick/168935",
+    "category": "Community",
+    "source": "chamber",
+    "blurb": "Join the Leander Chamber of Commerce &amp; Visitors Center as we celebrate the opening of&nbsp; Chicken Salad Chick&rsquo;s new Leander…"
+  },
+  {
+    "id": "chamber-168982",
+    "title": "Ribbon Cutting; Shaddock Homes",
+    "description": "See the Leander Chamber of Commerce calendar for details.",
+    "startsAt": 1794348000000,
+    "venue": "Shaddock Homes 2972 Dynasty Drive",
+    "address": "Shaddock Homes 2972 Dynasty Drive, Leander TX 78641",
+    "image": "https://leander.chamberspace.net/virDirEditorAssets/LeanderTX/chamberAccess/CalendarImages/shaddock.png",
+    "url": "https://leander.chamberspace.net/event/ribbon-cutting-shaddock-homes/168982",
+    "sourceUrl": "https://leander.chamberspace.net/event/ribbon-cutting-shaddock-homes/168982",
     "category": "Community",
     "source": "chamber"
   },
@@ -787,7 +515,8 @@
     "url": "https://www.leandertx.gov/",
     "category": "Community",
     "image": "/images/event-farmers-market.jpg",
-    "source": "anchor"
+    "source": "anchor",
+    "blurb": "The city's annual ceremony honoring veterans at Veterans Park."
   },
   {
     "id": "chamber-168971",
@@ -796,10 +525,12 @@
     "startsAt": 1794420000000,
     "venue": "Eyemart Express 8481 W State Highway 29 Ste 130",
     "address": "Eyemart Express 8481 W State Highway 29 Ste 130, Leander TX 78641",
+    "image": "https://leander.chamberspace.net/virDirEditorAssets/LeanderTX/chamberAccess/CalendarImages/eyemart.png",
     "url": "https://leander.chamberspace.net/event/ribbon-cutting-eyemart-express/168971",
     "sourceUrl": "https://leander.chamberspace.net/event/ribbon-cutting-eyemart-express/168971",
     "category": "Learn",
-    "source": "chamber"
+    "source": "chamber",
+    "blurb": "Join Us for the Ribbon Cutting Celebration of Eyemart Express!"
   },
   {
     "id": "chamber-168927",
@@ -808,10 +539,12 @@
     "startsAt": 1794438000000,
     "venue": "LeanderFilmFestival.com",
     "address": "LeanderFilmFestival.com , Leander Tx 78641",
+    "image": "https://leander.chamberspace.net/virDirEditorAssets/LeanderTX/chamberAccess/CalendarImages/Leander%20Graphic%20Fall%20Blog.png",
     "url": "https://leander.chamberspace.net/event/leander-film-festival/168927",
     "sourceUrl": "https://leander.chamberspace.net/event/leander-film-festival/168927",
     "category": "Outdoors",
-    "source": "chamber"
+    "source": "chamber",
+    "blurb": "Leander Film Festival 2026 November 11-15, 2026 | Venues across Leander, Cedar Park, and surrounding communities"
   },
   {
     "id": "citycal-2608",
@@ -833,6 +566,7 @@
     "endsAt": 1794942000000,
     "venue": "Facilities Resource Inc. 1641 Scottsdale Dr.",
     "address": "Facilities Resource Inc. 1641 Scottsdale Dr., Cedar Park TX 78641",
+    "image": "https://leander.chamberspace.net/virDirEditorAssets/LeanderTX/chamberAccess/CalendarImages/2026%20Lunches.png",
     "url": "https://leander.chamberspace.net/event/monthly-lunch-learn-rising-star-awards/168562",
     "sourceUrl": "https://leander.chamberspace.net/event/monthly-lunch-learn-rising-star-awards/168562",
     "category": "Food & Drink",
@@ -846,10 +580,12 @@
     "endsAt": 1795046400000,
     "venue": "Anderson Terrace 11505 Anderson Mill Rd.",
     "address": "Anderson Terrace 11505 Anderson Mill Rd., Austin TX 78750",
+    "image": "https://leander.chamberspace.net/virDirEditorAssets/LeanderTX/chamberAccess/CalendarImages/November%20Women's%20Network%20(1).png",
     "url": "https://leander.chamberspace.net/event/women-s-network-game-night-trivia-social/168771",
     "sourceUrl": "https://leander.chamberspace.net/event/women-s-network-game-night-trivia-social/168771",
     "category": "Community",
-    "source": "chamber"
+    "source": "chamber",
+    "blurb": "Join us for a fun and engaging Women&rsquo;s Network Trivia Night&mdash;an evening designed to bring women together for connection,…"
   },
   {
     "id": "citycal-2584",
@@ -871,6 +607,7 @@
     "endsAt": 1795294800000,
     "venue": "Leander High School 3301 S. Bagdad Rd.",
     "address": "Leander High School 3301 S. Bagdad Rd., Leander TX 78641",
+    "image": "https://leander.chamberspace.net/virDirEditorAssets/LeanderTX/chamberAccess/CalendarImages/LHS%20Craft.png",
     "url": "https://leander.chamberspace.net/event/leander-high-craft-market/168976",
     "sourceUrl": "https://leander.chamberspace.net/event/leander-high-craft-market/168976",
     "category": "Community",
@@ -920,6 +657,7 @@
     "endsAt": 1796488200000,
     "venue": "Texas Humane Heroes 10930 E Crystal Falls Pkwy",
     "address": "Texas Humane Heroes 10930 E Crystal Falls Pkwy, Leander TX 78641",
+    "image": "https://leander.chamberspace.net/virDirEditorAssets/LeanderTX/chamberAccess/CalendarImages/Santa%20Paws%20Clinic.png",
     "url": "https://leander.chamberspace.net/event/weekend-low-cost-vaccination-clinic-with-santa-paws/168933",
     "sourceUrl": "https://leander.chamberspace.net/event/weekend-low-cost-vaccination-clinic-with-santa-paws/168933",
     "category": "Family",
@@ -934,7 +672,8 @@
     "url": "https://visitleandertx.com/",
     "category": "Community",
     "image": "/images/real/old-town-christmas.jpg",
-    "source": "anchor"
+    "source": "anchor",
+    "blurb": "First Saturday of December in Historic Old Town: parade, 40-foot tree lighting, Rudolph Run 5K, pictures with Santa, holiday hayrides, yule…"
   },
   {
     "id": "chamber-168940",
@@ -944,10 +683,12 @@
     "endsAt": 1796778000000,
     "venue": "Twin Lakes Family YMCA 204 E Little Elm Trail",
     "address": "Twin Lakes Family YMCA 204 E Little Elm Trail, Cedar Park TX 78613",
+    "image": "https://leander.chamberspace.net/virDirEditorAssets/LeanderTX/chamberAccess/CalendarImages/26%20Event%20Images.png",
     "url": "https://leander.chamberspace.net/event/after-hours-mixer-at-twin-lakes-family-ymca/168940",
     "sourceUrl": "https://leander.chamberspace.net/event/after-hours-mixer-at-twin-lakes-family-ymca/168940",
     "category": "Family",
-    "source": "chamber"
+    "source": "chamber",
+    "blurb": "Join us for an after hours mixer with the Leander Chambers of Commerce at the Twin Lakes Family YMCA!"
   },
   {
     "id": "chamber-168649",
@@ -957,6 +698,7 @@
     "endsAt": 1796923800000,
     "venue": "Facilities Resource",
     "address": "Facilities Resource, Inc. 1641 Scottsdale Dr., Cedar Park TX 78641",
+    "image": "https://leander.chamberspace.net/virDirEditorAssets/LeanderTX/chamberAccess/CalendarImages/Maximize%20Your%20Membership(4).png",
     "url": "https://leander.chamberspace.net/event/december-new-member-orientation-maximize-your-membership/168649",
     "sourceUrl": "https://leander.chamberspace.net/event/december-new-member-orientation-maximize-your-membership/168649",
     "category": "Community",
@@ -970,6 +712,7 @@
     "endsAt": 1796920200000,
     "venue": "Facilities Resource Inc. 1641 Scottsdale Dr.",
     "address": "Facilities Resource Inc. 1641 Scottsdale Dr., Cedar Park TX 78641",
+    "image": "https://leander.chamberspace.net/virDirEditorAssets/LeanderTX/chamberAccess/CalendarImages/December.png",
     "url": "https://leander.chamberspace.net/event/monthly-lunch-learn-santa-s-breakfast/168563",
     "sourceUrl": "https://leander.chamberspace.net/event/monthly-lunch-learn-santa-s-breakfast/168563",
     "category": "Food & Drink",
@@ -1036,6 +779,20 @@
     "source": "chamber"
   },
   {
+    "id": "chamber-168961",
+    "title": "10th Annual Silver Shells Shootout",
+    "description": "See the Leander Chamber of Commerce calendar for details.",
+    "startsAt": 1800637200000,
+    "endsAt": 1800662400000,
+    "venue": "Reunion Ranch 850 CR 255",
+    "address": "Reunion Ranch 850 CR 255, Georgetown TX 78633",
+    "image": "https://leander.chamberspace.net/virDirEditorAssets/LeanderTX/chamberAccess/CalendarImages/Silver%20Shells%20-%20Round.png",
+    "url": "https://leander.chamberspace.net/event/10th-annual-silver-shells-shootout/168961",
+    "sourceUrl": "https://leander.chamberspace.net/event/10th-annual-silver-shells-shootout/168961",
+    "category": "Community",
+    "source": "chamber"
+  },
+  {
     "id": "anchor-kite-festival",
     "title": "Devine Lake Kite Festival",
     "description": "Early-spring family day at the lake: competitive kite events, workshops, kite-making, games, and food trucks.",
@@ -1044,7 +801,8 @@
     "url": "https://visitleandertx.com/",
     "category": "Outdoors",
     "image": "/images/real/kite-festival.jpg",
-    "source": "anchor"
+    "source": "anchor",
+    "blurb": "Early-spring family day at the lake: competitive kite events, workshops, kite-making, games, and food trucks."
   },
   {
     "id": "anchor-old-town-street-festival",
@@ -1055,7 +813,8 @@
     "url": "https://visitleandertx.com/",
     "category": "Community",
     "image": "/images/real/old-town-street-festival.jpg",
-    "source": "anchor"
+    "source": "anchor",
+    "blurb": "Leander's signature community celebration, first Saturday of June: 5K run, artisan and local vendors, Texas bands and live music, wine &…"
   },
   {
     "id": "anchor-liberty-fest",
@@ -1066,6 +825,7 @@
     "url": "https://visitleandertx.com/",
     "category": "Community",
     "image": "/images/real/liberty-fest.jpg",
-    "source": "anchor"
+    "source": "anchor",
+    "blurb": "The city's free Fourth of July celebration: live music, food trucks, children's attractions, a drone show, and fireworks over the lake."
   }
 ]

@@ -8,6 +8,7 @@ import {
   ALL_EVENTS,
   ALL_JOBS,
   BusinessForm,
+  BusinessesBoard,
   CrossPromoCard,
   EventCard,
   FeedFilters,
@@ -164,6 +165,23 @@ export function JobsPage() {
       />
       <main className="mx-auto max-w-6xl px-4 py-6">
         <JobsBoard />
+      </main>
+    </>
+  );
+}
+
+/* ---------------- business directory ---------------- */
+
+export function BusinessesPage() {
+  return (
+    <>
+      <PageHero
+        eyebrow="Local directory"
+        title="Businesses in Leander"
+        subtitle="Every storefront, kitchen, salon, and service in town — from official Texas permit records, refreshed twice a day."
+      />
+      <main className="mx-auto max-w-6xl px-4 py-6">
+        <BusinessesBoard />
       </main>
     </>
   );
