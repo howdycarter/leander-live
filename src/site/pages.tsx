@@ -397,6 +397,22 @@ function PackageCard({ pkg, onInterested }: { pkg: AdPackage; onInterested: (pkg
               Checkout opens soon — reserve your spot below.
             </p>
           )}
+          {pkg.exclusivity && pkg.exclusivity.stripeUrl.length > 0 && (
+            <Button
+              variant="outline"
+              className="mt-3 w-full rounded-full"
+              onClick={() => {
+                trackEvent("stripe_checkout_started", {
+                  package: `${pkg.id}-exclusivity`,
+                  price: pkg.exclusivity!.price,
+                });
+                window.open(pkg.exclusivity!.stripeUrl, "_blank", "noopener");
+              }}
+            >
+              Own your category — ${pkg.exclusivity.price}
+              {pkg.exclusivity.cadence} <ArrowRight className="h-4 w-4" />
+            </Button>
+          )}
         </div>
       </CardContent>
     </Card>
