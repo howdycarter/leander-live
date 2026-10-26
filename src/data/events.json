@@ -36,45 +36,6 @@
     "blurb": "Trick-or-treating, costumes, and family fun hosted by Leander Parks & Recreation and the Leander Police Department."
   },
   {
-    "id": "citycal-2960",
-    "title": "Development Authority Board Meeting",
-    "startsAt": 1793021400000,
-    "venue": "Pat Bryson Municipal Hall - Council Chambers",
-    "address": "201 N. Brushy Street, Leander TX, 78641",
-    "description": "Development Authority Board Meeting — see the City of Leander calendar for details.",
-    "url": "https://www.leandertx.gov/Calendar.aspx?EID=2960",
-    "sourceUrl": "https://www.leandertx.gov/Calendar.aspx?EID=2960",
-    "category": "Community",
-    "source": "city-calendar"
-  },
-  {
-    "id": "citycal-2953",
-    "title": "Tax Increment Reinvestment Zone (TIRZ) No. 1 Meeting",
-    "startsAt": 1793021400000,
-    "venue": "Pat Bryson Municipal Hall - Council Chambers",
-    "address": "201 N. Brushy Street, Leander TX, 78641",
-    "description": "Tax Increment Reinvestment Zone (TIRZ) No. 1 Meeting — see the City of Leander calendar for details.",
-    "url": "https://www.leandertx.gov/Calendar.aspx?EID=2953",
-    "sourceUrl": "https://www.leandertx.gov/Calendar.aspx?EID=2953",
-    "category": "Community",
-    "source": "city-calendar"
-  },
-  {
-    "id": "citycal-3268",
-    "title": "Halloween Crafternoon (Ages 2-10)",
-    "startsAt": 1793026800000,
-    "endsAt": 1793034000000,
-    "venue": "Library Annex Studio",
-    "address": "1011 S. Bagdad Rd., Leander TX, 78641",
-    "description": "Celebrate spooky season by joining us for festive Halloween-themed crafts! Materials provided, while supplies last.",
-    "url": "https://www.leandertx.gov/Calendar.aspx?EID=3268",
-    "sourceUrl": "https://www.leandertx.gov/Calendar.aspx?EID=3268",
-    "category": "Family",
-    "source": "city-calendar",
-    "_dateLine": "Monday, October 26, 2026",
-    "blurb": "Celebrate spooky season by joining us for festive Halloween-themed crafts!"
-  },
-  {
     "id": "citycal-3281",
     "title": "Do Gooders: Volunteer Service (Ages 11-17) - CANCELLED",
     "startsAt": 1793057400000,
@@ -352,6 +313,19 @@
     "source": "chamber"
   },
   {
+    "id": "citycal-3323",
+    "title": "Gaming For Grown-Ups (Ages 18+)",
+    "startsAt": 1793750400000,
+    "endsAt": 1793761200000,
+    "venue": "Library Annex Conference Room",
+    "address": "1011 S. Bagdad Rd., Leander TX, 78641",
+    "description": "Gaming For Grown-Ups (Ages 18+) — see the City of Leander calendar for details.",
+    "url": "https://www.leandertx.gov/Calendar.aspx?EID=3323",
+    "sourceUrl": "https://www.leandertx.gov/Calendar.aspx?EID=3323",
+    "category": "Learn",
+    "source": "city-calendar"
+  },
+  {
     "id": "chamber-168967",
     "title": "Ribbon Cutting; FIERCE",
     "description": "The Leander Chamber of Commerce is excited to celebrate the grand opening of FIERCE United&rsquo;s new FIERCE Futsal Facility!",
@@ -379,6 +353,19 @@
     "category": "Food & Drink",
     "source": "chamber",
     "blurb": "Join us for an engaging and informative Lunch with the Mayor, where community members, local leaders, and business professionals come…"
+  },
+  {
+    "id": "citycal-3318",
+    "title": "Grim Readers: A Dark Book Club (Ages 18+)",
+    "startsAt": 1793836800000,
+    "endsAt": 1793840400000,
+    "venue": "Library Annex Studio",
+    "address": "1011 S. Bagdad Rd., Leander TX, 78641",
+    "description": "Grim Readers: A Dark Book Club (Ages 18+) — see the City of Leander calendar for details.",
+    "url": "https://www.leandertx.gov/Calendar.aspx?EID=3318",
+    "sourceUrl": "https://www.leandertx.gov/Calendar.aspx?EID=3318",
+    "category": "Learn",
+    "source": "city-calendar"
   },
   {
     "id": "chamber-168679",
@@ -507,6 +494,19 @@
     "source": "chamber"
   },
   {
+    "id": "citycal-3324",
+    "title": "Gaming For Grown-Ups (Ages 18+)",
+    "startsAt": 1794355200000,
+    "endsAt": 1794366000000,
+    "venue": "Library Annex Conference Room",
+    "address": "1011 S. Bagdad Rd., Leander TX, 78641",
+    "description": "Gaming For Grown-Ups (Ages 18+) — see the City of Leander calendar for details.",
+    "url": "https://www.leandertx.gov/Calendar.aspx?EID=3324",
+    "sourceUrl": "https://www.leandertx.gov/Calendar.aspx?EID=3324",
+    "category": "Learn",
+    "source": "city-calendar"
+  },
+  {
     "id": "anchor-veterans-day",
     "title": "Veterans Day Ceremony",
     "description": "The city's annual ceremony honoring veterans at Veterans Park.",
@@ -573,6 +573,19 @@
     "source": "chamber"
   },
   {
+    "id": "citycal-3325",
+    "title": "Gaming For Grown-Ups (Ages 18+)",
+    "startsAt": 1794960000000,
+    "endsAt": 1794970800000,
+    "venue": "Library Annex Conference Room",
+    "address": "1011 S. Bagdad Rd., Leander TX, 78641",
+    "description": "Gaming For Grown-Ups (Ages 18+) — see the City of Leander calendar for details.",
+    "url": "https://www.leandertx.gov/Calendar.aspx?EID=3325",
+    "sourceUrl": "https://www.leandertx.gov/Calendar.aspx?EID=3325",
+    "category": "Learn",
+    "source": "city-calendar"
+  },
+  {
     "id": "chamber-168771",
     "title": "Women's Network; Game Night & Trivia Social",
     "description": "Join us for a fun and engaging Women&rsquo;s Network Trivia Night&mdash;an evening designed to bring women together for connection, laughter, and a little friendly competition!",
@@ -588,6 +601,19 @@
     "blurb": "Join us for a fun and engaging Women&rsquo;s Network Trivia Night&mdash;an evening designed to bring women together for connection,…"
   },
   {
+    "id": "citycal-3319",
+    "title": "Writing Club (Ages 18+)",
+    "startsAt": 1795046400000,
+    "endsAt": 1795051800000,
+    "venue": "Library Annex Studio",
+    "address": "1011 S. Bagdad Rd., Leander TX, 78641",
+    "description": "Writing Club (Ages 18+) — see the City of Leander calendar for details.",
+    "url": "https://www.leandertx.gov/Calendar.aspx?EID=3319",
+    "sourceUrl": "https://www.leandertx.gov/Calendar.aspx?EID=3319",
+    "category": "Learn",
+    "source": "city-calendar"
+  },
+  {
     "id": "citycal-2584",
     "title": "City Council Regular Meeting",
     "startsAt": 1795132800000,
@@ -597,6 +623,19 @@
     "url": "https://www.leandertx.gov/Calendar.aspx?EID=2584",
     "sourceUrl": "https://www.leandertx.gov/Calendar.aspx?EID=2584",
     "category": "Community",
+    "source": "city-calendar"
+  },
+  {
+    "id": "citycal-3320",
+    "title": "Adult Craft Night (Ages 18+)",
+    "startsAt": 1795132800000,
+    "endsAt": 1795138200000,
+    "venue": "Library Annex Conference Room",
+    "address": "1011 S. Bagdad Rd., Leander TX, 78641",
+    "description": "Adult Craft Night (Ages 18+) — see the City of Leander calendar for details.",
+    "url": "https://www.leandertx.gov/Calendar.aspx?EID=3320",
+    "sourceUrl": "https://www.leandertx.gov/Calendar.aspx?EID=3320",
+    "category": "Learn",
     "source": "city-calendar"
   },
   {
@@ -612,6 +651,32 @@
     "sourceUrl": "https://leander.chamberspace.net/event/leander-high-craft-market/168976",
     "category": "Community",
     "source": "chamber"
+  },
+  {
+    "id": "citycal-3321",
+    "title": "Morning Puzzle Swap",
+    "startsAt": 1795276800000,
+    "endsAt": 1795278600000,
+    "venue": "Library Annex Conference Room",
+    "address": "1011 S. Bagdad Rd., Leander TX, 78641",
+    "description": "Morning Puzzle Swap — see the City of Leander calendar for details.",
+    "url": "https://www.leandertx.gov/Calendar.aspx?EID=3321",
+    "sourceUrl": "https://www.leandertx.gov/Calendar.aspx?EID=3321",
+    "category": "Learn",
+    "source": "city-calendar"
+  },
+  {
+    "id": "citycal-3322",
+    "title": "Books and Brews (Ages 18+)",
+    "startsAt": 1795291200000,
+    "endsAt": 1795302000000,
+    "venue": "Leander, TX",
+    "address": "Leander TX, 78641",
+    "description": "Books and Brews (Ages 18+) — see the City of Leander calendar for details.",
+    "url": "https://www.leandertx.gov/Calendar.aspx?EID=3322",
+    "sourceUrl": "https://www.leandertx.gov/Calendar.aspx?EID=3322",
+    "category": "Food & Drink",
+    "source": "city-calendar"
   },
   {
     "id": "citycal-2961",
