@@ -36,21 +36,6 @@
     "blurb": "Trick-or-treating, costumes, and family fun hosted by Leander Parks & Recreation and the Leander Police Department."
   },
   {
-    "id": "citycal-3281",
-    "title": "Do Gooders: Volunteer Service (Ages 11-17) - CANCELLED",
-    "startsAt": 1793057400000,
-    "endsAt": 1793061000000,
-    "venue": "Library Annex Conference Room",
-    "address": "1011 S. Bagdad Rd., Leander TX, 78641",
-    "description": "THIS EVENT HAS BEEN CANCELLEDJoin other service-minded tweens/teens and work on service projects that will help the library and the larger-community.Registration required through Leander CivicRec.",
-    "url": "https://www.leandertx.gov/Calendar.aspx?EID=3281",
-    "sourceUrl": "https://www.leandertx.gov/Calendar.aspx?EID=3281",
-    "category": "Learn",
-    "source": "city-calendar",
-    "_dateLine": "Monday, October 26, 2026",
-    "blurb": "THIS EVENT HAS BEEN CANCELLEDJoin other service-minded tweens/teens and work on service projects that will help the library and the…"
-  },
-  {
     "id": "citycal-3257",
     "title": "Storytime (Ages 18m-4yr)",
     "startsAt": 1793115000000,
@@ -313,6 +298,32 @@
     "source": "chamber"
   },
   {
+    "id": "citycal-3374",
+    "title": "Storytime (Ages 18m-4yr)",
+    "startsAt": 1793723400000,
+    "endsAt": 1793727000000,
+    "venue": "Library Annex Conference Room",
+    "address": "1011 S. Bagdad Rd., Leander TX, 78641",
+    "description": "Storytime (Ages 18m-4yr) — see the City of Leander calendar for details.",
+    "url": "https://www.leandertx.gov/Calendar.aspx?EID=3374",
+    "sourceUrl": "https://www.leandertx.gov/Calendar.aspx?EID=3374",
+    "category": "Family",
+    "source": "city-calendar"
+  },
+  {
+    "id": "citycal-3382",
+    "title": "Pokemon Club (Ages 5-10)",
+    "startsAt": 1793740500000,
+    "endsAt": 1793744100000,
+    "venue": "Library Annex Conference Room",
+    "address": "1011 S. Bagdad Rd., Leander TX, 78641",
+    "description": "Pokemon Club (Ages 5-10) — see the City of Leander calendar for details.",
+    "url": "https://www.leandertx.gov/Calendar.aspx?EID=3382",
+    "sourceUrl": "https://www.leandertx.gov/Calendar.aspx?EID=3382",
+    "category": "Learn",
+    "source": "city-calendar"
+  },
+  {
     "id": "citycal-3323",
     "title": "Gaming For Grown-Ups (Ages 18+)",
     "startsAt": 1793750400000,
@@ -322,6 +333,19 @@
     "description": "Gaming For Grown-Ups (Ages 18+) — see the City of Leander calendar for details.",
     "url": "https://www.leandertx.gov/Calendar.aspx?EID=3323",
     "sourceUrl": "https://www.leandertx.gov/Calendar.aspx?EID=3323",
+    "category": "Learn",
+    "source": "city-calendar"
+  },
+  {
+    "id": "citycal-3380",
+    "title": "Babytime (Ages 0-18m)",
+    "startsAt": 1793809800000,
+    "endsAt": 1793813400000,
+    "venue": "Library Annex Conference Room",
+    "address": "1011 S. Bagdad Rd., Leander TX, 78641",
+    "description": "Babytime (Ages 0-18m) — see the City of Leander calendar for details.",
+    "url": "https://www.leandertx.gov/Calendar.aspx?EID=3380",
+    "sourceUrl": "https://www.leandertx.gov/Calendar.aspx?EID=3380",
     "category": "Learn",
     "source": "city-calendar"
   },
@@ -383,6 +407,19 @@
     "blurb": "Using partnerships, local ecosystems, and community influence to grow without heavy ad spend."
   },
   {
+    "id": "citycal-3375",
+    "title": "Storytime (Ages 18m-4yr)",
+    "startsAt": 1793896200000,
+    "endsAt": 1793899800000,
+    "venue": "Library Annex Conference Room",
+    "address": "1011 S. Bagdad Rd., Leander TX, 78641",
+    "description": "Storytime (Ages 18m-4yr) — see the City of Leander calendar for details.",
+    "url": "https://www.leandertx.gov/Calendar.aspx?EID=3375",
+    "sourceUrl": "https://www.leandertx.gov/Calendar.aspx?EID=3375",
+    "category": "Family",
+    "source": "city-calendar"
+  },
+  {
     "id": "citycal-2595",
     "title": "City Council Regular Meeting",
     "startsAt": 1793923200000,
@@ -407,6 +444,19 @@
     "category": "Community",
     "source": "chamber",
     "blurb": "Help us welcome ClearWater Express Wash to the Leander community with a special Ribbon Cutting Ceremony!"
+  },
+  {
+    "id": "citycal-3384",
+    "title": "Brick Builders (Ages 3-10)",
+    "startsAt": 1793998800000,
+    "endsAt": 1794006000000,
+    "venue": "Library Annex Studio",
+    "address": "1011 S. Bagdad Rd., Leander TX, 78641",
+    "description": "Brick Builders (Ages 3-10) — see the City of Leander calendar for details.",
+    "url": "https://www.leandertx.gov/Calendar.aspx?EID=3384",
+    "sourceUrl": "https://www.leandertx.gov/Calendar.aspx?EID=3384",
+    "category": "Learn",
+    "source": "city-calendar"
   },
   {
     "id": "chamber-168962",
@@ -481,6 +531,19 @@
     "blurb": "Join the Leander Chamber of Commerce &amp; Visitors Center as we celebrate the opening of&nbsp; Chicken Salad Chick&rsquo;s new Leander…"
   },
   {
+    "id": "citycal-3376",
+    "title": "Storytime (Ages 18m-4yr)",
+    "startsAt": 1794328200000,
+    "endsAt": 1794331800000,
+    "venue": "Library Annex Conference Room",
+    "address": "1011 S. Bagdad Rd., Leander TX, 78641",
+    "description": "Storytime (Ages 18m-4yr) — see the City of Leander calendar for details.",
+    "url": "https://www.leandertx.gov/Calendar.aspx?EID=3376",
+    "sourceUrl": "https://www.leandertx.gov/Calendar.aspx?EID=3376",
+    "category": "Family",
+    "source": "city-calendar"
+  },
+  {
     "id": "chamber-168982",
     "title": "Ribbon Cutting; Shaddock Homes",
     "description": "See the Leander Chamber of Commerce calendar for details.",
@@ -547,6 +610,19 @@
     "blurb": "Leander Film Festival 2026 November 11-15, 2026 | Venues across Leander, Cedar Park, and surrounding communities"
   },
   {
+    "id": "citycal-3377",
+    "title": "Storytime (Ages 18m-4yr)",
+    "startsAt": 1794501000000,
+    "endsAt": 1794504600000,
+    "venue": "Library Annex Conference Room",
+    "address": "1011 S. Bagdad Rd., Leander TX, 78641",
+    "description": "Storytime (Ages 18m-4yr) — see the City of Leander calendar for details.",
+    "url": "https://www.leandertx.gov/Calendar.aspx?EID=3377",
+    "sourceUrl": "https://www.leandertx.gov/Calendar.aspx?EID=3377",
+    "category": "Family",
+    "source": "city-calendar"
+  },
+  {
     "id": "citycal-2608",
     "title": "P&Z Commission Regular Meeting",
     "startsAt": 1794528000000,
@@ -556,6 +632,32 @@
     "url": "https://www.leandertx.gov/Calendar.aspx?EID=2608",
     "sourceUrl": "https://www.leandertx.gov/Calendar.aspx?EID=2608",
     "category": "Community",
+    "source": "city-calendar"
+  },
+  {
+    "id": "citycal-3385",
+    "title": "Brick Builders (Ages 3-10)",
+    "startsAt": 1794603600000,
+    "endsAt": 1794610800000,
+    "venue": "Library Annex Studio",
+    "address": "1011 S. Bagdad Rd., Leander TX, 78641",
+    "description": "Brick Builders (Ages 3-10) — see the City of Leander calendar for details.",
+    "url": "https://www.leandertx.gov/Calendar.aspx?EID=3385",
+    "sourceUrl": "https://www.leandertx.gov/Calendar.aspx?EID=3385",
+    "category": "Learn",
+    "source": "city-calendar"
+  },
+  {
+    "id": "citycal-3378",
+    "title": "Storytime (Ages 18m-4yr)",
+    "startsAt": 1794933000000,
+    "endsAt": 1794936600000,
+    "venue": "Library Annex Conference Room",
+    "address": "1011 S. Bagdad Rd., Leander TX, 78641",
+    "description": "Storytime (Ages 18m-4yr) — see the City of Leander calendar for details.",
+    "url": "https://www.leandertx.gov/Calendar.aspx?EID=3378",
+    "sourceUrl": "https://www.leandertx.gov/Calendar.aspx?EID=3378",
+    "category": "Family",
     "source": "city-calendar"
   },
   {
@@ -573,6 +675,19 @@
     "source": "chamber"
   },
   {
+    "id": "citycal-3383",
+    "title": "Pokemon Club (Ages 5-10)",
+    "startsAt": 1794950100000,
+    "endsAt": 1794953700000,
+    "venue": "Library Annex Conference Room",
+    "address": "1011 S. Bagdad Rd., Leander TX, 78641",
+    "description": "Pokemon Club (Ages 5-10) — see the City of Leander calendar for details.",
+    "url": "https://www.leandertx.gov/Calendar.aspx?EID=3383",
+    "sourceUrl": "https://www.leandertx.gov/Calendar.aspx?EID=3383",
+    "category": "Learn",
+    "source": "city-calendar"
+  },
+  {
     "id": "citycal-3325",
     "title": "Gaming For Grown-Ups (Ages 18+)",
     "startsAt": 1794960000000,
@@ -583,6 +698,19 @@
     "url": "https://www.leandertx.gov/Calendar.aspx?EID=3325",
     "sourceUrl": "https://www.leandertx.gov/Calendar.aspx?EID=3325",
     "category": "Learn",
+    "source": "city-calendar"
+  },
+  {
+    "id": "citycal-3381",
+    "title": "Tails & Tales Storytime (Ages 1+)",
+    "startsAt": 1795019400000,
+    "endsAt": 1795023000000,
+    "venue": "Library Annex Conference Room",
+    "address": "1011 S. Bagdad Rd., Leander TX, 78641",
+    "description": "Tails & Tales Storytime (Ages 1+) — see the City of Leander calendar for details.",
+    "url": "https://www.leandertx.gov/Calendar.aspx?EID=3381",
+    "sourceUrl": "https://www.leandertx.gov/Calendar.aspx?EID=3381",
+    "category": "Family",
     "source": "city-calendar"
   },
   {
@@ -614,6 +742,19 @@
     "source": "city-calendar"
   },
   {
+    "id": "citycal-3379",
+    "title": "Storytime (Ages 18m-4yr)",
+    "startsAt": 1795105800000,
+    "endsAt": 1795109400000,
+    "venue": "Library Annex Conference Room",
+    "address": "1011 S. Bagdad Rd., Leander TX, 78641",
+    "description": "Storytime (Ages 18m-4yr) — see the City of Leander calendar for details.",
+    "url": "https://www.leandertx.gov/Calendar.aspx?EID=3379",
+    "sourceUrl": "https://www.leandertx.gov/Calendar.aspx?EID=3379",
+    "category": "Family",
+    "source": "city-calendar"
+  },
+  {
     "id": "citycal-2584",
     "title": "City Council Regular Meeting",
     "startsAt": 1795132800000,
@@ -635,6 +776,19 @@
     "description": "Adult Craft Night (Ages 18+) — see the City of Leander calendar for details.",
     "url": "https://www.leandertx.gov/Calendar.aspx?EID=3320",
     "sourceUrl": "https://www.leandertx.gov/Calendar.aspx?EID=3320",
+    "category": "Learn",
+    "source": "city-calendar"
+  },
+  {
+    "id": "citycal-3386",
+    "title": "Brick Builders (Ages 3-10)",
+    "startsAt": 1795208400000,
+    "endsAt": 1795215600000,
+    "venue": "Library Annex Studio",
+    "address": "1011 S. Bagdad Rd., Leander TX, 78641",
+    "description": "Brick Builders (Ages 3-10) — see the City of Leander calendar for details.",
+    "url": "https://www.leandertx.gov/Calendar.aspx?EID=3386",
+    "sourceUrl": "https://www.leandertx.gov/Calendar.aspx?EID=3386",
     "category": "Learn",
     "source": "city-calendar"
   },
