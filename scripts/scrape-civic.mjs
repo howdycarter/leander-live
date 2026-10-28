@@ -295,6 +295,17 @@ async function main() {
     news = prevNews;
   }
 
+  // Hand-published items (ids starting "local-") are editorial content the
+  // city RSS never carries — preserve them across refreshes instead of
+  // wiping them on every successful scrape. (Added 2026-10-28 after the
+  // Oct 26 Leo's FunZone / Oak & Steel items were wiped by a refresh.)
+  const manualNews = prevNews.filter((n) => String(n.id).startsWith("local-"));
+  if (manualNews.length) {
+    const freshIds = new Set(news.map((n) => n.id));
+    news = [...manualNews.filter((n) => !freshIds.has(n.id)), ...news]
+      .sort((a, b) => b.publishedAt - a.publishedAt);
+  }
+
   writeFileSync(CIVIC_OUT, JSON.stringify(meetings, null, 2) + "\n");
   writeFileSync(NEWS_OUT, JSON.stringify(news, null, 2) + "\n");
   console.log(`civic.json: ${meetings.length} meetings; news.json: ${news.length} items`);

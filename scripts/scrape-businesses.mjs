@@ -27,6 +27,11 @@ import { dirname, join } from "node:path";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const OUT = join(ROOT, "src/data/businesses.json");
+/* Hand-published listings, verified editorially, that the permit pull cannot
+ * produce (e.g. a Leander Chamber member outside the NAICS gate or outside
+ * the Leander city filter). Merged into every regeneration so a refresh
+ * can't wipe them; permit records win id ties. Added 2026-10-28. */
+const MANUAL_IN = join(ROOT, "src/data/businesses-manual.json");
 const UA = "LeanderLive-Scraper/1.0 (community-events-bot; contact chris@howdycarter.com)";
 const DATASET_URL = "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders";
 
@@ -168,6 +173,17 @@ function loadPrevious() {
   }
 }
 
+function loadManual() {
+  if (!existsSync(MANUAL_IN)) return [];
+  try {
+    const arr = JSON.parse(readFileSync(MANUAL_IN, "utf8"));
+    return Array.isArray(arr) ? arr : [];
+  } catch {
+    console.error("WARN: could not parse businesses-manual.json; ignoring it");
+    return [];
+  }
+}
+
 async function main() {
   const prev = loadPrevious();
   // Featured flags are set by hand (paid placements) — preserve them by id
@@ -223,7 +239,20 @@ async function main() {
     }
   }
 
-  const all = [...byDedupe.values()].sort((a, b) =>
+  const all = [...byDedupe.values()];
+
+  // Merge hand-published listings (see MANUAL_IN note) — the permit pull
+  // stays authoritative on id ties.
+  const permitIds = new Set(all.map((b) => b.id));
+  let manualCount = 0;
+  for (const rec of loadManual()) {
+    if (rec && rec.id && rec.name && !permitIds.has(rec.id)) {
+      all.push(rec);
+      manualCount++;
+    }
+  }
+
+  all.sort((a, b) =>
     Number(b.featured) - Number(a.featured) ||
     a.category.localeCompare(b.category) ||
     a.name.localeCompare(b.name),
@@ -231,7 +260,7 @@ async function main() {
   writeFileSync(OUT, JSON.stringify(all, null, 2) + "\n");
   console.log(
     `businesses.json: ${all.length} listings (from ${rows.length} Leander outlets; ` +
-    `${gatedOut} gated out by NAICS, ${skipped} skipped)`,
+    `${gatedOut} gated out by NAICS, ${skipped} skipped, ${manualCount} manual merged)`,
   );
 }
 

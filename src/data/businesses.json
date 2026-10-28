@@ -741,6 +741,19 @@
     "sourceUrl": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders"
   },
   {
+    "id": "biz-32099361878-1",
+    "name": "TX Autohaus",
+    "category": "Auto Repair",
+    "naics": "811111",
+    "address": "1809 S Highway 183",
+    "zip": "78641",
+    "permitIssuedAt": 1749790800000,
+    "firstSalesAt": 1751346000000,
+    "featured": false,
+    "source": "tx-sales-tax",
+    "sourceUrl": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders"
+  },
+  {
     "id": "biz-32068423162-313",
     "name": "Take 5 Oil Change #932",
     "category": "Auto Repair",
@@ -788,19 +801,6 @@
     "zip": "78641",
     "permitIssuedAt": 1467090000000,
     "firstSalesAt": 1466658000000,
-    "featured": false,
-    "source": "tx-sales-tax",
-    "sourceUrl": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders"
-  },
-  {
-    "id": "biz-32099361878-1",
-    "name": "TX Autohaus",
-    "category": "Auto Repair",
-    "naics": "811111",
-    "address": "1809 S Highway 183",
-    "zip": "78641",
-    "permitIssuedAt": 1749790800000,
-    "firstSalesAt": 1751346000000,
     "featured": false,
     "source": "tx-sales-tax",
     "sourceUrl": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders"
@@ -6485,6 +6485,17 @@
     "featured": false,
     "source": "tx-sales-tax",
     "sourceUrl": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders"
+  },
+  {
+    "address": "12129 Ranch Road 620 North Ste 605",
+    "category": "Printing & Signs",
+    "featured": false,
+    "id": "manual-minuteman-press-lakeline",
+    "naics": "323110",
+    "name": "Minuteman Press Lakeline",
+    "source": "manual",
+    "sourceUrl": "https://chamber.leandercc.org/new-members",
+    "zip": "78750"
   },
   {
     "id": "biz-32083844137-1",
