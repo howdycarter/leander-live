@@ -180,3 +180,61 @@ test('R3. hitting the cap inside the window is reported as an error, not silentl
   assert.equal(byUid(r.records, 'old-daily@test').length, 10);
   assert.ok(r.errors.some((e) => e.uid === 'old-daily@test' && /inside the window/.test(e.error)));
 });
+
+// Review round 2 (PR #11): reject what cannot be read safely, include RDATE-only DTSTART.
+const cal = (...lines) => ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//test//EN', ...lines, 'END:VCALENDAR'].join('\r\n');
+const parseInline = (...lines) => parseLisdIcs(cal(...lines), { feedId: DISTRICT, ...WINDOW });
+
+test('R4. RECURRENCE-ID;RANGE=THISANDFUTURE is rejected, not half-applied', () => {
+  const r = parseInline(
+    'BEGIN:VEVENT', 'UID:range@test', 'DTSTART:20261101T150000Z', 'DTEND:20261101T160000Z', 'RRULE:FREQ=WEEKLY;COUNT=4', 'SUMMARY:Weekly', 'END:VEVENT',
+    'BEGIN:VEVENT', 'UID:range@test', 'RECURRENCE-ID;RANGE=THISANDFUTURE:20261108T150000Z', 'DTSTART:20261108T170000Z', 'DTEND:20261108T180000Z', 'SUMMARY:Weekly later', 'END:VEVENT',
+  );
+  assert.ok(r.errors.some((e) => /RANGE=THISANDFUTURE is not supported/.test(e.error)));
+});
+
+test('R5. an RDATE-only series includes DTSTART, unless EXDATE removes it', () => {
+  const r = parseInline('BEGIN:VEVENT', 'UID:rdate@test', 'DTSTART:20261101T150000Z', 'DTEND:20261101T160000Z', 'RDATE:20261105T150000Z,20261110T150000Z', 'SUMMARY:Sessions', 'END:VEVENT');
+  assert.deepEqual(r.errors, []);
+  assert.deepEqual(byUid(r.records, 'rdate@test').map((e) => new Date(e.startsAt).toISOString()),
+    ['2026-11-01T15:00:00.000Z', '2026-11-05T15:00:00.000Z', '2026-11-10T15:00:00.000Z']);
+  const x = parseInline('BEGIN:VEVENT', 'UID:rdate@test', 'DTSTART:20261101T150000Z', 'DTEND:20261101T160000Z', 'RDATE:20261105T150000Z', 'EXDATE:20261101T150000Z', 'SUMMARY:Sessions', 'END:VEVENT');
+  assert.deepEqual(byUid(x.records, 'rdate@test').map((e) => new Date(e.startsAt).toISOString()), ['2026-11-05T15:00:00.000Z']);
+  // RDATE that repeats DTSTART does not create a duplicate.
+  const d = parseInline('BEGIN:VEVENT', 'UID:rdate@test', 'DTSTART:20261101T150000Z', 'DTEND:20261101T160000Z', 'RDATE:20261101T150000Z,20261105T150000Z', 'SUMMARY:Sessions', 'END:VEVENT');
+  assert.equal(byUid(d.records, 'rdate@test').length, 2);
+  assert.deepEqual(d.errors, []);
+});
+
+test('R6. conflicting overrides for one RECURRENCE-ID are rejected and cannot revive a cancelled instance', () => {
+  const r = parseInline(
+    'BEGIN:VEVENT', 'UID:dup@test', 'DTSTART:20261101T150000Z', 'DTEND:20261101T160000Z', 'RRULE:FREQ=WEEKLY;COUNT=3', 'SUMMARY:Weekly', 'END:VEVENT',
+    'BEGIN:VEVENT', 'UID:dup@test', 'RECURRENCE-ID:20261108T150000Z', 'DTSTART:20261108T150000Z', 'DTEND:20261108T160000Z', 'STATUS:CANCELLED', 'SUMMARY:Weekly', 'END:VEVENT',
+    'BEGIN:VEVENT', 'UID:dup@test', 'RECURRENCE-ID:20261108T150000Z', 'DTSTART:20261108T150000Z', 'DTEND:20261108T160000Z', 'STATUS:CONFIRMED', 'SUMMARY:Weekly revived', 'END:VEVENT',
+  );
+  assert.ok(r.errors.some((e) => /ambiguous duplicate override/.test(e.error)));
+  assert.ok(!byUid(r.records, 'dup@test').some((e) => e.title === 'Weekly revived'));
+});
+
+test('R7. an unknown TZID is rejected instead of becoming Chicago', () => {
+  const r = parseInline('BEGIN:VEVENT', 'UID:tz@test', 'DTSTART;TZID=Mars/Olympus:20261101T150000', 'DTEND;TZID=Mars/Olympus:20261101T160000', 'SUMMARY:Off world', 'END:VEVENT');
+  assert.ok(r.errors.some((e) => /unknown TZID Mars\/Olympus/.test(e.error)));
+  assert.equal(byUid(r.records, 'tz@test').length, 0);
+});
+
+test('R8. impossible dates and backwards ranges are rejected', () => {
+  const feb30 = parseInline('BEGIN:VEVENT', 'UID:feb@test', 'DTSTART;VALUE=DATE:20270230', 'SUMMARY:Bad date', 'END:VEVENT');
+  assert.ok(feb30.errors.some((e) => /invalid date 2027-02-30 on DTSTART/.test(e.error)));
+  assert.equal(byUid(feb30.records, 'feb@test').length, 0);
+  const back = parseInline('BEGIN:VEVENT', 'UID:back@test', 'DTSTART:20261101T150000Z', 'DTEND:20261101T140000Z', 'SUMMARY:Backwards', 'END:VEVENT');
+  assert.ok(back.errors.some((e) => /DTEND is before DTSTART/.test(e.error)));
+  assert.equal(byUid(back.records, 'back@test').length, 0);
+  // A zero-length event is allowed.
+  const zero = parseInline('BEGIN:VEVENT', 'UID:zero@test', 'DTSTART:20261101T150000Z', 'DTEND:20261101T150000Z', 'SUMMARY:Instant', 'END:VEVENT');
+  assert.deepEqual(zero.errors, []);
+});
+
+test('R9. RDATE;VALUE=PERIOD still fails safely with an error', () => {
+  const r = parseInline('BEGIN:VEVENT', 'UID:period@test', 'DTSTART:20261101T150000Z', 'DTEND:20261101T160000Z', 'RDATE;VALUE=PERIOD:20261105T150000Z/20261105T170000Z', 'SUMMARY:Period', 'END:VEVENT');
+  assert.ok(r.errors.length > 0);
+});
