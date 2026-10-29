@@ -64,10 +64,11 @@ test('5. recurring events expand, and an override replaces its occurrence', () =
   assert.match(chicago(moved.startsAt), /11\/4\/2026, 17:00/);
 });
 
-test('5b. recurrence expansion is capped and the cap is reported', () => {
-  const r = parseLisdIcs(fixture('synthetic-edge-cases.ics'), { feedId: DISTRICT, ...WINDOW, maxOccurrencesPerEvent: 2 });
-  assert.equal(byUid(r.records, 'weekly@test').length, 2);
-  assert.ok(r.errors.some((e) => /stopped at 2 occurrences/.test(e.error)));
+test('5b. recurrence expansion is capped inside the window and the cap is reported', () => {
+  const r = parseLisdIcs(fixture('synthetic-edge-cases.ics'), { feedId: DISTRICT, ...WINDOW, maxOccurrencesPerEvent: 1 });
+  // One expanded slot plus the two overrides (moved and cancelled), which are evaluated on their own.
+  assert.equal(byUid(r.records, 'weekly@test').length, 3);
+  assert.ok(r.errors.some((e) => /stopped at 1 occurrences inside the window/.test(e.error)));
 });
 
 test('6. cancelled events and cancelled occurrences are flagged, not dropped', () => {
@@ -146,4 +147,36 @@ test('11. tests use no network', () => {
 test('12. integration hold: nothing outside scripts/lib imports ics.mjs', () => {
   const hits = execSync("git grep -l 'ics.mjs' -- . ':!scripts/lib/' || true", { encoding: 'utf8' }).trim();
   assert.equal(hits, '');
+});
+
+// Review regressions (PR #11): old series, overrides moved into the window, cap inside the window.
+const regression = (opts = {}) => parseLisdIcs(fixture('regression-review.ics'), { feedId: DISTRICT, ...WINDOW, maxOccurrencesPerEvent: 400, ...opts });
+
+test('R1. an old daily series still reaches the current window (cap counts only in-window slots)', () => {
+  const r = regression();
+  const daily = byUid(r.records, 'old-daily@test');
+  // Oct 1 through Dec 31, 2026: 92 days. Before the fix the 400 cap ran out in 2016.
+  assert.equal(daily.length, 92);
+  assert.match(chicago(daily[0].startsAt), /10\/1\/2026, 07:00/);
+  assert.match(chicago(daily.at(-1).startsAt), /12\/31\/2026, 07:00/);
+  assert.deepEqual(r.errors, []);
+});
+
+test('R2. a future slot moved into the window by RECURRENCE-ID is kept; a slot moved out is dropped', () => {
+  const r = regression();
+  const weekly = byUid(r.records, 'moved-in@test');
+  const titles = weekly.map((e) => e.title);
+  assert.ok(titles.includes('Weekly meeting (January slot moved into December)'));
+  assert.ok(!titles.some((t) => /moved out to February/.test(t)));
+  // Oct 7 to Dec 30 has 13 weekly slots; Oct 14 moved out, Dec 30 is the original slot plus the moved-in override.
+  const dec30 = weekly.filter((e) => /12\/30\/2026, 17:00/.test(chicago(e.startsAt)));
+  assert.equal(dec30.length, 2);
+  assert.equal(new Set(weekly.map((e) => e.occurrenceKey)).size, weekly.length);
+  assert.equal(weekly.length, 13);
+});
+
+test('R3. hitting the cap inside the window is reported as an error, not silently dropped', () => {
+  const r = regression({ maxOccurrencesPerEvent: 10 });
+  assert.equal(byUid(r.records, 'old-daily@test').length, 10);
+  assert.ok(r.errors.some((e) => e.uid === 'old-daily@test' && /inside the window/.test(e.error)));
 });
