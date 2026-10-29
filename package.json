@@ -35,7 +35,9 @@
     "dev": "vite",
     "preview": "vite preview",
     "scrape": "node scripts/scrape-events.mjs && node scripts/scrape-jobs.mjs && node scripts/scrape-civic.mjs && node scripts/scrape-signals.mjs",
-    "refresh": "node scripts/run-refresh.mjs"
+    "refresh": "node scripts/run-refresh.mjs",
+    "test": "node --test scripts/lib/*.test.mjs",
+    "validate:listings": "node scripts/validate-listings.mjs"
   },
   "type": "module",
   "version": "0.1.0"

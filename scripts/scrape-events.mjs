@@ -10,6 +10,7 @@
  * previous records for that source, and the script still exits 0.
  */
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
+import { recordStatus, runGated } from "./lib/source-status-file.mjs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import * as cheerio from "cheerio";
@@ -274,13 +275,11 @@ async function main() {
   const now = Date.now();
   let city = [], chamber = [];
 
-  try {
-    city = await scrapeCityCalendar();
-    console.error(`city-calendar: OK (${city.length} events)`);
-  } catch (e) {
-    console.error(`WARN: city-calendar source failed: ${e.message}; keeping ${prevBySource.get("city-calendar")?.length || 0} previous records`);
-    city = prevBySource.get("city-calendar") || [];
-  }
+  // Source compliance: leandertx.gov is off unless LEANDER_ENABLE_LEANDERTX=1.
+  // Previous city events are kept as history and expire on the normal rule.
+  const cityGate = await runGated("leandertx-city-calendar", () => scrapeCityCalendar(), prevBySource.get("city-calendar") || []);
+  city = cityGate.items;
+  recordStatus([cityGate.row]);
 
   try {
     chamber = await scrapeChamber();

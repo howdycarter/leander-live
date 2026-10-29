@@ -13,6 +13,7 @@
  * previous records for that source, and the script still exits 0.
  */
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
+import { recordStatus, runGated } from "./lib/source-status-file.mjs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { execFile } from "node:child_process";
@@ -302,31 +303,18 @@ async function main() {
     prevByCompany.get(j.company).push(j);
   }
 
-  let leander = [], williamson = [], isd = [];
-
-  try {
-    leander = await scrapeGovJobs("City of Leander", "City of Leander", false);
-    console.error(`City of Leander: OK (${leander.length} jobs)`);
-  } catch (e) {
-    console.error(`WARN: City of Leander jobs failed: ${e.message}; keeping ${prevByCompany.get("City of Leander")?.length || 0} previous`);
-    leander = prevByCompany.get("City of Leander") || [];
-  }
-
-  try {
-    williamson = await scrapeGovJobs("Williamson County", "Williamson County", true);
-    console.error(`Williamson County: OK (${williamson.length} jobs)`);
-  } catch (e) {
-    console.error(`WARN: Williamson County jobs failed: ${e.message}; keeping ${prevByCompany.get("Williamson County")?.length || 0} previous`);
-    williamson = prevByCompany.get("Williamson County") || [];
-  }
-
-  try {
-    isd = await scrapeAppliTrack();
-    console.error(`Leander ISD: OK (${isd.length} jobs)`);
-  } catch (e) {
-    console.error(`WARN: Leander ISD (AppliTrack/Firecrawl) failed: ${e.message}; keeping ${prevByCompany.get("Leander ISD")?.length || 0} previous`);
-    isd = prevByCompany.get("Leander ISD") || [];
-  }
+  // Source compliance: each automatic path is off unless its flag is "1".
+  // When off, the previous postings are kept as history and the status
+  // file says the source is paused. See docs/source-compliance-runbook.md.
+  const gated = [
+    await runGated("governmentjobs-city-of-leander",
+      () => scrapeGovJobs("City of Leander", "City of Leander", false), prevByCompany.get("City of Leander") || []),
+    await runGated("governmentjobs-williamson-county",
+      () => scrapeGovJobs("Williamson County", "Williamson County", true), prevByCompany.get("Williamson County") || []),
+    await runGated("lisd-applitrack-jobs", () => scrapeAppliTrack(), prevByCompany.get("Leander ISD") || []),
+  ];
+  recordStatus(gated.map((g) => g.row));
+  const [leander, williamson, isd] = gated.map((g) => g.items);
 
   // First-seen tracking: carry each posting's firstSeenAt forward by id.
   // Postings already on the board get this run's timestamp as their
