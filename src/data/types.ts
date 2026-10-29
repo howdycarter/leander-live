@@ -39,6 +39,10 @@ export interface LiveEvent {
   sourceUrl?: string;
   /** LISD calendar only: true for all-day events. endsAt is then exclusive midnight. */
   allDay?: boolean;
+  /** All-day events only: first calendar day, YYYY-MM-DD. */
+  startDate?: string | null;
+  /** All-day events only: the day after the last day (exclusive end), YYYY-MM-DD. */
+  endDateExclusive?: string | null;
   /** LISD calendar only: UID plus RECURRENCE-ID, the occurrence identity. */
   occurrenceKey?: string;
   /** LISD calendar only: cancelled occurrences are never published. */

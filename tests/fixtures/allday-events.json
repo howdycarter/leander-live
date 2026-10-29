@@ -1,0 +1,5 @@
+[
+  {"id":"fixture-election-day","title":"Election Day: no school","description":"Fixture event for CHR-2011 screenshots.","allDay":true,"startDate":"2026-11-03","endDateExclusive":"2026-11-04","startsAt":1793685600000,"endsAt":1793772000000,"venue":"Leander ISD","category":"Community","source":"lisd-district"},
+  {"id":"fixture-thanksgiving-break","title":"Thanksgiving break","description":"Fixture event for CHR-2011 screenshots.","allDay":true,"startDate":"2026-11-23","endDateExclusive":"2026-11-28","startsAt":1795413600000,"endsAt":1795845600000,"venue":"Leander ISD","category":"Community","source":"lisd-district"},
+  {"id":"fixture-board-meeting","title":"Board of Trustees meeting","description":"Fixture event for CHR-2011 screenshots.","startsAt":1795565700000,"endsAt":1795572900000,"venue":"Leander ISD Administration Building","category":"Civic","source":"lisd-district"}
+]

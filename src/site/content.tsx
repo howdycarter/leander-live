@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { trackEvent } from "./analytics";
 import { downloadEventIcs } from "./ics";
+import { eventDateLabel, eventTimeLabel, isStillListed } from "./eventTime";
 import type { Business, Job, LiveEvent } from "../data/types";
 import eventsRaw from "../data/events.json";
 import jobsRaw from "../data/jobs.json";
@@ -68,8 +69,8 @@ function isCancelled(e: LiveEvent): boolean {
 }
 
 export const ALL_EVENTS: LiveEvent[] = (eventsRaw as LiveEvent[])
-  .filter((e) => e.startsAt >= Date.now() - 24 * 60 * 60 * 1000)
-  .filter((e) => !isCancelled(e))
+  .filter((e) => isStillListed(e, Date.now()))
+  .filter((e) => !isCancelled(e) && !e.cancelled)
   .sort((a, b) => a.startsAt - b.startsAt);
 
 export const ALL_JOBS: Job[] = (jobsRaw as Job[]).slice();
@@ -564,7 +565,7 @@ export function EventCard({
         </h3>
         <p className="mt-1 flex items-center gap-1.5 text-[13px] font-medium text-foreground/80">
           <Clock className="h-3.5 w-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
-          {formatShortDate(event.startsAt)} · {formatTimeRange(event)}
+          {eventDateLabel(event)} · {eventTimeLabel(event)}
         </p>
         <p className="flex items-center gap-1.5 text-[13px] text-muted-foreground">
           <MapPin className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />

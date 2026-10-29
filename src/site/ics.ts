@@ -1,4 +1,5 @@
 import type { LiveEvent } from "../data/types";
+import { icsAllDayDates } from "./eventTime";
 
 /** Format an epoch-ms timestamp as an ICS UTC datetime (YYYYMMDDTHHMMSSZ). */
 function icsDate(ms: number): string {
@@ -24,6 +25,7 @@ export function downloadEventIcs(event: LiveEvent): void {
   const stamp = icsDate(Date.now());
   const start = icsDate(event.startsAt);
   const end = icsDate(event.endsAt ?? event.startsAt + 2 * 60 * 60 * 1000);
+  const allDay = icsAllDayDates(event);
   const lines = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
@@ -31,8 +33,9 @@ export function downloadEventIcs(event: LiveEvent): void {
     "BEGIN:VEVENT",
     `UID:${uid}`,
     `DTSTAMP:${stamp}`,
-    `DTSTART:${start}`,
-    `DTEND:${end}`,
+    ...(allDay
+      ? [`DTSTART;VALUE=DATE:${allDay.start}`, `DTEND;VALUE=DATE:${allDay.endExclusive}`]
+      : [`DTSTART:${start}`, `DTEND:${end}`]),
     `SUMMARY:${escapeIcs(event.title)}`,
     `DESCRIPTION:${escapeIcs(event.description)}`,
     `LOCATION:${escapeIcs([event.venue, event.address].filter(Boolean).join(", "))}`,

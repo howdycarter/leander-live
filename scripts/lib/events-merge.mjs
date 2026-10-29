@@ -154,6 +154,8 @@ export function lisdRecordToEvent(record, sourceId, category) {
     startsAt: record.startsAt,
     endsAt: record.endsAt,
     allDay: record.allDay,
+    startDate: record.startDate,
+    endDateExclusive: record.endDateExclusive,
     venue: record.location || 'Leander ISD',
     url: 'https://www.leanderisd.org/calendar/',
     category,
