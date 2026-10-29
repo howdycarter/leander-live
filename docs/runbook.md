@@ -81,7 +81,8 @@ Restoring, committing and deploying are owner actions, done by Chris or the pare
   - its permission basis in `docs/data-sources.md` is no longer "pending";
   - a dry run shows sensible counts (`node scripts/events-dry-run.mjs`, which makes no network calls and writes no files);
   - all-day events display correctly on the site (CHR-2011).
-- **Duplicates:** LISD board meetings are deduped against `civic.json` only by the same start time and venue name. Never remove board meetings by title.
+- **Duplicates:** LISD events are deduped against `civic.json` only when both are board meetings with the same start time, building and named room. Never remove board meetings by title or by building alone.
+- **Parse errors:** if the log shows `WARN: lisd-... source failed: N parse error(s)`, that feed kept its previous records for the run. Check the first error named in the log line.
 
 ## Open permission decisions
 
