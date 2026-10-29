@@ -147,3 +147,37 @@ export function allDayIsoDates(event: EventTiming): { start: string; end: string
   const fmt = (d: YMD) => `${d.year}-${String(d.month).padStart(2, "0")}-${String(d.day).padStart(2, "0")}`;
   return { start: fmt(span.first), end: fmt(span.last) };
 }
+
+/** Day number for a Central calendar date, for comparing date spans. */
+function dayNum(d: YMD): number {
+  return Date.UTC(d.year, d.month - 1, d.day) / DAY_MS;
+}
+
+/**
+ * The Central calendar days an event touches, as inclusive day numbers.
+ * All-day events use their explicit dates with an exclusive end. Timed events
+ * run from the start day through the day of the last instant before endsAt.
+ */
+export function eventDaySpan(event: EventTiming): { first: number; last: number } {
+  const span = allDaySpan(event);
+  if (span) return { first: dayNum(span.first), last: dayNum(span.last) };
+  const first = dayNum(centralYmd(event.startsAt));
+  const endMs = event.endsAt && event.endsAt > event.startsAt ? event.endsAt - 1 : event.startsAt;
+  return { first, last: Math.max(first, dayNum(centralYmd(endMs))) };
+}
+
+/**
+ * Date-span overlap for the Today and This Month filters, in America/Chicago.
+ * Today is the current Central day. This Month runs from today through the
+ * last day of the current Central month. An event matches when any of its
+ * days falls inside the range, so multi-day and overnight events count.
+ */
+export function overlapsDateFilter(event: EventTiming, filter: "Today" | "This Month", now: number): boolean {
+  const today = centralYmd(now);
+  const rangeFirst = dayNum(today);
+  const rangeLast = filter === "Today"
+    ? rangeFirst
+    : dayNum({ year: today.year, month: today.month, day: new Date(Date.UTC(today.year, today.month, 0)).getUTCDate() });
+  const span = eventDaySpan(event);
+  return span.first <= rangeLast && span.last >= rangeFirst;
+}

@@ -93,3 +93,52 @@ test('invalid date strings are ignored, not trusted', () => {
   const ev = { allDay: true, startDate: '2026-02-30', endDateExclusive: 'soon', startsAt: chicagoMidnight(2026, 3, 1) };
   assert.equal(eventDateLabel(ev), 'Sun, Mar 1');
 });
+
+// Today and This Month filters: date-span overlap in America/Chicago.
+import { overlapsDateFilter } from '../../src/site/eventTime.ts';
+const CT = (y, m, d, h = 12) => chicagoMidnight(y, m, d) + h * 3_600_000;
+
+test('Today: a multi-day all-day event that started earlier still matches', () => {
+  const ev = { allDay: true, startDate: '2026-11-23', endDateExclusive: '2026-11-28', startsAt: chicagoMidnight(2026, 11, 23) };
+  assert.equal(overlapsDateFilter(ev, 'Today', CT(2026, 11, 25)), true);
+  assert.equal(overlapsDateFilter(ev, 'Today', CT(2026, 11, 27)), true);
+});
+
+test('Today: the exclusive end day does not match', () => {
+  const ev = { allDay: true, startDate: '2026-11-02', endDateExclusive: '2026-11-03', startsAt: chicagoMidnight(2026, 11, 2) };
+  assert.equal(overlapsDateFilter(ev, 'Today', CT(2026, 11, 2)), true);
+  assert.equal(overlapsDateFilter(ev, 'Today', CT(2026, 11, 3, 0.5)), false);
+  assert.equal(overlapsDateFilter(ev, 'Today', CT(2026, 11, 1, 23)), false);
+});
+
+test('Today: timed events use Central days, including late evening UTC rollover', () => {
+  // 8:00 PM CST on Nov 2 is Nov 3 in UTC.
+  const ev = { startsAt: Date.UTC(2026, 10, 3, 2), endsAt: Date.UTC(2026, 10, 3, 3) };
+  assert.equal(overlapsDateFilter(ev, 'Today', CT(2026, 11, 2, 9)), true);
+  assert.equal(overlapsDateFilter(ev, 'Today', CT(2026, 11, 3, 9)), false);
+  // An event ending exactly at midnight does not spill into the next day.
+  const toMidnight = { startsAt: CT(2026, 11, 2, 22), endsAt: chicagoMidnight(2026, 11, 3) };
+  assert.equal(overlapsDateFilter(toMidnight, 'Today', CT(2026, 11, 3, 9)), false);
+  // An overnight event touches both days.
+  const overnight = { startsAt: CT(2026, 11, 2, 22), endsAt: CT(2026, 11, 3, 2) };
+  assert.equal(overlapsDateFilter(overnight, 'Today', CT(2026, 11, 3, 9)), true);
+});
+
+test('This Month: runs from today through the last Central day of the month', () => {
+  const now = CT(2026, 11, 10);
+  const day = (y, m, d) => ({ allDay: true, startDate: `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`, startsAt: chicagoMidnight(y, m, d) });
+  assert.equal(overlapsDateFilter(day(2026, 11, 30), 'This Month', now), true);
+  assert.equal(overlapsDateFilter(day(2026, 12, 1), 'This Month', now), false);
+  assert.equal(overlapsDateFilter(day(2026, 11, 9), 'This Month', now), false);
+  // A span crossing into next month still matches this month.
+  const cross = { allDay: true, startDate: '2026-11-28', endDateExclusive: '2026-12-03', startsAt: chicagoMidnight(2026, 11, 28) };
+  assert.equal(overlapsDateFilter(cross, 'This Month', now), true);
+  // A span that started last month and is still running matches.
+  const running = { allDay: true, startDate: '2026-10-30', endDateExclusive: '2026-11-12', startsAt: chicagoMidnight(2026, 10, 30) };
+  assert.equal(overlapsDateFilter(running, 'This Month', now), true);
+  // 11:30 PM CST on Nov 30 is Dec 1 in UTC, but it is still November in Leander.
+  assert.equal(overlapsDateFilter({ startsAt: CT(2026, 11, 30, 23.5) }, 'This Month', now), true);
+  // February in a non-leap year ends on the 28th.
+  assert.equal(overlapsDateFilter(day(2027, 2, 28), 'This Month', CT(2027, 2, 1)), true);
+  assert.equal(overlapsDateFilter(day(2027, 3, 1), 'This Month', CT(2027, 2, 1)), false);
+});
