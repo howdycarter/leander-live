@@ -278,6 +278,18 @@
     "source": "city-calendar"
   },
   {
+    "id": "citycal-3400",
+    "title": "Charter Review Commission",
+    "startsAt": 1793835000000,
+    "venue": "Development Services – San Gabriel Conference Room",
+    "address": "201 N. Brushy Street, Leander TX, 78641",
+    "description": "Charter Review Commission — see the City of Leander calendar for details.",
+    "url": "https://www.leandertx.gov/Calendar.aspx?EID=3400",
+    "sourceUrl": "https://www.leandertx.gov/Calendar.aspx?EID=3400",
+    "category": "Community",
+    "source": "city-calendar"
+  },
+  {
     "id": "citycal-3318",
     "title": "Grim Readers: A Dark Book Club (Ages 18+)",
     "startsAt": 1793836800000,
@@ -440,6 +452,20 @@
     "category": "Learn",
     "source": "chamber",
     "blurb": "I Live Here I Give Here&rsquo;s annual Board Training Program is a full-day immersive educational opportunity featuring two tracks to serve…"
+  },
+  {
+    "id": "chamber-168985",
+    "title": "Hiring Red, White & You!",
+    "description": "Are you looking for a new job opportunity or a fresh career direction? Join us on&nbsp;Tuesday, November 10, 2026, from&nbsp;9;00 AM&ndash;1;00 PM&nbsp;at the&nbsp;Round Rock Sports Center&nbsp;for a day filled with connections, resources and potential job offers.",
+    "startsAt": 1794322800000,
+    "venue": "Round Rock Sports Center 2400 Chisholm Trail Rd",
+    "address": "Round Rock Sports Center 2400 Chisholm Trail Rd, Round Rock TX 78681",
+    "image": "https://leander.chamberspace.net/virDirEditorAssets/LeanderTX/chamberAccess/CalendarImages/Job%20Seeker%20Flyer.pdf",
+    "url": "https://leander.chamberspace.net/event/hiring-red-white-you/168985",
+    "sourceUrl": "https://leander.chamberspace.net/event/hiring-red-white-you/168985",
+    "category": "Community",
+    "source": "chamber",
+    "blurb": "Are you looking for a new job opportunity or a fresh career direction?"
   },
   {
     "id": "citycal-3376",
