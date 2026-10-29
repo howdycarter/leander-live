@@ -152,11 +152,24 @@ test('omitted sources are not retained and are reported', () => {
   assert.deepEqual(r.items, []);
   assert.deepEqual(r.omitted, ['chamber']);
 });
-test('partial failure with no previous data and null result does not throw', () => {
-  const r = mergeSourceResults([{ source: 'news', ok: false }, null]);
+test('partial failure with no previous data reports none', () => {
+  const r = mergeSourceResults([{ source: 'news', ok: false }]);
   assert.equal(r.items.length, 0);
   assert.equal(r.used.get('news'), 'none');
-  assert.equal(r.failed.length, 2);
+  assert.equal(r.failed.length, 1);
+});
+
+// Rereview P2: source ID validation
+test('p2: missing/undefined/non-string/empty source IDs are rejected before merging', () => {
+  const prev = { undefined: [{ id: 'stale' }] };
+  for (const bad of [{ ok: true, items: [{ id: 'x' }] }, { source: undefined, ok: true, items: [] }, { source: 7, ok: false }, { source: '', ok: true, items: [] }]) {
+    assert.throws(() => mergeSourceResults([bad], prev), /results\[0\]\.source must be a nonempty string/);
+  }
+  assert.throws(() => mergeSourceResults([null]), /results\[0\] must be an object/);
+});
+test("p2: duplicate 'city' (failure then success) is rejected, not merged as stale+fresh", () => {
+  const results = [{ source: 'city', ok: false, error: 'HTTP 503' }, { source: 'city', ok: true, items: [{ id: 'c2' }] }];
+  assert.throws(() => mergeSourceResults(results, { city: [{ id: 'c1' }] }), /duplicate source id 'city'/);
 });
 
 test('pure: inputs are not mutated', () => {

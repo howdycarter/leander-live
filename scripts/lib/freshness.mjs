@@ -95,6 +95,8 @@ export function partitionByFreshness(items, opts = {}) {
 /**
  * Combine per-source results so one failing source never wipes its data.
  * results: [{ source: string, ok: true, items: [] } | { source, ok: false, error }]
+ * Every result must be an object whose `source` is a nonempty string, unique within
+ * `results`; otherwise this throws before merging anything.
  * A result counts as fresh ONLY when ok === true (strict boolean) and items is an array.
  * Anything else (ok:'false', items not an array, null) falls back to that source's
  * previous items. previousBySource lookups use own properties only, so keys like
@@ -112,6 +114,17 @@ export function mergeSourceResults(results, previousBySource = {}) {
     const p = previousBySource[source];
     return Array.isArray(p) ? p : [];
   };
+  // Validate every source identity BEFORE merging anything, so no data is accepted
+  // under an undefined/ambiguous source and a failure+success pair can't coexist.
+  const seen = new Set();
+  results.forEach((r, i) => {
+    if (r === null || typeof r !== 'object') throw new TypeError(`results[${i}] must be an object`);
+    if (typeof r.source !== 'string' || r.source === '') {
+      throw new TypeError(`results[${i}].source must be a nonempty string`);
+    }
+    if (seen.has(r.source)) throw new Error(`duplicate source id '${r.source}' in results`);
+    seen.add(r.source);
+  });
   const items = [], failed = [], used = new Map();
   for (const r of results) {
     const source = r && typeof r === 'object' ? r.source : undefined;
