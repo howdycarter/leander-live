@@ -1,0 +1,164 @@
+BEGIN:VCALENDAR
+PRODID:-//Google Inc//Google Calendar 70.9054//EN
+VERSION:2.0
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:LISD Website - Campus Calendar
+X-WR-TIMEZONE:America/Chicago
+BEGIN:VTIMEZONE
+TZID:America/Chicago
+X-LIC-LOCATION:America/Chicago
+BEGIN:DAYLIGHT
+TZOFFSETFROM:-0600
+TZOFFSETTO:-0500
+TZNAME:CDT
+DTSTART:19700308T020000
+RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=2SU
+END:DAYLIGHT
+BEGIN:STANDARD
+TZOFFSETFROM:-0500
+TZOFFSETTO:-0600
+TZNAME:CST
+DTSTART:19701101T020000
+RRULE:FREQ=YEARLY;BYMONTH=11;BYDAY=1SU
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+DTSTART:20261029T231500Z
+DTEND:20261030T020000Z
+DTSTAMP:20261029T214507Z
+UID:2r18m26932fgclf9bcrgmpjo8g@google.com
+CREATED:20260424T043056Z
+DESCRIPTION:<a href="https://www.google.com/url?q=https://meetings.boardboo
+ k.org/Public/Organization/795&amp\;sa=D&amp\;source=calendar&amp\;ust=17774
+ 36970539208&amp\;usg=AOvVaw3OAMTNOEkZFwejaBBwbryI" target="_blank">Board Ag
+ enda</a>
+LAST-MODIFIED:20260424T043056Z
+LOCATION:Linda Lippe Instructional Materials Center\, Rooms B1001.01 and B1
+ 001.02\, 1775 W New Hope Dr Bldg B\, Cedar Park\, TX 78613
+SEQUENCE:0
+STATUS:CONFIRMED
+SUMMARY:LISD Special Board Meeting - Board Workshop
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20261125
+DTEND;VALUE=DATE:20261126
+DTSTAMP:20261029T214507Z
+UID:41g5ifulm5t9e8pd3bvvc2it5t@google.com
+CREATED:20260410T151143Z
+LAST-MODIFIED:20260410T151144Z
+SEQUENCE:0
+STATUS:CONFIRMED
+SUMMARY:Student/Staff Holiday
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20261102
+DTEND;VALUE=DATE:20261103
+DTSTAMP:20261029T214507Z
+UID:0pn93ghoo30csaudekgelqa5od@google.com
+CREATED:20260410T151041Z
+DESCRIPTION:District and campus offices will be closed as staff attend the 
+ annual Continuous Improvement Conference.
+LAST-MODIFIED:20260410T151041Z
+SEQUENCE:0
+STATUS:CONFIRMED
+SUMMARY:Staff Development/Student Holiday: Office Closed
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+DTSTART:20261113T001500Z
+DTEND:20261113T030000Z
+DTSTAMP:20261029T214507Z
+UID:22vshq60unqbki93sdavo28752@google.com
+CREATED:20261005T200055Z
+DESCRIPTION:<u></u><b><a href="https://www.google.com/url?q=https://www.lea
+ nderisd.org/boardagendas&amp\;sa=D&amp\;source=calendar&amp\;ust=1791662396
+ 422853&amp\;usg=AOvVaw31zoKoNAfqy2JkiSE2jGxv" target="_blank">Board Agenda<
+ /a></b><br><u></u>
+LAST-MODIFIED:20261005T200055Z
+LOCATION:Linda Lippe Instructional Materials Center\, Rooms B1001.01 and B1
+ 001.02\, 1775 W New Hope Dr bldg b\, Cedar Park\, TX 78613\, USA
+SEQUENCE:0
+STATUS:CONFIRMED
+SUMMARY:LISD Special Board Meeting
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20261103
+DTEND;VALUE=DATE:20261104
+DTSTAMP:20261029T214507Z
+UID:0nks8slivpr0m1up8qrpf9h61f@google.com
+CREATED:20260410T151026Z
+DESCRIPTION:District and campus offices will be closed as staff attend the 
+ annual Continuous Improvement Conference.
+LAST-MODIFIED:20260410T151027Z
+SEQUENCE:0
+STATUS:CONFIRMED
+SUMMARY:Staff Development/Student Holiday: Office Closed
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+DTSTART:20261120T001500Z
+DTEND:20261120T030000Z
+DTSTAMP:20261029T214507Z
+UID:4ou4ib0p1221ult8l2j3l1lp2o@google.com
+CREATED:20260424T043119Z
+DESCRIPTION:<u></u><b><a href="https://www.google.com/url?q=https://www.lea
+ nderisd.org/boardagendas&amp\;sa=D&amp\;source=calendar&amp\;ust=1777437032
+ 897010&amp\;usg=AOvVaw31XPxUjz8nu_sXemM8Zp2z" target="_blank">Board Agenda<
+ /a></b><br><u></u>
+LAST-MODIFIED:20260424T043119Z
+LOCATION:Linda Lippe Instructional Materials Center\, Rooms B1001.01 and B1
+ 001.02\, 1775 W New Hope Dr bldg b\, Cedar Park\, TX 78613\, USA
+SEQUENCE:0
+STATUS:CONFIRMED
+SUMMARY:LISD Board Meeting
+TRANSP:OPAQUE
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20201225
+DTEND;VALUE=DATE:20201226
+DTSTAMP:20261029T214507Z
+UID:311lpadmu48b05sqrspgsfqdf7@google.com
+RECURRENCE-ID;VALUE=DATE:20201225
+CREATED:20200706T171503Z
+DESCRIPTION:<p>🎶&nbsp\;Joy to the World&nbsp\;🎶</p><p>We hope you're fill
+ ed with peace &amp\; love this Christmas morning. Our&nbsp\;<a href="https:
+ //business.facebook.com/hashtag/1lisd?source=feed_text&amp\;epa=HASHTAG&amp
+ \;__xts__%5B0%5D=68.ARAwAz8n9kSYVfgThtiIe4_lozgugdzHtR3lCP3Tlw6LLhXl8e1X-bn
+ BYVqBSTVg2q6MHiK-10TYqy5ro42PZugIVHe1OxPxo3GZZ7-5HQ6MM6EznXrTW_fS3HQlMfAAUT
+ p0wsm_kaD85aMniJJInIPRrpYuedSCW3WTmB-p0R_nbKkHsz8kjqpFXMsbRKQU7R2OZq3PwrN6m
+ j0N3LLKB_QcPkbkK_gn2NTEQz9p7AflAhVCEqviHUcPFfYrZ9sSUk0bBIvORHn4kZJPxx-2vKnd
+ tPVhBeJIPbL3jnhfpYzrshNaqBziRcKduPF3&amp\;__tn__=%2ANK-R">#1LISD</a>&nbsp\;
+ community has been a tremendous part of making 2020 so much brighter than w
+ hat could have been. Thank you for giving us the joy of smiles and laughter
+  in both virtual and in-person classrooms\, the ability to connect and grow
+  deeper in our relationships and your commitment to keeping our community h
+ ealthy. For all this\, our bucket of joy overflows.</p><p>What has you fill
+ ed with JOY? Share what's making this season a holly jolly one!</p><p><a hr
+ ef="https://business.facebook.com/LeanderISD/videos/1067810983690832/" id="
+ ow5234" __is_owner="true">Facebook</a></p><p><a href="https://twitter.com/L
+ eanderISD/status/1342477699831443456" id="ow5250" __is_owner="true">Twitter
+ </a></p><p><br><br></p>
+LAST-MODIFIED:20210204T055311Z
+SEQUENCE:1
+STATUS:CONFIRMED
+SUMMARY:CHRISTMAS Student/Staff Holiday
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20201221
+DTEND;VALUE=DATE:20201222
+RRULE:FREQ=DAILY;UNTIL=20201225
+DTSTAMP:20261029T214507Z
+UID:311lpadmu48b05sqrspgsfqdf7@google.com
+CREATED:20200706T171503Z
+LAST-MODIFIED:20201119T204944Z
+SEQUENCE:1
+STATUS:CONFIRMED
+SUMMARY:Student/Staff Holiday
+TRANSP:TRANSPARENT
+END:VEVENT
+END:VCALENDAR
