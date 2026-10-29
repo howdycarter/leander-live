@@ -9,7 +9,7 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { parseLisdIcs } from "./lib/ics.mjs";
-import { mergeEventSources, lisdRecordToEvent } from "./lib/events-merge.mjs";
+import { mergeEventSources, lisdRecordToEvent, lisdSourceResult } from "./lib/events-merge.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const read = (p) => readFileSync(join(ROOT, p), "utf8");
@@ -24,11 +24,11 @@ const legacy = ["city-calendar", "chamber"].map((source) => ({
 const lisd = [
   ["lisd-district", "leanderisd.org_3grot6ac0ug4prua1smkvfsmu8", "lisd-district.ics"],
   ["lisd-campus", "leanderisd.org_u5tfmsd61ci4efq5s1bac16uvk", "lisd-campus.ics"],
-].map(([source, feedId, file]) => ({
-  source, ok: true,
-  items: parseLisdIcs(read(`scripts/lib/fixtures/${file}`), { feedId, ...opts })
-    .records.map((r) => lisdRecordToEvent(r, source, "Community")),
-}));
+].map(([source, feedId, file]) => lisdSourceResult(
+  source,
+  parseLisdIcs(read(`scripts/lib/fixtures/${file}`), { feedId, ...opts }),
+  (r) => lisdRecordToEvent(r, source, "Community"),
+));
 
 const count = (evs) => evs.reduce((m, e) => ((m[e.source] = (m[e.source] || 0) + 1), m), {});
 const off = mergeEventSources({ prev, results: legacy, civic, now });

@@ -16,9 +16,10 @@
 // - An event expires only after it ends (endsAt is exclusive).
 // - Duplicates are found by occurrence identity only. Within LISD, that is
 //   the record ID, which is derived from UID and RECURRENCE-ID. Against
-//   civic.json, a board meeting is dropped only when a civic meeting has the
-//   same start time and the same venue name. Board meetings are never excluded
-//   by title alone.
+//   civic.json, an event is dropped only when both are board meetings with
+//   the same start time, building and room (see sameOccurrenceAsCivic).
+//   Nothing is excluded by title alone.
+// - Any parse error fails the whole LISD source (see lisdSourceResult).
 
 import { dedupe, mergeSourceResults, normalizeText, partitionByFreshness } from './freshness.mjs';
 
@@ -35,21 +36,67 @@ function legacyKey(ev) {
   return `${normTitle(ev.title)}|${new Date(ev.startsAt).toISOString().slice(0, 10)}`;
 }
 
+function venueParts(location) {
+  return String(location ?? '').replace(/\\,/g, ',').split(',').map((p) => normalizeText(p)).filter(Boolean);
+}
+
 /** The venue name: the part of a location before the first comma, normalized. */
 function venueName(location) {
-  return normalizeText(String(location ?? '').replace(/\\,/g, ',').split(',')[0]);
+  return venueParts(location)[0] ?? '';
+}
+
+const ROOM_PART = /\b(room|rooms|rm|suite|chambers?|boardroom|board room|auditorium|library|cafeteria|gym|hall [a-z0-9])\b/;
+
+/** The room-specific parts of a location (for example "rooms b1001 01 and b1001 02"), or '' when none is given. */
+function venueRoom(location) {
+  return venueParts(location).slice(1).filter((p) => ROOM_PART.test(p)).join(' | ');
+}
+
+const BOARD_MEETING = /\bboard\b.*\b(meeting|workshop|session|trustees|hearing)\b|\bboard of trustees\b/i;
+
+/** True when a title names a board meeting (regular, special, workshop, and so on). */
+export function isBoardMeeting(title) {
+  return BOARD_MEETING.test(String(title ?? ''));
 }
 
 /**
- * True when a civic meeting is the same occurrence: the same start time and
- * the same venue name. Room numbers and street addresses after the first
- * comma are ignored, because the two sources write them differently.
+ * True when a civic meeting is the same occurrence as an LISD event. All of
+ * these must hold:
+ * - both titles are board meetings,
+ * - the start times are identical,
+ * - the building name (before the first comma) matches, and
+ * - both locations name the same room.
+ * A building match alone is not enough, because unrelated events can run at
+ * the same time in different rooms of one building. When either side gives
+ * no room, the events are kept apart, even if that leaves a duplicate.
  */
 export function sameOccurrenceAsCivic(ev, meeting) {
   if (ev.startsAt !== meeting.startsAt) return false;
+  if (!isBoardMeeting(ev.title) || !isBoardMeeting(meeting.title)) return false;
   const a = venueName(ev.venue);
-  const b = venueName(meeting.location);
-  return a !== '' && a === b;
+  if (a === '' || a !== venueName(meeting.location)) return false;
+  const roomA = venueRoom(ev.venue);
+  return roomA !== '' && roomA === venueRoom(meeting.location);
+}
+
+/**
+ * Turns one LISD parse into a source result. Any parse error (a bad VEVENT,
+ * a failed expansion, or the occurrence cap) fails the whole source, so the
+ * merge keeps that source's complete previous records instead of publishing
+ * a partial list.
+ * @param {string} source
+ * @param {{ records: object[], errors: object[] }} parsed
+ * @param {(record: object) => object} toEvent
+ */
+export function lisdSourceResult(source, parsed, toEvent) {
+  if (parsed.errors.length > 0) {
+    const first = parsed.errors[0];
+    return {
+      source, ok: false,
+      error: `${parsed.errors.length} parse error(s), first: ${first.error}${first.uid ? ` (${first.uid})` : ''}`,
+    };
+  }
+  return { source, ok: true, items: parsed.records.map(toEvent) };
 }
 
 /**

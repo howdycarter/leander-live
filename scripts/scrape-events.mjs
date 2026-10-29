@@ -11,7 +11,7 @@
  */
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { parseLisdIcs, feedUrl } from "./lib/ics.mjs";
-import { mergeEventSources, lisdRecordToEvent } from "./lib/events-merge.mjs";
+import { mergeEventSources, lisdRecordToEvent, lisdSourceResult } from "./lib/events-merge.mjs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import * as cheerio from "cheerio";
@@ -297,9 +297,12 @@ async function main() {
           maxOccurrencesPerEvent: 400,
         });
         for (const err of parsed.errors) console.error(`WARN: ${source}: ${err.error}${err.uid ? ` (${err.uid})` : ""}`);
-        const items = parsed.records.map((r) => lisdRecordToEvent(r, source, mapCategory(`${r.title} ${r.description}`, "Community")));
-        results.push({ source, ok: true, items });
-        console.error(`${source}: OK (${items.length} occurrences)`);
+        // Any parse error fails the source atomically, so the merge keeps the
+        // complete previous records rather than a partial parse.
+        const result = lisdSourceResult(source, parsed, (r) => lisdRecordToEvent(r, source, mapCategory(`${r.title} ${r.description}`, "Community")));
+        results.push(result);
+        if (result.ok) console.error(`${source}: OK (${result.items.length} occurrences)`);
+        else console.error(`WARN: ${source} source failed: ${result.error}; keeping previous records`);
       } catch (e) {
         results.push({ source, ok: false, error: e.message });
         console.error(`WARN: ${source} source failed: ${e.message}; keeping previous records`);

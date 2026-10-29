@@ -48,7 +48,8 @@ Every scraper sends the user agent `LeanderLive-Scraper/1.0 (community-events-bo
 - **Window:** occurrences from one day ago to 180 days ahead (`LISD_WINDOW_DAYS`, line 25).
 - **Failure behavior:** the previous `lisd-district` records are kept.
 - **Expiry:** dropped only after the event's end time. For all-day events, the end is exclusive. Cancelled occurrences are never published.
-- **Dedupe:** by UID plus RECURRENCE-ID. A board meeting is dropped only when a `civic.json` meeting has the same start time and venue name.
+- **Dedupe:** by UID plus RECURRENCE-ID. Against `civic.json`, an event is dropped only when both are board meetings with the same start time, building and named room. A building match alone never removes an event.
+- **Parse errors:** any parse error, including hitting the occurrence cap inside the window, fails that feed for the run, and the previous complete records are kept.
 
 ### Leander ISD All-Campus calendar (off by default)
 
@@ -75,7 +76,7 @@ Every scraper sends the user agent `LeanderLive-Scraper/1.0 (community-events-bo
 
 - **URL:** `https://www.applitrack.com/leander/onlineapp/JobPostings/view.asp?all=1` (line 221).
 - **Owner:** Frontline Education (AppliTrack), for Leander ISD.
-- **Permission basis:** robots.txt only disallows `/*/onlineapp/admin`, so the posting pages are allowed. Terms not reviewed.
+- **Permission basis:** robots permits crawling; reuse terms pending. robots.txt only disallows `/*/onlineapp/admin`. That is a crawler instruction, not permission to republish, and the terms of use have not been reviewed.
 - **Fetch method:** rendered through Firecrawl, which is an outside paid service called through a local helper (`scripts/scrape-civic.mjs:29-41` shows the same helper). Its cost and credentials sit outside this repo.
 - **Limits:** at most 60 postings, published within 150 days (lines 26, 27 and 287).
 - **Failure behavior:** previous ISD postings are kept (line 327).

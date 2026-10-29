@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { mergeEventSources, lisdRecordToEvent, sameOccurrenceAsCivic } from './events-merge.mjs';
+import { mergeEventSources, lisdRecordToEvent, lisdSourceResult, sameOccurrenceAsCivic, isBoardMeeting } from './events-merge.mjs';
 import { parseLisdIcs } from './ics.mjs';
 
 const HOUR = 3600_000;
@@ -56,10 +56,9 @@ function lisdResults(now = NOW) {
   return [
     ['lisd-district', DISTRICT, 'lisd-district.ics'],
     ['lisd-campus', CAMPUS, 'lisd-campus.ics'],
-  ].map(([source, feedId, file]) => ({
-    source, ok: true,
-    items: parseLisdIcs(fixture(file), { feedId, ...opts }).records.map((r) => lisdRecordToEvent(r, source, 'Community')),
-  }));
+  ].map(([source, feedId, file]) => lisdSourceResult(
+    source, parseLisdIcs(fixture(file), { feedId, ...opts }), (r) => lisdRecordToEvent(r, source, 'Community'),
+  ));
 }
 
 test('existing sources: output matches the pre-integration algorithm exactly', () => {
@@ -97,16 +96,19 @@ test('LISD: occurrences are added with attribution, all-day flags and Chicago ti
   assert.equal(report.sources['lisd-district'].used, 'fresh');
 });
 
-test('LISD: board meetings are deduped against civic only by occurrence identity', () => {
-  const meeting = { startsAt: Date.UTC(2026, 10, 20, 0, 15), location: 'Linda Lippe Instructional Materials Center, 1775 W New Hope Drive' };
-  const same = { startsAt: meeting.startsAt, venue: 'Linda Lippe Instructional Materials Center\\, 1775 W New Hope Drive' };
-  assert.equal(sameOccurrenceAsCivic({ ...same, venue: 'Linda Lippe Instructional Materials Center, 1775 W New Hope Drive' }, meeting), true);
-  assert.equal(sameOccurrenceAsCivic({ ...same, startsAt: meeting.startsAt + HOUR }, meeting), false);
-  assert.equal(sameOccurrenceAsCivic({ ...same, venue: 'Vista Ridge High School' }, meeting), false);
-  assert.equal(sameOccurrenceAsCivic({ ...same, venue: '' }, meeting), false);
-
-  assert.equal(sameOccurrenceAsCivic(
-    { startsAt: meeting.startsAt, venue: 'Linda Lippe Instructional Materials Center, Rooms B1001.01 and B1001.02' }, meeting), true);
+test('LISD: board meetings are deduped against civic only by board type, start, building and room', () => {
+  const at = Date.UTC(2026, 10, 20, 0, 15);
+  const meeting = { title: 'Board of Trustees Regular Meeting', startsAt: at, location: 'Linda Lippe Instructional Materials Center, Board Room, 1775 W New Hope Drive' };
+  const ev = { title: 'LISD Board Meeting', startsAt: at, venue: 'Linda Lippe Instructional Materials Center\\, Board Room' };
+  assert.equal(sameOccurrenceAsCivic(ev, meeting), true);
+  assert.equal(sameOccurrenceAsCivic({ ...ev, startsAt: at + HOUR }, meeting), false);
+  assert.equal(sameOccurrenceAsCivic({ ...ev, venue: 'Vista Ridge High School, Board Room' }, meeting), false);
+  assert.equal(sameOccurrenceAsCivic({ ...ev, venue: '' }, meeting), false);
+  // Building alone is not enough: no room on one side keeps them apart.
+  assert.equal(sameOccurrenceAsCivic({ ...ev, venue: 'Linda Lippe Instructional Materials Center' }, meeting), false);
+  assert.equal(isBoardMeeting('LISD Special Board Meeting - Board Workshop'), true);
+  assert.equal(isBoardMeeting('Board of Trustees — Special Meeting - Board Workshop'), true);
+  assert.equal(isBoardMeeting('Robotics showcase'), false);
 
   const results = lisdResults();
   const before = results.flatMap((r) => r.items).filter((e) => /board meeting/i.test(e.title));
@@ -114,11 +116,51 @@ test('LISD: board meetings are deduped against civic only by occurrence identity
   const withoutCivic = mergeEventSources({ prev: [], results: lisdResults(), civic: [], now: NOW });
   const boardIn = (r) => r.events.filter((e) => /board meeting/i.test(e.title)).length;
   assert.equal(boardIn(withoutCivic), before.length, 'no civic data: every board meeting stays');
-  assert.equal(boardIn(withCivic) + withCivic.report.lisd.civicDuplicates, before.length);
-  // The Oct 29 board workshop is in both feeds at 6:15 PM CDT at Linda Lippe, so it is the one duplicate.
-  assert.equal(withCivic.report.lisd.civicDuplicates, 1);
-  assert.ok(!withCivic.events.some((e) => e.title === 'LISD Special Board Meeting - Board Workshop'));
-  assert.ok(withCivic.events.some((e) => e.title === 'LISD Board Meeting'));
+  // The Oct 29 workshop is in both feeds, but civic.json gives a street address and
+  // LISD gives rooms, so the room-specific rule keeps both. A visible duplicate is
+  // preferred over dropping an unrelated event.
+  assert.equal(withCivic.report.lisd.civicDuplicates, 0);
+  assert.ok(withCivic.events.some((e) => e.title === 'LISD Special Board Meeting - Board Workshop'));
+});
+
+test('regression: simultaneous unrelated events in different rooms of one building are not conflated', () => {
+  const at = Date.UTC(2026, 10, 20, 0, 0);
+  const civicRows = [
+    { id: 'c1', title: 'Board of Trustees Regular Meeting', startsAt: at, location: 'Linda Lippe Instructional Materials Center, Board Room' },
+  ];
+  const mk = (id, title, venue) => ({ id, title, startsAt: at, endsAt: at + HOUR, venue, source: 'lisd-district', category: 'Community', description: '' });
+  const results = [
+    { source: 'lisd-district', ok: true, items: [
+      mk('lisd-a', 'Robotics showcase', 'Linda Lippe Instructional Materials Center, Rooms B1001.01 and B1001.02'),
+      mk('lisd-b', 'LISD Board Meeting', 'Linda Lippe Instructional Materials Center, Rooms B1001.01 and B1001.02'),
+      mk('lisd-c', 'Parent workshop', 'Linda Lippe Instructional Materials Center, Board Room'),
+    ] },
+    { source: 'lisd-campus', ok: true, items: [] },
+  ];
+  const { events, report } = mergeEventSources({ prev: [], results, civic: civicRows, now: at - DAY });
+  assert.deepEqual(events.filter((e) => e.source === 'lisd-district').map((e) => e.id).sort(), ['lisd-a', 'lisd-b', 'lisd-c']);
+  assert.equal(report.lisd.civicDuplicates, 0);
+  // The same board meeting in the same room is the one case that is deduped.
+  results[0].items.push(mk('lisd-d', 'LISD Board Meeting', 'Linda Lippe Instructional Materials Center\\, Board Room'));
+  const again = mergeEventSources({ prev: [], results, civic: civicRows, now: at - DAY });
+  assert.equal(again.report.lisd.civicDuplicates, 1);
+  assert.ok(!again.events.some((e) => e.id === 'lisd-d'));
+});
+
+test('regression: any LISD parse error fails the source atomically and keeps the complete prior data', () => {
+  const good = lisdResults();
+  const first = mergeEventSources({ prev: [], results: good, civic: [], now: NOW }).events;
+  const priorDistrict = first.filter((e) => e.source === 'lisd-district');
+  assert.ok(priorDistrict.length > 1);
+  const partial = { records: [priorDistrict[0]].map(() => ({})), errors: [{ uid: 'x@test', error: 'VEVENT is missing DTSTART' }] };
+  const failed = lisdSourceResult('lisd-district', partial, (r) => r);
+  assert.equal(failed.ok, false);
+  assert.match(failed.error, /1 parse error\(s\), first: VEVENT is missing DTSTART \(x@test\)/);
+  const { events, report } = mergeEventSources({ prev: first, results: [failed, good[1]], civic: [], now: NOW });
+  assert.equal(report.sources['lisd-district'].used, 'previous');
+  assert.deepEqual(events.filter((e) => e.source === 'lisd-district').map((e) => e.id), priorDistrict.map((e) => e.id));
+  // A clean parse still succeeds.
+  assert.equal(lisdSourceResult('lisd-district', { records: [], errors: [] }, (r) => r).ok, true);
 });
 
 test('LISD: an event expires only after it ends', () => {
