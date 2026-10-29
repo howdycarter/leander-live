@@ -96,6 +96,42 @@ function recurrenceKey(time) {
   return time.isDate ? dateString(time) : new Date(toMs(time)).toISOString();
 }
 
+const DATE_PROPS = ['dtstart', 'dtend', 'recurrence-id', 'rdate', 'exdate'];
+
+/** True when YYYY-MM-DD (and optional hh:mm:ss) names a real calendar date and time. */
+function isRealDateTime(value) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})(?:T(\d{2}):(\d{2}):(\d{2})Z?)?$/.exec(value);
+  if (!m) return false;
+  const [y, mo, d, h = 0, mi = 0, se = 0] = m.slice(1).map((x) => (x === undefined ? 0 : Number(x)));
+  const t = new Date(Date.UTC(y, mo - 1, d, h, mi, se));
+  return t.getUTCFullYear() === y && t.getUTCMonth() === mo - 1 && t.getUTCDate() === d
+    && h < 24 && mi < 60 && se < 61;
+}
+
+/**
+ * Rejects what the parser would otherwise guess at: RANGE=THISANDFUTURE
+ * overrides (not supported), date values that do not exist (Feb 30), TZIDs
+ * with no definition, and a DTEND before DTSTART. Returns an error message,
+ * or null when the VEVENT is acceptable.
+ */
+function validateVevent(vevent) {
+  for (const [name, params, , ...values] of vevent.jCal[1]) {
+    if (!DATE_PROPS.includes(name)) continue;
+    if (name === 'recurrence-id' && params.range) {
+      return `RECURRENCE-ID;RANGE=${String(params.range).toUpperCase()} is not supported`;
+    }
+    if (params.tzid && !ICAL.TimezoneService.has(params.tzid)) return `unknown TZID ${params.tzid} on ${name.toUpperCase()}`;
+    for (const v of values) {
+      if (typeof v !== 'string') continue; // PERIOD values are handled by ical.js
+      if (!isRealDateTime(v)) return `invalid date ${v} on ${name.toUpperCase()}`;
+    }
+  }
+  const start = vevent.getFirstPropertyValue('dtstart');
+  const end = vevent.getFirstPropertyValue('dtend');
+  if (start && end && toMs(end) < toMs(start)) return 'DTEND is before DTSTART';
+  return null;
+}
+
 function text(v) {
   return typeof v === 'string' ? v.trim() : '';
 }
@@ -195,6 +231,8 @@ export function parseLisdIcs(icsText, { feedId, windowStart, windowEnd, maxOccur
     const uid = text(vevent.getFirstPropertyValue('uid'));
     if (!uid) { errors.push({ index, error: 'VEVENT is missing UID' }); return; }
     if (!vevent.getFirstPropertyValue('dtstart')) { errors.push({ index, uid, error: 'VEVENT is missing DTSTART' }); return; }
+    const invalid = validateVevent(vevent);
+    if (invalid) { errors.push({ index, uid, error: invalid }); return; }
     if (vevent.hasProperty('recurrence-id')) overrides.push({ uid, vevent });
     else if (masters.has(uid)) errors.push({ index, uid, error: 'duplicate UID without RECURRENCE-ID' });
     else masters.set(uid, new ICAL.Event(vevent));
@@ -217,7 +255,16 @@ export function parseLisdIcs(icsText, { feedId, windowStart, windowEnd, maxOccur
       continue;
     }
     if (!overridesByUid.has(o.uid)) overridesByUid.set(o.uid, new Map());
-    overridesByUid.get(o.uid).set(recurrenceKey(ev.recurrenceId), ev);
+    const key = recurrenceKey(ev.recurrenceId);
+    const byKey = overridesByUid.get(o.uid);
+    if (byKey.has(key)) {
+      // Two overrides for one occurrence are ambiguous (one could revive a
+      // cancelled instance). Report it and keep neither.
+      errors.push({ uid: o.uid, error: `ambiguous duplicate override for RECURRENCE-ID ${key}` });
+      byKey.set(key, null);
+      continue;
+    }
+    byKey.set(key, ev);
   }
 
   for (const [uid, event] of masters) {
@@ -230,10 +277,24 @@ export function parseLisdIcs(icsText, { feedId, windowStart, windowEnd, maxOccur
       const moved = overridesByUid.get(uid) ?? new Map();
       const durationMs = toMs(event.endDate) - toMs(event.startDate);
       const it = event.iterator();
+      // RFC 5545: DTSTART is always the first instance unless EXDATE removes it.
+      // ical.js only yields it through an RRULE, so an RDATE-only series needs
+      // it added back here.
+      const pending = [];
+      const vev = event.component;
+      if (!vev.hasProperty('rrule')) {
+        const startKey = recurrenceKey(event.startDate);
+        const excluded = vev.getAllProperties('exdate').some((p) => p.getValues().some((v) => recurrenceKey(v) === startKey));
+        if (!excluded) pending.push(event.startDate.clone());
+      }
+      const seenSlots = new Set();
       let next;
       let skipped = 0;
       let count = 0;
-      while ((next = it.next())) {
+      while ((next = pending.shift() ?? it.next())) {
+        const slotKey = recurrenceKey(next);
+        if (seenSlots.has(slotKey)) continue;
+        seenSlots.add(slotKey);
         const slotStart = toMs(next);
         if (slotStart >= windowEnd) break;
         // Fast-forward through slots that end before the window. These do not
@@ -263,6 +324,7 @@ export function parseLisdIcs(icsText, { feedId, windowStart, windowEnd, maxOccur
 
   for (const [uid, byKey] of overridesByUid) {
     for (const ev of byKey.values()) {
+      if (ev === null) continue; // ambiguous, already reported
       try {
         const r = buildRecord({
           uid, recurrenceId: recurrenceKey(ev.recurrenceId), item: ev,
