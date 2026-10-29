@@ -81,6 +81,16 @@ function dateString(time) {
   return `${time.year}-${p(time.month)}-${p(time.day)}`;
 }
 
+/** Safety bound on slots skipped before the window (about 270 years of a daily series). */
+const MAX_PRE_WINDOW_SLOTS = 100_000;
+
+/** End of one occurrence: the master's duration added to the slot start. */
+function endFor(slot, event) {
+  const end = slot.clone();
+  end.addDuration(event.duration);
+  return end;
+}
+
 function recurrenceKey(time) {
   // Normalize RECURRENCE-ID to a stable string regardless of how it was written.
   return time.isDate ? dateString(time) : new Date(toMs(time)).toISOString();
@@ -131,7 +141,8 @@ function buildRecord({ uid, recurrenceId, item, start, end, source }) {
  *  - feedId: one of LISD_FEEDS (required).
  *  - windowStart, windowEnd: ms timestamps (required). Only occurrences that
  *    overlap this window are returned, which bounds recurring expansion.
- *  - maxOccurrencesPerEvent: cap on expansion for one recurring event (required).
+ *  - maxOccurrencesPerEvent: cap on occurrences of one recurring event that reach the window (required).
+ *    Slots before the window are skipped and not counted. Hitting the cap is reported in errors.
  *
  * Returns { calendarName, records, errors }. Records are sorted by start time,
  * then ID, so repeated runs on the same input give identical output.
@@ -191,11 +202,22 @@ export function parseLisdIcs(icsText, { feedId, windowStart, windowEnd, maxOccur
 
   const records = [];
   const inWindow = (r) => r.endsAt > windowStart && r.startsAt < windowEnd;
-  const orphanOverrides = [];
+
+  // Overrides are grouped by UID and RECURRENCE-ID. Each one is judged by its
+  // own (moved) start and end, never by its original slot, so an override that
+  // moves a later occurrence into the window is kept, and one that moves an
+  // in-window occurrence out of it is dropped.
+  const overridesByUid = new Map();
   for (const o of overrides) {
-    const master = masters.get(o.uid);
-    if (master && master.isRecurring()) master.relateException(o.vevent);
-    else orphanOverrides.push(o);
+    let ev;
+    try {
+      ev = new ICAL.Event(o.vevent);
+    } catch (err) {
+      errors.push({ uid: o.uid, error: `could not read override: ${err.message}` });
+      continue;
+    }
+    if (!overridesByUid.has(o.uid)) overridesByUid.set(o.uid, new Map());
+    overridesByUid.get(o.uid).set(recurrenceKey(ev.recurrenceId), ev);
   }
 
   for (const [uid, event] of masters) {
@@ -205,20 +227,33 @@ export function parseLisdIcs(icsText, { feedId, windowStart, windowEnd, maxOccur
         if (inWindow(r)) records.push(r);
         continue;
       }
+      const moved = overridesByUid.get(uid) ?? new Map();
+      const durationMs = toMs(event.endDate) - toMs(event.startDate);
       const it = event.iterator();
       let next;
+      let skipped = 0;
       let count = 0;
       while ((next = it.next())) {
-        if (toMs(next) >= windowEnd) break;
+        const slotStart = toMs(next);
+        if (slotStart >= windowEnd) break;
+        // Fast-forward through slots that end before the window. These do not
+        // count against the cap, but a separate bound stops runaway series.
+        if (slotStart + durationMs <= windowStart) {
+          if (++skipped > MAX_PRE_WINDOW_SLOTS) {
+            errors.push({ uid, error: `recurrence skipped more than ${MAX_PRE_WINDOW_SLOTS} slots before the window` });
+            break;
+          }
+          continue;
+        }
+        if (moved.has(recurrenceKey(next))) continue; // handled with the overrides below
+        // The cap counts only occurrences that reach the window. Hitting it is
+        // an error, so the caller can keep its last good data rather than
+        // publish a silently shortened list.
         if (++count > maxOccurrencesPerEvent) {
-          errors.push({ uid, error: `recurrence expansion stopped at ${maxOccurrencesPerEvent} occurrences` });
+          errors.push({ uid, error: `recurrence expansion stopped at ${maxOccurrencesPerEvent} occurrences inside the window` });
           break;
         }
-        const d = event.getOccurrenceDetails(next);
-        const r = buildRecord({
-          uid, recurrenceId: recurrenceKey(d.recurrenceId), item: d.item,
-          start: d.startDate, end: d.endDate, source,
-        });
+        const r = buildRecord({ uid, recurrenceId: recurrenceKey(next), item: event, start: next, end: endFor(next, event), source });
         if (inWindow(r)) records.push(r);
       }
     } catch (err) {
@@ -226,16 +261,17 @@ export function parseLisdIcs(icsText, { feedId, windowStart, windowEnd, maxOccur
     }
   }
 
-  for (const { uid, vevent } of orphanOverrides) {
-    try {
-      const ev = new ICAL.Event(vevent);
-      const r = buildRecord({
-        uid, recurrenceId: recurrenceKey(ev.recurrenceId), item: ev,
-        start: ev.startDate, end: ev.endDate, source,
-      });
-      if (inWindow(r)) records.push(r);
-    } catch (err) {
-      errors.push({ uid, error: `could not read override: ${err.message}` });
+  for (const [uid, byKey] of overridesByUid) {
+    for (const ev of byKey.values()) {
+      try {
+        const r = buildRecord({
+          uid, recurrenceId: recurrenceKey(ev.recurrenceId), item: ev,
+          start: ev.startDate, end: ev.endDate, source,
+        });
+        if (inWindow(r)) records.push(r);
+      } catch (err) {
+        errors.push({ uid, error: `could not read override: ${err.message}` });
+      }
     }
   }
 
