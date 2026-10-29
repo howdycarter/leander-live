@@ -10,6 +10,8 @@
  * previous records for that source, and the script still exits 0.
  */
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
+import { parseLisdIcs, feedUrl } from "./lib/ics.mjs";
+import { mergeEventSources, lisdRecordToEvent } from "./lib/events-merge.mjs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import * as cheerio from "cheerio";
@@ -19,6 +21,12 @@ const OUT = join(ROOT, "src/data/events.json");
 const UA = "LeanderLive-Scraper/1.0 (community-events-bot; contact chris@howdycarter.com)";
 const SLEEP_MS = 300;
 const MAX_DETAIL_PAGES = 60;
+const LISD_SLEEP_MS = 2000;
+const LISD_WINDOW_DAYS = 180;
+const LISD_FEED_SOURCES = [
+  ["lisd-district", "leanderisd.org_3grot6ac0ug4prua1smkvfsmu8"],
+  ["lisd-campus", "leanderisd.org_u5tfmsd61ci4efq5s1bac16uvk"],
+];
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -263,66 +271,57 @@ async function main() {
   const prevFeaturedUntil = new Map(
     prev.filter((e) => e.id && e.featuredUntil).map((e) => [e.id, e.featuredUntil]),
   );
-  const anchors = prev.filter((e) => typeof e.id === "string" && e.id.startsWith("anchor-"));
-  const prevBySource = new Map();
-  for (const e of prev) {
-    if (e.id && e.id.startsWith("anchor-")) continue;
-    if (!prevBySource.has(e.source)) prevBySource.set(e.source, []);
-    prevBySource.get(e.source).push(e);
-  }
-
   const now = Date.now();
-  let city = [], chamber = [];
-
-  try {
-    city = await scrapeCityCalendar();
-    console.error(`city-calendar: OK (${city.length} events)`);
-  } catch (e) {
-    console.error(`WARN: city-calendar source failed: ${e.message}; keeping ${prevBySource.get("city-calendar")?.length || 0} previous records`);
-    city = prevBySource.get("city-calendar") || [];
+  const results = [];
+  for (const [source, scrape] of [["city-calendar", scrapeCityCalendar], ["chamber", scrapeChamber]]) {
+    try {
+      const items = await scrape();
+      results.push({ source, ok: true, items });
+      console.error(`${source}: OK (${items.length} events)`);
+    } catch (e) {
+      results.push({ source, ok: false, error: e.message });
+      console.error(`WARN: ${source} source failed: ${e.message}; keeping previous records`);
+    }
   }
 
-  try {
-    chamber = await scrapeChamber();
-    console.error(`chamber: OK (${chamber.length} events)`);
-  } catch (e) {
-    console.error(`WARN: chamber source failed: ${e.message}; keeping ${prevBySource.get("chamber")?.length || 0} previous records`);
-    chamber = prevBySource.get("chamber") || [];
-  }
-
-  // Backfill: previous records whose ids are missing from the fresh pull
-  // (transient fetch failures) are kept, so one bad request never deletes data.
-  // Past events are still dropped.
-  const freshIds = new Set([...city, ...chamber].map((e) => e.id));
-  for (const src of ["city-calendar", "chamber"]) {
-    for (const old of prevBySource.get(src) || []) {
-      if (!freshIds.has(old.id) && old.startsAt && old.startsAt >= now - 6 * 3600 * 1000) {
-        (src === "city-calendar" ? city : chamber).push(old);
-        freshIds.add(old.id);
-        console.error(`backfilled ${old.id} from previous run`);
+  // Official public Leander ISD calendars. Off unless explicitly enabled.
+  if (process.env.LEANDER_ENABLE_LISD_ICS === "1") {
+    for (const [source, feedId] of LISD_FEED_SOURCES) {
+      await sleep(LISD_SLEEP_MS);
+      try {
+        const text = await get(feedUrl(feedId));
+        const parsed = parseLisdIcs(text, {
+          feedId,
+          windowStart: now - 86_400_000,
+          windowEnd: now + LISD_WINDOW_DAYS * 86_400_000,
+          maxOccurrencesPerEvent: 400,
+        });
+        for (const err of parsed.errors) console.error(`WARN: ${source}: ${err.error}${err.uid ? ` (${err.uid})` : ""}`);
+        const items = parsed.records.map((r) => lisdRecordToEvent(r, source, mapCategory(`${r.title} ${r.description}`, "Community")));
+        results.push({ source, ok: true, items });
+        console.error(`${source}: OK (${items.length} occurrences)`);
+      } catch (e) {
+        results.push({ source, ok: false, error: e.message });
+        console.error(`WARN: ${source} source failed: ${e.message}; keeping previous records`);
       }
     }
   }
-  // Dedupe by (normalized title, start date); drop past events; keep anchors verbatim.
-  const seen = new Set(anchors.map((a) => `${normTitle(a.title)}|${new Date(a.startsAt).toISOString().slice(0, 10)}`));
-  const fresh = [];
-  for (const ev of [...city, ...chamber]) {
-    if (!ev.title || !ev.startsAt) continue;
-    if (ev.startsAt < now - 6 * 3600 * 1000) continue; // started >6h ago
-    const key = `${normTitle(ev.title)}|${new Date(ev.startsAt).toISOString().slice(0, 10)}`;
-    if (seen.has(key)) continue;
-    seen.add(key);
-    if (ev.endsAt && ev.endsAt <= ev.startsAt) delete ev.endsAt;
-    fresh.push(ev);
-  }
 
-  const all = [...anchors, ...fresh].sort((a, b) => a.startsAt - b.startsAt);
+  let civic = [];
+  try {
+    const parsed = JSON.parse(readFileSync(join(ROOT, "src/data/civic.json"), "utf8"));
+    if (Array.isArray(parsed)) civic = parsed;
+  } catch { /* no civic data: nothing to dedupe against */ }
+
+  const { events: all, report } = mergeEventSources({ prev, results, civic, now });
+  for (const f of report.failed) console.error(`WARN: ${f.source}: ${f.error}`);
   for (const ev of all) {
     if (prevFeaturedUntil.has(ev.id)) ev.featuredUntil = prevFeaturedUntil.get(ev.id);
     deriveBlurb(ev);
   }
   writeFileSync(OUT, JSON.stringify(all, null, 2) + "\n");
-  console.log(`events.json: ${all.length} events (${anchors.length} anchors, ${city.length} city-calendar, ${chamber.length} chamber)`);
+  const counts = Object.entries(report.sources).map(([k, v]) => `${v.count} ${k}`).join(", ");
+  console.log(`events.json: ${all.length} events (${counts})`);
 }
 
 main().catch((e) => { console.error(`WARN: fatal: ${e.message}`); process.exit(0); });

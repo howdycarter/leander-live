@@ -143,7 +143,7 @@ test('11. tests use no network', () => {
   assert.doesNotMatch(src, /\bfetch\(|node:https?|node:net/);
 });
 
-test('12. integration hold: nothing outside scripts/lib imports ics.mjs', () => {
-  const hits = execSync("git grep -l 'ics.mjs' -- . ':!scripts/lib/' || true", { encoding: 'utf8' }).trim();
-  assert.equal(hits, '');
+test('12. only scripts/scrape-events.mjs imports ics.mjs outside scripts/lib', () => {
+  const hits = execSync("git grep -l 'lib/ics.mjs' -- . ':!scripts/lib/' || true", { encoding: 'utf8' }).trim();
+  assert.equal(hits, 'scripts/scrape-events.mjs');
 });
