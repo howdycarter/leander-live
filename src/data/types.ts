@@ -34,9 +34,19 @@ export interface LiveEvent {
   image?: string;
   /** Paid sponsored placement: epoch ms until it stays pinned. */
   featuredUntil?: number;
-  /** Where the record came from: "anchor" | "city-calendar" | "chamber" ... */
+  /** Where the record came from: "anchor" | "city-calendar" | "chamber" | "lisd-district" | "lisd-campus". */
   source: string;
   sourceUrl?: string;
+  /** LISD calendar only: true for all-day events. endsAt is then exclusive midnight. */
+  allDay?: boolean;
+  /** All-day events only: first calendar day, YYYY-MM-DD. */
+  startDate?: string | null;
+  /** All-day events only: the day after the last day (exclusive end), YYYY-MM-DD. */
+  endDateExclusive?: string | null;
+  /** LISD calendar only: UID plus RECURRENCE-ID, the occurrence identity. */
+  occurrenceKey?: string;
+  /** LISD calendar only: cancelled occurrences are never published. */
+  cancelled?: boolean;
 }
 
 export type JobType = "full-time" | "part-time" | "contract" | "temporary";

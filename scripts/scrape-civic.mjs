@@ -14,6 +14,7 @@
  * previous records for that source file, and the script still exits 0.
  */
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
+import { recordStatus, runGated } from "./lib/source-status-file.mjs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { execFile } from "node:child_process";
@@ -276,24 +277,18 @@ async function main() {
     cityMeetings = prevCity;
   }
 
-  try {
-    lisdMeetings = await scrapeLisdBoard();
-    console.error(`LISD board: OK (${lisdMeetings.length} upcoming)`);
-  } catch (e) {
-    console.error(`WARN: LISD board source failed: ${e.message}; keeping ${prevLisd.length} previous records`);
-    lisdMeetings = prevLisd;
-  }
+  // Source compliance: Firecrawl (paid) LISD agendas are off unless
+  // LEANDER_ENABLE_FIRECRAWL=1. Previous meetings are kept as history.
+  const lisdGate = await runGated("lisd-board-agendas", () => scrapeLisdBoard(), prevLisd);
+  lisdMeetings = lisdGate.items;
 
   const meetings = [...cityMeetings, ...lisdMeetings].sort((a, b) => a.startsAt - b.startsAt);
 
-  let news;
-  try {
-    news = await scrapeNews();
-    console.error(`city news: OK (${news.length} items)`);
-  } catch (e) {
-    console.error(`WARN: city news source failed: ${e.message}; keeping ${prevNews.length} previous records`);
-    news = prevNews;
-  }
+  // Source compliance: leandertx.gov is off unless LEANDER_ENABLE_LEANDERTX=1.
+  const prevCityNews = prevNews.filter((n) => !String(n.id).startsWith("local-"));
+  const newsGate = await runGated("leandertx-city-news", () => scrapeNews(), prevCityNews);
+  let news = newsGate.items;
+  recordStatus([lisdGate.row, newsGate.row]);
 
   // Hand-published items (ids starting "local-") are editorial content the
   // city RSS never carries — preserve them across refreshes instead of

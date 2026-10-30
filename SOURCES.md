@@ -64,3 +64,7 @@ verify"). Nothing in the app presents one. **"All Aboard Leander." is the
 Leander Live app's tagline** (from the report §7 tagline ideas, grounded in the
 1882 railroad founding) — it is presented as the app's invitation, never as the
 city's motto.
+
+## Data feeds
+
+The data the refresh pipeline fetches (events, jobs, civic meetings, news, businesses and alert signals) is listed in `docs/data-sources.md`. That list covers each source's owner, permission basis, request rate, failure behavior and expiry. How to operate the pipeline is in `docs/runbook.md`.

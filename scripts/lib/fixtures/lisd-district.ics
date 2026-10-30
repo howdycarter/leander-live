@@ -1,0 +1,160 @@
+BEGIN:VCALENDAR
+PRODID:-//Google Inc//Google Calendar 70.9054//EN
+VERSION:2.0
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:LISD Website - District Calendar
+X-WR-TIMEZONE:America/Chicago
+BEGIN:VTIMEZONE
+TZID:America/Chicago
+X-LIC-LOCATION:America/Chicago
+BEGIN:DAYLIGHT
+TZOFFSETFROM:-0600
+TZOFFSETTO:-0500
+TZNAME:CDT
+DTSTART:19700308T020000
+RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=2SU
+END:DAYLIGHT
+BEGIN:STANDARD
+TZOFFSETFROM:-0500
+TZOFFSETTO:-0600
+TZNAME:CST
+DTSTART:19701101T020000
+RRULE:FREQ=YEARLY;BYMONTH=11;BYDAY=1SU
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20261029
+DTEND;VALUE=DATE:20261030
+DTSTAMP:20261029T214500Z
+UID:5kn7libq12atd8ol9llb05r1uc@google.com
+CREATED:20260909T054937Z
+DESCRIPTION:Leander ISD will have Proposition A on the upcoming ballot\, al
+ ong with four Board places. Early voting runs Oct. 19-30\, 2026\, with elec
+ tion day Nov. 3\, 2026.<br><br>For more information\, visit <a href="https:
+ //www.google.com/url?q=https://elections.leanderisd.org&amp\;sa=D&amp\;sour
+ ce=calendar&amp\;ust=1789364970853504&amp\;usg=AOvVaw0-_nyWj_upQKmxgVlTREzk
+ " target="_blank">elections.leanderisd.org</a>.<br><br><b>Williamson County
+  Voting Hours</b><br>Monday-Saturday\, Oct. 19-24: 7 a.m. to 7 p.m.<br>Sund
+ ay\, Oct. 25: 12-6 p.m.<br>Monday-Friday\, Oct. 26-30: 7 a.m. to 7 p.m.<br>
+ Tuesday\, Nov. 3: 7 a.m. to 7 p.m.<br><br><br><b>Travis County Voting Hours
+ </b><br><i>Coming soon</i><br>Registered voters in Williamson County can vo
+ te at any location offered in their county. Registered voters in Travis Cou
+ nty can vote at any location offered in their county.<br><br><a href="https
+ ://www.google.com/url?q=https://www.wilcotx.gov/elections%23docaccess-3dfbb
+ 349bca79b29859e81e1fd772651&amp\;sa=D&amp\;source=calendar&amp\;ust=1789364
+ 970853504&amp\;usg=AOvVaw20hV1FptQN7KCA2fT4uJHw" target="_blank">Early Voti
+ ng Locations: Williamson County</a><br><a href="https://www.google.com/url?
+ q=https://votetravis.gov/current-election-information/current-election/&amp
+ \;sa=D&amp\;source=calendar&amp\;ust=1789364970853504&amp\;usg=AOvVaw02TpPi
+ f8Ts2CyHeaJ1PoSJ" target="_blank">Early Voting Locations: Travis County</a>
+ <br><br><a href="https://www.google.com/url?q=https://www.wilcotx.gov/elect
+ ions%23docaccess-747cb3fcb341324ec9d847ede5eb2337&amp\;sa=D&amp\;source=cal
+ endar&amp\;ust=1789364970853504&amp\;usg=AOvVaw0tg9Dw6Z3VplxcY9DrPQqc" targ
+ et="_blank">Election Day Locations: Williamson County</a><br><a href="https
+ ://www.google.com/url?q=https://votetravis.gov/current-election-information
+ /current-election/&amp\;sa=D&amp\;source=calendar&amp\;ust=1789364970853504
+ &amp\;usg=AOvVaw02TpPif8Ts2CyHeaJ1PoSJ" target="_blank">Election Day Locati
+ ons: Travis County</a>
+LAST-MODIFIED:20260909T054937Z
+SEQUENCE:0
+STATUS:CONFIRMED
+SUMMARY:🗳️ Early Voting
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20261030
+DTEND;VALUE=DATE:20261031
+DTSTAMP:20261029T214500Z
+UID:360v2heen0qh3n5o2hdti4ce17@google.com
+CREATED:20260909T054944Z
+DESCRIPTION:Leander ISD will have Proposition A on the upcoming ballot\, al
+ ong with four Board places. Early voting runs Oct. 19-30\, 2026\, with elec
+ tion day Nov. 3\, 2026.<br><br>For more information\, visit <a href="https:
+ //www.google.com/url?q=https://elections.leanderisd.org&amp\;sa=D&amp\;sour
+ ce=calendar&amp\;ust=1789364977679234&amp\;usg=AOvVaw38xAH5xozn2Esbnef04Xtc
+ " target="_blank">elections.leanderisd.org</a>.<br><br><b>Williamson County
+  Voting Hours</b><br>Monday-Saturday\, Oct. 19-24: 7 a.m. to 7 p.m.<br>Sund
+ ay\, Oct. 25: 12-6 p.m.<br>Monday-Friday\, Oct. 26-30: 7 a.m. to 7 p.m.<br>
+ Tuesday\, Nov. 3: 7 a.m. to 7 p.m.<br><br><br><b>Travis County Voting Hours
+ </b><br><i>Coming soon</i><br>Registered voters in Williamson County can vo
+ te at any location offered in their county. Registered voters in Travis Cou
+ nty can vote at any location offered in their county.<br><br><a href="https
+ ://www.google.com/url?q=https://www.wilcotx.gov/elections%23docaccess-3dfbb
+ 349bca79b29859e81e1fd772651&amp\;sa=D&amp\;source=calendar&amp\;ust=1789364
+ 977679234&amp\;usg=AOvVaw3CtQXBM2nFQbvR8sQAvMpP" target="_blank">Early Voti
+ ng Locations: Williamson County</a><br><a href="https://www.google.com/url?
+ q=https://votetravis.gov/current-election-information/current-election/&amp
+ \;sa=D&amp\;source=calendar&amp\;ust=1789364977679234&amp\;usg=AOvVaw2EqR9e
+ RVzTAJxBRObFYOZa" target="_blank">Early Voting Locations: Travis County</a>
+ <br><br><a href="https://www.google.com/url?q=https://www.wilcotx.gov/elect
+ ions%23docaccess-747cb3fcb341324ec9d847ede5eb2337&amp\;sa=D&amp\;source=cal
+ endar&amp\;ust=1789364977679234&amp\;usg=AOvVaw1knLRpJsVnqLZZ2Lu-t-O3" targ
+ et="_blank">Election Day Locations: Williamson County</a><br><a href="https
+ ://www.google.com/url?q=https://votetravis.gov/current-election-information
+ /current-election/&amp\;sa=D&amp\;source=calendar&amp\;ust=1789364977679234
+ &amp\;usg=AOvVaw2EqR9eRVzTAJxBRObFYOZa" target="_blank">Election Day Locati
+ ons: Travis County</a>
+LAST-MODIFIED:20260909T054944Z
+SEQUENCE:0
+STATUS:CONFIRMED
+SUMMARY:🗳️ Early Voting
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20261103
+DTEND;VALUE=DATE:20261104
+DTSTAMP:20261029T214500Z
+UID:795jvrk6son658q2055eotg7c4@google.com
+CREATED:20260909T055035Z
+DESCRIPTION:Leander ISD will have Proposition A on the upcoming ballot\, al
+ ong with four Board places. Early voting runs Oct. 19-30\, 2026\, with elec
+ tion day Nov. 3\, 2026.<br><br>For more information\, visit <a href="https:
+ //www.google.com/url?q=https://elections.leanderisd.org&amp\;sa=D&amp\;sour
+ ce=calendar&amp\;ust=1789364984726170&amp\;usg=AOvVaw0R_5ZoteuLMPp7sUEgLxA2
+ " target="_blank">elections.leanderisd.org</a>.<br><br><b>Williamson County
+  Voting Hours</b><br>Monday-Saturday\, Oct. 19-24: 7 a.m. to 7 p.m.<br>Sund
+ ay\, Oct. 25: 12-6 p.m.<br>Monday-Friday\, Oct. 26-30: 7 a.m. to 7 p.m.<br>
+ Tuesday\, Nov. 3: 7 a.m. to 7 p.m.<br><br><br><b>Travis County Voting Hours
+ </b><br><i>Coming soon</i><br>Registered voters in Williamson County can vo
+ te at any location offered in their county. Registered voters in Travis Cou
+ nty can vote at any location offered in their county.<br><br><a href="https
+ ://www.google.com/url?q=https://www.wilcotx.gov/elections%23docaccess-3dfbb
+ 349bca79b29859e81e1fd772651&amp\;sa=D&amp\;source=calendar&amp\;ust=1789364
+ 984726170&amp\;usg=AOvVaw3WvC14WsFTIzp4ZQljfomd" target="_blank">Early Voti
+ ng Locations: Williamson County</a><br><a href="https://www.google.com/url?
+ q=https://votetravis.gov/current-election-information/current-election/&amp
+ \;sa=D&amp\;source=calendar&amp\;ust=1789364984726170&amp\;usg=AOvVaw0_w2FR
+ ep_lJjmB5YuKERgJ" target="_blank">Early Voting Locations: Travis County</a>
+ <br><br><a href="https://www.google.com/url?q=https://www.wilcotx.gov/elect
+ ions%23docaccess-747cb3fcb341324ec9d847ede5eb2337&amp\;sa=D&amp\;source=cal
+ endar&amp\;ust=1789364984726170&amp\;usg=AOvVaw1DGMGRgKkDwZqlb0Rf8hUT" targ
+ et="_blank">Election Day Locations: Williamson County</a><br><a href="https
+ ://www.google.com/url?q=https://votetravis.gov/current-election-information
+ /current-election/&amp\;sa=D&amp\;source=calendar&amp\;ust=1789364984726170
+ &amp\;usg=AOvVaw0_w2FRep_lJjmB5YuKERgJ" target="_blank">Election Day Locati
+ ons: Travis County</a>
+LAST-MODIFIED:20260909T055036Z
+SEQUENCE:0
+STATUS:CONFIRMED
+SUMMARY:🗳️ Election Day
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20230721
+DTEND;VALUE=DATE:20230722
+RRULE:FREQ=DAILY;UNTIL=20230707
+DTSTAMP:20261029T214500Z
+UID:3afqiertre987cov7s8n3cd40v@google.com
+CREATED:20230608T190435Z
+DESCRIPTION:<br><b><a href="https://www.google.com/url?q=https://www.leande
+ risd.org/schooltimes/%23summer-hours&amp\;sa=D&amp\;source=calendar&amp\;us
+ t=1686683069422158&amp\;usg=AOvVaw1jALoufoV9ikdNWvfCljCP" target="_blank"><
+ u>Summer Hours</u></a></b>
+LAST-MODIFIED:20230608T190435Z
+SEQUENCE:0
+STATUS:CONFIRMED
+SUMMARY:District Office Closed
+TRANSP:TRANSPARENT
+END:VEVENT
+END:VCALENDAR

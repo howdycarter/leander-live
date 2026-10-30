@@ -1,3 +1,4 @@
+import { overlapsDateFilter } from "./eventTime";
 import { useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -71,7 +72,9 @@ export function EventsPage() {
     return ALL_EVENTS.filter((e) => {
       if (savedOnly && !saved.has(e.id)) return false;
       if (category !== "All" && (e.category ?? "") !== category) return false;
-      if (!inRange(e.startsAt, dateFilter, now)) return false;
+      if (dateFilter === "Today" || dateFilter === "This Month") {
+        if (!overlapsDateFilter(e, dateFilter, now.getTime())) return false;
+      } else if (!inRange(e.startsAt, dateFilter, now)) return false;
       if (q && !`${e.title} ${e.venue} ${e.description}`.toLowerCase().includes(q)) return false;
       return true;
     });

@@ -30,6 +30,8 @@
  * which are news whenever we first see them).
  */
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
+import { signalGateRows, sourceEnabled } from "./lib/source-gates.mjs";
+import { readStatus, recordStatus } from "./lib/source-status-file.mjs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { execFile } from "node:child_process";
@@ -396,15 +398,30 @@ async function main() {
   try { scanDataDiffs(signals, misc); }
   catch (e) { warn(`data-diff failed: ${e.message}`); }
 
-  try { await scanGoogleNews(signals, misc, stats); }
-  catch (e) { warn(`google-news source failed: ${e.message}`); }
+  // Source compliance: Google News RSS and Firecrawl LISD agendas are off
+  // unless LEANDER_ENABLE_GOOGLE_NEWS=1 or LEANDER_ENABLE_FIRECRAWL=1.
+  const now = new Date().toISOString();
+  const prevStatus = readStatus();
+  const gates = [];
+  const gate = (id, enabled, ok = false) => ({ id, enabled, ok });
+  if (sourceEnabled("google-news")) {
+    try { await scanGoogleNews(signals, misc, stats); gates.push(gate("google-news", true, true)); }
+    catch (e) { warn(`google-news source failed: ${e.message}`); gates.push(gate("google-news", true, false)); }
+  } else {
+    console.error("google-news: paused (rights pending)");
+    gates.push(gate("google-news", false));
+  }
 
   try { await scanChamber(signals, misc, stats); }
   catch (e) { warn(`chamber source failed: ${e.message}`); }
 
-  try { await scanLisdAgenda(signals, misc); }
-  catch (e) { warn(`lisd-agenda scan failed: ${e.message}`); }
-
+  if (sourceEnabled("lisd-agenda-signals")) {
+    try { await scanLisdAgenda(signals, misc); gates.push(gate("lisd-agenda-signals", true, true)); }
+    catch (e) { warn(`lisd-agenda scan failed: ${e.message}`); gates.push(gate("lisd-agenda-signals", true, false)); }
+  } else {
+    console.error("lisd-agenda-signals: paused (rights pending, paid service)");
+    gates.push(gate("lisd-agenda-signals", false));
+  }
   writeJson(MISC_STATE, misc);
 
   const queue = readJson(QUEUE_OUT, []);
@@ -414,6 +431,9 @@ async function main() {
     .sort((a, b) => a.firstSeenAt - b.firstSeenAt)
     .slice(-400);
   writeJson(QUEUE_OUT, merged);
+  // Status is recorded after the queue is final, so recordsKept counts the
+  // signals from each gated source that the published queue still holds.
+  recordStatus(signalGateRows(gates, merged, { now, prevStatus }));
   writeJson(LASTRUN_OUT, {
     at: Date.now(),
     newSignals: freshSignals,

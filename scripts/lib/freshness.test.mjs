@@ -179,7 +179,7 @@ test('pure: inputs are not mutated', () => {
   mergeSourceResults(Object.freeze([Object.freeze({ source: 'a', ok: true, items })]), Object.freeze({ a: items }));
 });
 
-test('integration hold: no repo file imports freshness.mjs', async () => {
+test('freshness.mjs is imported only from scripts/lib (events-merge.mjs)', async () => {
   const { execSync } = await import('node:child_process');
   const hits = execSync("git grep -l 'freshness.mjs' -- . ':!scripts/lib/' || true", { encoding: 'utf8' }).trim();
   assert.equal(hits, '');

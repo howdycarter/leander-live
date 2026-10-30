@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { eventDateLabel, eventTimeLabel } from "./eventTime";
 import {
   ArrowLeft,
   ArrowUpRight,
@@ -18,7 +19,6 @@ import {
   EventCard,
   FeaturedEventBadge,
   SaveButton,
-  formatDate,
   formatTime,
   inRange,
   isEventFeatured,
@@ -194,7 +194,7 @@ export function EventDetailPage() {
                         <span className="block text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
                           Date
                         </span>
-                        <span className="font-semibold">{formatDate(event.startsAt)}</span>
+                        <span className="font-semibold">{eventDateLabel(event, { withYear: true })}</span>
                       </span>
                     </li>
                     <li className="flex items-center gap-3 px-4 py-3">
@@ -206,8 +206,9 @@ export function EventDetailPage() {
                           Time
                         </span>
                         <span className="font-semibold">
-                          {formatTime(event.startsAt)}
-                          {event.endsAt ? ` – ${formatTime(event.endsAt)}` : ""}
+                          {event.allDay
+                            ? eventTimeLabel(event)
+                            : `${formatTime(event.startsAt)}${event.endsAt ? ` – ${formatTime(event.endsAt)}` : ""}`}
                         </span>
                       </span>
                     </li>

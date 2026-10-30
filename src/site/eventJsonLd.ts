@@ -1,3 +1,4 @@
+import { allDayIsoDates } from "./eventTime";
 import type { LiveEvent } from "../data/types";
 
 /**
@@ -100,8 +101,12 @@ export function buildEventJsonLd(event: LiveEvent): Record<string, unknown> {
     "@context": "https://schema.org",
     "@type": "Event",
     name: event.title,
-    startDate: isoChicago(event.startsAt),
-    ...(event.endsAt ? { endDate: isoChicago(event.endsAt) } : {}),
+    ...(allDayIsoDates(event)
+      ? { startDate: allDayIsoDates(event)!.start, endDate: allDayIsoDates(event)!.end }
+      : {
+          startDate: isoChicago(event.startsAt),
+          ...(event.endsAt ? { endDate: isoChicago(event.endsAt) } : {}),
+        }),
     eventStatus: "https://schema.org/EventScheduled",
     eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
     location: {
