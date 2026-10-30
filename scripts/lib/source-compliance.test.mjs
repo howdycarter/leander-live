@@ -145,3 +145,24 @@ test('paused signal sources report the history the queue still holds', () => {
   const [failed] = signalGateRows([{ id: 'google-news', enabled: true, ok: false }], queue, { now });
   assert.equal(failed.historical, true);
 });
+
+test('submitted listings: impossible dates and non-string URLs are rejected', () => {
+  const bad = [
+    listing({ id: 'sub-d1x', submittedAt: '2026-02-30T12:00:00-06:00' }),
+    listing({ id: 'sub-d2x', expiresAt: '2026-11-31T12:00:00-06:00' }),
+    listing({ id: 'sub-d3x', kind: 'event', startsAt: '2026-11-07T24:30:00-06:00' }),
+    listing({ id: 'sub-d4x', expiresAt: '2026-12-01T12:00:00+25:00' }),
+    listing({ id: 'sub-u1x', url: ['https://acme.example/jobs/barista'] }),
+    listing({ id: 'sub-u2x', url: { href: 'https://acme.example' } }),
+  ];
+  const { problems } = validateSubmittedListings(bad);
+  const text = problems.join('\n');
+  assert.match(text, /\[0\] submittedAt must be an ISO 8601 time/);
+  assert.match(text, /\[1\] expiresAt must be an ISO 8601 time/);
+  assert.match(text, /\[2\] events need startsAt/);
+  assert.match(text, /\[3\] expiresAt must be an ISO 8601 time/);
+  assert.match(text, /\[4\] url must be an https link/);
+  assert.match(text, /\[5\] url must be an https link/);
+  // Leap day in a leap year is real.
+  assert.equal(validateSubmittedListings([listing({ submittedAt: '2028-02-29T12:00:00-06:00', expiresAt: '2028-03-29T12:00:00-05:00' })]).ok, true);
+});

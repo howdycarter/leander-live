@@ -6,16 +6,27 @@
 
 const KINDS = new Set(['job', 'event']);
 const ID = /^sub-[a-z0-9-]{3,60}$/;
-const ISO = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?(\.\d+)?(Z|[+-]\d{2}:\d{2})$/;
+const ISO = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?(\.\d+)?(Z|[+-](\d{2}):(\d{2}))$/;
 const MAX_TEXT = 2000;
 
+/** A real calendar time: Date.parse alone rolls Feb 30 over to Mar 2. */
 function isIso(v) {
-  return typeof v === 'string' && ISO.test(v) && !Number.isNaN(Date.parse(v));
+  if (typeof v !== 'string') return false;
+  const m = ISO.exec(v);
+  if (!m) return false;
+  const [y, mo, d, h, mi, sec = '0'] = m.slice(1, 7).map(Number);
+  const daysInMonth = new Date(Date.UTC(y, mo, 0)).getUTCDate();
+  if (mo < 1 || mo > 12 || d < 1 || d > daysInMonth || h > 23 || mi > 59 || sec > 59) return false;
+  if (m[9] !== undefined && (Number(m[9]) > 14 || Number(m[10]) > 59)) return false;
+  return !Number.isNaN(Date.parse(v));
 }
 
+/** One https link given as a string (URL would coerce an array to a string). */
 function isHttpsUrl(v) {
+  if (typeof v !== 'string') return false;
   try {
-    return new URL(v).protocol === 'https:';
+    const u = new URL(v);
+    return u.protocol === 'https:' && u.hostname !== '';
   } catch {
     return false;
   }
@@ -37,7 +48,7 @@ export function listingProblems(l) {
   if (l.description !== undefined && (typeof l.description !== 'string' || l.description.length > MAX_TEXT)) {
     p.push(`description must be text of ${MAX_TEXT} characters or fewer`);
   }
-  if (!isHttpsUrl(l.url)) p.push('url must be an https link to the original posting');
+  if (!isHttpsUrl(l.url)) p.push('url must be an https link to the original posting, given as one string');
   if (!isIso(l.submittedAt)) p.push('submittedAt must be an ISO 8601 time with a zone');
   if (!isIso(l.expiresAt)) p.push('expiresAt must be an ISO 8601 time with a zone');
   else if (isIso(l.submittedAt) && Date.parse(l.expiresAt) <= Date.parse(l.submittedAt)) p.push('expiresAt must be after submittedAt');

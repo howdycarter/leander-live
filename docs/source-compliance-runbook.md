@@ -48,10 +48,10 @@ No scraping of NEOGOV in any form. The path forward is an official feed or writt
 
 ### Google News RSS
 
-- Google News terms, https://www.google.com/intl/en_us/terms_google_news.html, section 2, "Use of the Service" (read through the search index, about 5:45 PM): "You may only display the content of the Service for your own personal use (i.e., non-commercial use)", and you may not "take the results from the Service and reformat and display them".
+- Google News terms, https://www.google.com/intl/en_us/terms_google_news.html, section 2, "Use of the Service" (read through the search index, about 5:45 PM). This page is dated 2006 and may be legacy; it is the most specific Google News text found, not proof of current terms: "You may only display the content of the Service for your own personal use (i.e., non-commercial use)", and you may not "take the results from the Service and reformat and display them".
 - Google News feed terms, https://www.google.com/intl/pl_pl/news_feed_terms.html (the English page now redirects to the Help center), "Terms of use" section: Google invites non-commercial use of its feeds on websites and says Google feeds may not be redistributed.
 
-No commercial permission is assumed.
+No commercial permission is assumed, and none is claimed: nothing read grants commercial clearance.
 
 ### Leander ISD board agendas and AppliTrack (Firecrawl)
 
@@ -60,7 +60,9 @@ No commercial permission is assumed.
 
 ### City of Leander (leandertx.gov)
 
-- https://www.leandertx.gov/, /terms-of-use and /disclaimer all returned HTTP 403 at 5:45 PM. The terms could not be read. No retries or workarounds were used.
+- https://www.leandertx.gov/, /terms-of-use and /disclaimer all returned HTTP 403 at 5:45 PM. No retries or workarounds were used.
+- Copyright page, https://www.leandertx.gov/copyright (Oct 29, 2026, 7:50 PM CT, read through WebFetch and the search index; a plain curl got a Cloudflare 403): "All content © 2006-2026 Leander, TX and its representatives. All rights reserved." The page body is an image that could not be read as text, so any further terms on it are unknown.
+- This is a reservation of rights, not a license. No commercial clearance is claimed; reuse needs written permission from the City.
 
 ### Leander ISD calendar ICS
 
