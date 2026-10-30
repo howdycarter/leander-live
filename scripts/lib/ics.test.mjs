@@ -238,3 +238,30 @@ test('R9. RDATE;VALUE=PERIOD still fails safely with an error', () => {
   const r = parseInline('BEGIN:VEVENT', 'UID:period@test', 'DTSTART:20261101T150000Z', 'DTEND:20261101T160000Z', 'RDATE;VALUE=PERIOD:20261105T150000Z/20261105T170000Z', 'SUMMARY:Period', 'END:VEVENT');
   assert.ok(r.errors.length > 0);
 });
+
+// Review round 3 (PR #11): per-feed zones and invalid durations.
+const VTZ_DENVER = ['BEGIN:VTIMEZONE', 'TZID:America/Denver', 'BEGIN:STANDARD', 'TZOFFSETFROM:-0600', 'TZOFFSETTO:-0700', 'TZNAME:MST', 'DTSTART:19701101T020000', 'RRULE:FREQ=YEARLY;BYMONTH=11;BYDAY=1SU', 'END:STANDARD', 'BEGIN:DAYLIGHT', 'TZOFFSETFROM:-0700', 'TZOFFSETTO:-0600', 'TZNAME:MDT', 'DTSTART:19700308T020000', 'RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=2SU', 'END:DAYLIGHT', 'END:VTIMEZONE'];
+const denverEvent = (uid) => ['BEGIN:VEVENT', `UID:${uid}`, 'DTSTART;TZID=America/Denver:20261110T090000', 'DTEND;TZID=America/Denver:20261110T100000', 'SUMMARY:Mountain time', 'END:VEVENT'];
+
+test('R10. a TZID defined by one feed is not accepted in the next feed', () => {
+  const first = parseInline(...VTZ_DENVER, ...denverEvent('a@test'));
+  assert.deepEqual(first.errors, []);
+  assert.equal(new Date(byUid(first.records, 'a@test')[0].startsAt).toISOString(), '2026-11-10T16:00:00.000Z');
+  // Same zone used without a VTIMEZONE in a second feed parsed right after.
+  const second = parseInline(...denverEvent('b@test'));
+  assert.ok(second.errors.some((e) => /unknown TZID America\/Denver/.test(e.error)));
+  assert.equal(byUid(second.records, 'b@test').length, 0);
+  // Order does not matter: parsing the defining feed again still works.
+  assert.deepEqual(parseInline(...VTZ_DENVER, ...denverEvent('c@test')).errors, []);
+});
+
+test('R11. a negative or malformed DURATION is rejected, not clamped', () => {
+  for (const d of ['-PT1H', 'P', 'PT', 'banana']) {
+    const r = parseInline('BEGIN:VEVENT', 'UID:dur@test', 'DTSTART:20261101T150000Z', `DURATION:${d}`, 'SUMMARY:Bad', 'END:VEVENT');
+    assert.ok(r.errors.some((e) => /invalid DURATION/.test(e.error)), d);
+    assert.equal(byUid(r.records, 'dur@test').length, 0, d);
+  }
+  const ok = parseInline('BEGIN:VEVENT', 'UID:dur@test', 'DTSTART:20261101T150000Z', 'DURATION:PT1H30M', 'SUMMARY:Good', 'END:VEVENT');
+  assert.deepEqual(ok.errors, []);
+  assert.equal(byUid(ok.records, 'dur@test')[0].endsAt - byUid(ok.records, 'dur@test')[0].startsAt, 90 * 60_000);
+});
