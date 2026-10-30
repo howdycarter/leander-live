@@ -36,34 +36,6 @@
     "blurb": "Trick-or-treating, costumes, and family fun hosted by Leander Parks & Recreation and the Leander Police Department."
   },
   {
-    "id": "citycal-3258",
-    "title": "Storytime (Ages 18m-4yr) - CANCELLED",
-    "startsAt": 1793287800000,
-    "endsAt": 1793291400000,
-    "venue": "Library Annex Studio",
-    "address": "1011 S. Bagdad Rd., Leander TX, 78641",
-    "description": "Storytime (Ages 18m-4yr) - CANCELLED — see the City of Leander calendar for details.",
-    "url": "https://www.leandertx.gov/Calendar.aspx?EID=3258",
-    "sourceUrl": "https://www.leandertx.gov/Calendar.aspx?EID=3258",
-    "category": "Family",
-    "source": "city-calendar"
-  },
-  {
-    "id": "chamber-168936",
-    "title": "Light a Path 2026 Gala",
-    "description": "Join us for an unforgettable evening where community, cuisine, and compassion come together to help Central Texas children and families learn, explore, and heal through nature.",
-    "startsAt": 1793296800000,
-    "endsAt": 1793323800000,
-    "venue": "Junior League of Austin 5330 Bluffstone Ln",
-    "address": "Junior League of Austin 5330 Bluffstone Ln, Austin TX 78759",
-    "image": "https://leander.chamberspace.net/virDirEditorAssets/LeanderTX/chamberAccess/CalendarImages/LAP%20Save%20the%20Date%20.jpg",
-    "url": "https://leander.chamberspace.net/event/light-a-path-2026-gala/168936",
-    "sourceUrl": "https://leander.chamberspace.net/event/light-a-path-2026-gala/168936",
-    "category": "Family",
-    "source": "chamber",
-    "blurb": "Join us for an unforgettable evening where community, cuisine, and compassion come together to help Central Texas children and families…"
-  },
-  {
     "id": "chamber-168978",
     "title": "Halloween Flash Tattoo Day",
     "description": "Reserve a time slot to get a fangtastic flash tattoo from Lizzy Smith on Friday, October 30th at Lioness Books! All tattoos are $60 and can be done on arms and legs only! You must bring an ID to your appointment. Book your appointment here!Admission and pricing DetailsRSVP is required",
@@ -886,6 +858,20 @@
     "sourceUrl": "https://www.leandertx.gov/Calendar.aspx?EID=3321",
     "category": "Learn",
     "source": "city-calendar"
+  },
+  {
+    "id": "chamber-168989",
+    "title": "Ribbon Cutting; Petbar Boutique",
+    "description": "Join us as we celebrate the ribbon cutting of Petbar Boutique in Leander!",
+    "startsAt": 1795276800000,
+    "venue": "Petbar Boutique 8481 W State Hwy 29 Suite 140",
+    "address": "Petbar Boutique 8481 W State Hwy 29 Suite 140, Leander TX 78641",
+    "image": "https://leander.chamberspace.net/virDirEditorAssets/LeanderTX/chamberAccess/CalendarImages/Strong%20Sprouts(1).png",
+    "url": "https://leander.chamberspace.net/event/ribbon-cutting-petbar-boutique/168989",
+    "sourceUrl": "https://leander.chamberspace.net/event/ribbon-cutting-petbar-boutique/168989",
+    "category": "Community",
+    "source": "chamber",
+    "blurb": "Join us as we celebrate the ribbon cutting of Petbar Boutique in Leander!"
   },
   {
     "id": "citycal-3322",

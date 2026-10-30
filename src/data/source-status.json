@@ -5,9 +5,9 @@
     "reason": "paused: rights pending",
     "basis": "Google News terms section 2 and the Google News feed terms (non-commercial use only).",
     "lastSuccessAt": null,
-    "checkedAt": "2026-10-29T19:10:00-05:00",
-    "recordsKept": 0,
-    "historical": false
+    "checkedAt": "2026-10-30T11:08:52.914Z",
+    "recordsKept": 5,
+    "historical": true
   },
   {
     "id": "governmentjobs-city-of-leander",
@@ -15,7 +15,7 @@
     "reason": "paused: rights pending",
     "basis": "NEOGOV Terms of Use sections 4 and 6 (personal, non-commercial use only; no page-scrape, robot or spider access).",
     "lastSuccessAt": null,
-    "checkedAt": "2026-10-29T19:10:00-05:00",
+    "checkedAt": "2026-10-30T11:08:37.510Z",
     "recordsKept": 10,
     "historical": true
   },
@@ -25,7 +25,7 @@
     "reason": "paused: rights pending",
     "basis": "NEOGOV Terms of Use sections 4 and 6 (personal, non-commercial use only; no page-scrape, robot or spider access).",
     "lastSuccessAt": null,
-    "checkedAt": "2026-10-29T19:10:00-05:00",
+    "checkedAt": "2026-10-30T11:08:37.531Z",
     "recordsKept": 10,
     "historical": true
   },
@@ -35,7 +35,7 @@
     "reason": "paused: rights pending, site blocked",
     "basis": "www.leandertx.gov returns HTTP 403, so its terms could not be read.",
     "lastSuccessAt": null,
-    "checkedAt": "2026-10-29T19:10:00-05:00",
+    "checkedAt": "2026-10-30T11:16:00.112Z",
     "recordsKept": 51,
     "historical": true
   },
@@ -45,7 +45,7 @@
     "reason": "paused: rights pending, site blocked",
     "basis": "www.leandertx.gov returns HTTP 403, so its terms could not be read.",
     "lastSuccessAt": null,
-    "checkedAt": "2026-10-29T19:10:00-05:00",
+    "checkedAt": "2026-10-30T11:08:46.462Z",
     "recordsKept": 3,
     "historical": true
   },
@@ -55,9 +55,9 @@
     "reason": "paused: rights pending, paid service",
     "basis": "Fetched through Firecrawl, a paid service. No LISD site terms found that permit commercial reuse.",
     "lastSuccessAt": null,
-    "checkedAt": "2026-10-29T19:10:00-05:00",
-    "recordsKept": 0,
-    "historical": false
+    "checkedAt": "2026-10-30T11:08:52.914Z",
+    "recordsKept": 1,
+    "historical": true
   },
   {
     "id": "lisd-applitrack-jobs",
@@ -65,7 +65,7 @@
     "reason": "paused: rights pending, paid service",
     "basis": "Fetched through Firecrawl, a paid service. AppliTrack reuse terms not reviewed.",
     "lastSuccessAt": null,
-    "checkedAt": "2026-10-29T19:10:00-05:00",
+    "checkedAt": "2026-10-30T11:08:37.531Z",
     "recordsKept": 60,
     "historical": true
   },
@@ -75,7 +75,7 @@
     "reason": "paused: rights pending, paid service",
     "basis": "Fetched through Firecrawl, a paid service. No LISD site terms found that permit commercial reuse.",
     "lastSuccessAt": null,
-    "checkedAt": "2026-10-29T19:10:00-05:00",
+    "checkedAt": "2026-10-30T11:08:46.461Z",
     "recordsKept": 1,
     "historical": true
   }
