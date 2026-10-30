@@ -2,7 +2,9 @@
 // d2c6b3c and passes with the fix. No network; LISD flag stays off.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mergeEventSources } from './events-merge.mjs';
+import { readFileSync } from 'node:fs';
+import { mergeEventSources, lisdRecordToEvent, lisdSourceResult } from './events-merge.mjs';
+import { parseLisdIcs } from './ics.mjs';
 import { deriveBlurb } from './blurb.mjs';
 import { overlapsDateFilter } from '../../src/site/eventTime.ts';
 
@@ -49,8 +51,15 @@ test('(b) weekend: multi-day event starting Thursday and running into Saturday i
   assert.equal(overlapsDateFilter(sunNight, 'This Weekend', NOW), true);
 });
 
+// Fixture events carry the structured identity the parser emits: (UID, RECURRENCE-ID|null).
+const identityOf = (k) => {
+  if (typeof k !== 'string' || k === '') return {};
+  const i = k.indexOf('#');
+  const uid = i < 0 ? k : k.slice(0, i), recurrenceId = i < 0 ? null : k.slice(i + 1);
+  return { uid, recurrenceId, occurrenceIdentity: JSON.stringify([uid, recurrenceId]) };
+};
 const lisdEv = (source, id, occurrenceKey, extra = {}) => ({
-  id, source, occurrenceKey, title: 'Early release', startsAt: NOW + 2 * D, endsAt: NOW + 2 * D + H, venue: 'Leander ISD', ...extra,
+  id, source, occurrenceKey, ...identityOf(occurrenceKey), title: 'Early release', startsAt: NOW + 2 * D, endsAt: NOW + 2 * D + H, venue: 'Leander ISD', ...extra,
 });
 
 test('(c) cross-feed: the same UID/RECURRENCE-ID in district and campus feeds is published once', () => {
@@ -155,4 +164,48 @@ test('(e) non-LISD events are unaffected by LISD cancellations', () => {
   );
   assert.deepEqual(events.filter((e) => !e.source.startsWith('lisd-')).map((e) => e.id), ['city-1']);
   assert.deepEqual(lisdIds(events), []);
+});
+
+// Identity collision (parser -> merge): recurring UID "example" + RECURRENCE-ID
+// 2026-11-06 (cancelled, district) vs non-recurring UID "example#2026-11-06"
+// (confirmed, campus). Same legacy occurrenceKey string, different occurrences.
+const DISTRICT_FEED = 'leanderisd.org_3grot6ac0ug4prua1smkvfsmu8', CAMPUS_FEED = 'leanderisd.org_u5tfmsd61ci4efq5s1bac16uvk';
+const icsFixture = (f) => readFileSync(new URL(`./fixtures/${f}`, import.meta.url), 'utf8');
+const parsedResult = (source, feedId, file) => lisdSourceResult(
+  source,
+  parseLisdIcs(icsFixture(file), { feedId, windowStart: NOW - 30 * D, windowEnd: NOW + 60 * D, maxOccurrencesPerEvent: 50 }),
+  (r) => lisdRecordToEvent(r, source, 'Community'),
+);
+
+test('(f) identity: parser keeps the legacy label but emits distinct tuple identities', () => {
+  const d = parseLisdIcs(icsFixture('identity-collision-district.ics'), { feedId: DISTRICT_FEED, windowStart: NOW - 30 * D, windowEnd: NOW + 60 * D, maxOccurrencesPerEvent: 50 });
+  const c = parseLisdIcs(icsFixture('identity-collision-campus.ics'), { feedId: CAMPUS_FEED, windowStart: NOW - 30 * D, windowEnd: NOW + 60 * D, maxOccurrencesPerEvent: 50 });
+  assert.deepEqual([d.errors, c.errors], [[], []]);
+  const dRec = d.records.find((r) => r.recurrenceId === '2026-11-06');
+  assert.ok(dRec && dRec.cancelled);
+  assert.equal(dRec.occurrenceKey, c.records[0].occurrenceKey); // legacy label collides
+  assert.notEqual(dRec.occurrenceIdentity, c.records[0].occurrenceIdentity);
+});
+
+test('(f) identity: cancelled recurring override does not suppress an unrelated UID that looks like its key', () => {
+  const { events } = mergeEventSources({
+    prev: [], now: NOW, civic: [],
+    results: [
+      parsedResult('lisd-district', DISTRICT_FEED, 'identity-collision-district.ics'),
+      parsedResult('lisd-campus', CAMPUS_FEED, 'identity-collision-campus.ics'),
+    ],
+  });
+  const lisd = events.filter((e) => e.source.startsWith('lisd-'));
+  assert.deepEqual(lisd.filter((e) => e.source === 'lisd-campus').map((e) => e.title), ['Unrelated campus open house']);
+  assert.equal(lisd.some((e) => e.source === 'lisd-district' && e.recurrenceId === '2026-11-06'), false);
+  assert.equal(lisd.some((e) => e.source === 'lisd-district' && e.recurrenceId === '2026-11-13'), true);
+});
+
+test('(f) legacy retained records with only an occurrenceKey string never match across feeds', () => {
+  const legacy = (source, id, extra = {}) => ({ id, source, occurrenceKey: 'example#2026-11-06', title: 'Old', startsAt: NOW + 2 * D, endsAt: NOW + 2 * D + H, ...extra });
+  const { events } = mergeEventSources({
+    prev: [legacy('lisd-district', 'lisd-old-d', { cancelled: true }), legacy('lisd-campus', 'lisd-old-c')],
+    results: [], now: NOW, civic: [],
+  });
+  assert.deepEqual(events.filter((e) => e.source.startsWith('lisd-')).map((e) => e.id), ['lisd-old-c']);
 });

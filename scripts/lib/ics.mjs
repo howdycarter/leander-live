@@ -143,7 +143,10 @@ function text(v) {
 }
 
 function buildRecord({ uid, recurrenceId, item, start, end, source }) {
+  // occurrenceKey is a readable label only; it is ambiguous (UID "a" + RID "b"
+  // vs UID "a#b"). occurrenceIdentity is the injective tuple used for identity.
   const occurrenceKey = recurrenceId ? `${uid}#${recurrenceId}` : uid;
+  const occurrenceIdentity = JSON.stringify([uid, recurrenceId || null]);
   const allDay = start.isDate;
   const startsAt = toMs(start);
   let endsAt;
@@ -157,8 +160,9 @@ function buildRecord({ uid, recurrenceId, item, start, end, source }) {
   if (endsAt === undefined || endsAt < startsAt) endsAt = startsAt;
   const status = text(item.component.getFirstPropertyValue('status')).toUpperCase() || 'CONFIRMED';
   return {
-    id: 'lisd-' + createHash('sha256').update(`${source.feedId}|${occurrenceKey}`).digest('hex').slice(0, 20),
+    id: 'lisd-' + createHash('sha256').update(`${source.feedId}|${occurrenceIdentity}`).digest('hex').slice(0, 20),
     occurrenceKey,
+    occurrenceIdentity,
     uid,
     recurrenceId: recurrenceId || null,
     title: text(item.summary),
@@ -364,8 +368,8 @@ function parseFeed(icsText, { feedId, windowStart, windowEnd, maxOccurrencesPerE
   const seen = new Set();
   const unique = [];
   for (const r of records) {
-    if (seen.has(r.occurrenceKey)) { errors.push({ uid: r.uid, error: `duplicate occurrence ${r.occurrenceKey}` }); continue; }
-    seen.add(r.occurrenceKey);
+    if (seen.has(r.occurrenceIdentity)) { errors.push({ uid: r.uid, error: `duplicate occurrence ${r.occurrenceKey}` }); continue; }
+    seen.add(r.occurrenceIdentity);
     unique.push(r);
   }
   unique.sort((a, b) => a.startsAt - b.startsAt || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));

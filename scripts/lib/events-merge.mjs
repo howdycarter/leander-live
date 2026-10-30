@@ -14,10 +14,10 @@
 // - A failed fetch keeps that source's previous records (last good), and so
 //   does a source not fetched this run (LEANDER_ENABLE_LISD_ICS off).
 // - Cancelled occurrences are not published. Cancellation wins across feeds:
-//   a cancelled copy suppresses every copy with the same occurrenceKey.
+//   a cancelled copy suppresses every copy with the same occurrence identity.
 // - An event expires only after it ends (endsAt is exclusive).
 // - Duplicates are found by occurrence identity only. Within LISD, that is
-//   UID plus RECURRENCE-ID (occurrenceKey), across both LISD feeds. Against
+//   the (UID, RECURRENCE-ID) tuple (occurrenceIdentity), across both LISD feeds. Against
 //   civic.json, an event is dropped only when both are board meetings with
 //   the same start time, building and room (see sameOccurrenceAsCivic).
 //   Nothing is excluded by title alone.
@@ -180,7 +180,14 @@ export function mergeEventSources({ prev, results, civic = [], now }) {
   // copy of an occurrence is cancelled (e.g. district cancelled, campus still
   // confirmed), no copy is published. Otherwise the district copy is kept
   // (feed order). No title/time matching.
-  const occKey = (e) => (typeof e.occurrenceKey === 'string' && e.occurrenceKey !== '' ? `occ:${e.occurrenceKey}` : e.id);
+  // Identity is the injective (UID, RECURRENCE-ID|null) tuple. Records that
+  // carry only the legacy, ambiguous occurrenceKey string (older retained
+  // history) are keyed by their per-feed ID, so they never match across feeds.
+  const occKey = (e) => {
+    if (typeof e.occurrenceIdentity === 'string' && e.occurrenceIdentity !== '') return `occ:${e.occurrenceIdentity}`;
+    if (typeof e.uid === 'string' && e.uid !== '') return `occ:${JSON.stringify([e.uid, e.recurrenceId || null])}`;
+    return e.id;
+  };
   const cancelledKeys = new Set(lisd.filter((e) => e.cancelled).map(occKey).filter((k) => typeof k === 'string' && k !== ''));
   const deduped = dedupe(lisd, { keyOf: occKey });
   report.lisd.duplicateIds = deduped.duplicates.length;
@@ -225,6 +232,9 @@ export function lisdRecordToEvent(record, sourceId, category) {
     source: sourceId,
     sourceUrl: record.source.feedUrl,
     occurrenceKey: record.occurrenceKey,
+    occurrenceIdentity: record.occurrenceIdentity,
+    uid: record.uid,
+    recurrenceId: record.recurrenceId,
     cancelled: record.cancelled,
   };
 }
