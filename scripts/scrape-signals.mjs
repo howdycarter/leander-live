@@ -441,6 +441,8 @@ async function main() {
     stats,
   });
 
+  if (warnings.length || gates.some((g) => g.enabled && !g.ok)) process.exitCode = 1;
+
   const byPrio = { high: 0, medium: 0, low: 0 };
   for (const s of freshSignals) byPrio[s.priority] = (byPrio[s.priority] || 0) + 1;
   console.log(
@@ -449,4 +451,4 @@ async function main() {
   );
 }
 
-main().catch((e) => { console.error(`WARN: fatal: ${e.message}`); process.exit(0); });
+main().catch((e) => { console.error(`WARN: fatal: ${e.message}`); process.exitCode = 1; });

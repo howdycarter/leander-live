@@ -11,10 +11,10 @@
  * sorted ascending by startsAt / publishedAt.
  *
  * Robustness: idempotent; a failed source logs WARN: to stderr, keeps the
- * previous records for that source file, and the script still exits 0.
+ * previous records for that source file, and the script exits nonzero for an enabled-source failure.
  */
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
-import { recordStatus, runGated } from "./lib/source-status-file.mjs";
+import { recordStatus, recordPendingStatus, runGated, runTracked } from "./lib/source-status-file.mjs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { execFile } from "node:child_process";
@@ -268,27 +268,28 @@ async function main() {
   const prevCity = prevCivic.filter((m) => !String(m.id).startsWith("lisd-board-"));
   const prevLisd = prevCivic.filter((m) => String(m.id).startsWith("lisd-board-"));
 
-  let cityMeetings, lisdMeetings;
-  try {
-    cityMeetings = await scrapeMeetings();
-    console.error(`civic meetings: OK (${cityMeetings.length} upcoming)`);
-  } catch (e) {
-    console.error(`WARN: civic meetings source failed: ${e.message}; keeping ${prevCity.length} previous records`);
-    cityMeetings = prevCity;
-  }
+  const city = await runTracked("civicclerk-meetings", scrapeMeetings, prevCity);
+  recordPendingStatus([city.row]);
+  const cityMeetings = city.items;
+  let lisdMeetings;
 
   // Source compliance: Firecrawl (paid) LISD agendas are off unless
   // LEANDER_ENABLE_FIRECRAWL=1. Previous meetings are kept as history.
   const lisdGate = await runGated("lisd-board-agendas", () => scrapeLisdBoard(), prevLisd);
+  recordPendingStatus([lisdGate.row]);
   lisdMeetings = lisdGate.items;
 
-  const meetings = [...cityMeetings, ...lisdMeetings].sort((a, b) => a.startsAt - b.startsAt);
+  const now = Date.now();
+  const meetings = [...cityMeetings, ...lisdMeetings]
+    .filter((m) => Number.isFinite(m.startsAt) && m.startsAt >= now - 6 * 3600 * 1000)
+    .sort((a, b) => a.startsAt - b.startsAt);
 
   // Source compliance: leandertx.gov is off unless LEANDER_ENABLE_LEANDERTX=1.
   const prevCityNews = prevNews.filter((n) => !String(n.id).startsWith("local-"));
   const newsGate = await runGated("leandertx-city-news", () => scrapeNews(), prevCityNews);
   let news = newsGate.items;
-  recordStatus([lisdGate.row, newsGate.row]);
+  recordPendingStatus([newsGate.row]);
+  if ([city, lisdGate, newsGate].some((g) => g.row.state === "failed")) process.exitCode = 1;
 
   // Hand-published items (ids starting "local-") are editorial content the
   // city RSS never carries — preserve them across refreshes instead of
@@ -303,7 +304,8 @@ async function main() {
 
   writeFileSync(CIVIC_OUT, JSON.stringify(meetings, null, 2) + "\n");
   writeFileSync(NEWS_OUT, JSON.stringify(news, null, 2) + "\n");
+  recordStatus([city.row, lisdGate.row, newsGate.row]);
   console.log(`civic.json: ${meetings.length} meetings; news.json: ${news.length} items`);
 }
 
-main().catch((e) => { console.error(`WARN: fatal: ${e.message}`); process.exit(0); });
+main().catch((e) => { console.error(`WARN: fatal: ${e.message}`); process.exitCode = 1; });
