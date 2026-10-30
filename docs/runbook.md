@@ -22,7 +22,7 @@ Always inspect the current report, including after a nonzero exit:
 - `files.<name>`: count, additions, removals and byte changes. `sourceStatus` is included, so a status-only failure/recovery requires publication consideration too.
 - `newSignals`, `signalWarnings`: current-run items for private review. Signals are never published automatically. A partially failed signals step can still produce valid new review items; old reports are invalidated before work starts.
 
-`src/data/source-status.json` preserves each source's prior `lastSuccessAt` on failure/pause. `checkedAt` is an attempted check, not a successful fetch. Chamber events, CivicClerk meetings and the existing Texas business pull now record source success/failure as well as the gated feeds. Never backfill a success timestamp without a successful fetch.
+`src/data/source-status.json` preserves each source's prior `lastSuccessAt` on failure/pause. `checkedAt` is an attempted check, not a successful fetch. Chamber events, CivicClerk meetings and the existing Texas business pull now record source success/failure as well as the gated feeds. Never backfill a success timestamp without a successful fetch and completed output writes. A successful fetch is first persisted as unconfirmed/failed with its prior success time; only completed transformation and output writes promote it to `ok`. This prevents status-only publication from claiming a refresh after a downstream failure. Multi-file writes are not atomic: a civic partial-write failure remains failed even if its first file was written.
 
 ## Publication gate
 

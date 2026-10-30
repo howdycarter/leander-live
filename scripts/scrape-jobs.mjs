@@ -13,7 +13,7 @@
  * previous records for that source, and the script exits nonzero for an enabled-source failure.
  */
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
-import { recordStatus, runGated } from "./lib/source-status-file.mjs";
+import { recordStatus, recordPendingStatus, runGated } from "./lib/source-status-file.mjs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { execFile } from "node:child_process";
@@ -313,7 +313,7 @@ async function main() {
       () => scrapeGovJobs("Williamson County", "Williamson County", true), prevByCompany.get("Williamson County") || []),
     await runGated("lisd-applitrack-jobs", () => scrapeAppliTrack(), prevByCompany.get("Leander ISD") || []),
   ];
-  recordStatus(gated.map((g) => g.row));
+  recordPendingStatus(gated.map((g) => g.row));
   if (gated.some((g) => g.row.state === "failed")) process.exitCode = 1;
   const [leander, williamson, isd] = gated.map((g) => g.items);
 
@@ -353,6 +353,7 @@ async function main() {
   }
   all.sort((a, b) => (b.postedAt || 0) - (a.postedAt || 0));
   writeFileSync(OUT, JSON.stringify(all, null, 2) + "\n");
+  recordStatus(gated.map((g) => g.row));
   console.log(`jobs.json: ${all.length} jobs (${leander.length} City of Leander, ${williamson.length} Williamson County, ${isd.length} Leander ISD)`);
 }
 

@@ -13,7 +13,7 @@ import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { parseLisdIcs, feedUrl } from "./lib/ics.mjs";
 import { deriveBlurb } from "./lib/blurb.mjs";
 import { mergeEventSources, lisdRecordToEvent, lisdSourceResult } from "./lib/events-merge.mjs";
-import { recordStatus, runGated, runTracked } from "./lib/source-status-file.mjs";
+import { recordStatus, recordPendingStatus, runGated, runTracked } from "./lib/source-status-file.mjs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import * as cheerio from "cheerio";
@@ -264,7 +264,7 @@ async function main() {
   // history, and they expire on the normal rule.
   const prevCity = prev.filter((e) => e.source === "city-calendar" && !String(e.id).startsWith("anchor-"));
   const cityGate = await runGated("leandertx-city-calendar", () => scrapeCityCalendar(), prevCity);
-  recordStatus([cityGate.row]);
+  recordPendingStatus([cityGate.row]);
   if (cityGate.row.state === "ok") {
     results.push({ source: "city-calendar", ok: true, items: cityGate.items });
     console.error(`city-calendar: OK (${cityGate.items.length} events)`);
@@ -273,7 +273,7 @@ async function main() {
   }
 
   const chamber = await runTracked("chamber", scrapeChamber, prev.filter((e) => e.source === "chamber" && !String(e.id).startsWith("anchor-")));
-  recordStatus([chamber.row]);
+  recordPendingStatus([chamber.row]);
   results.push(chamber.row.state === "ok"
     ? { source: "chamber", ok: true, items: chamber.items }
     : { source: "chamber", ok: false, error: chamber.row.reason });
@@ -319,6 +319,7 @@ async function main() {
     deriveBlurb(ev);
   }
   writeFileSync(OUT, JSON.stringify(all, null, 2) + "\n");
+  recordStatus([cityGate.row, chamber.row]);
   const counts = Object.entries(report.sources).map(([k, v]) => `${v.count} ${k}`).join(", ");
   console.log(`events.json: ${all.length} events (${counts})`);
 }

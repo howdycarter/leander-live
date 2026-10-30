@@ -43,7 +43,7 @@ All eight restricted feeds remain paused. Jobs and some civic/news/event content
 On this branch after the final source changes:
 
 - `npm ci --no-audit --no-fund`: locked dependencies installed. The initial sandboxed attempt could not resolve npm; the authorized network-enabled retry succeeded.
-- `npm test`: 193 passed, 0 failed.
+- `npm test`: 198 passed, 0 failed.
 - `npm run build`: passed TypeScript and Vite production build.
 - `npm run test:preservation`: 26 passed, 0 failed.
 - `npm run test:uiarc`: 11 passed, 0 failed.
@@ -51,3 +51,7 @@ On this branch after the final source changes:
 - `git diff --check`: clean.
 
 Non-failing diagnostics remain: Vite warns about the existing large application chunk; SSR of the Arc/motion alert emits React key warnings; the existing preservation/UIARC Vite test harness attempts an HMR socket denied by the sandbox (`EPERM` on port 24678), while the assertions and commands still complete successfully. These are not reported as a browser playtest or live production verification.
+
+## Review correction: output confirmation
+
+Independent review reproduced a false-freshness path: a successful fetch persisted `ok` before transformation/output, then a downstream failure left that new timestamp over old data. Five new real-process regressions cover Chamber/CivicClerk/business output-write failures, `Array(500).fill(null)` business transformation failure, and a CivicClerk second-output failure after the first write. Status now remains unconfirmed/failed with the prior verified success until all output writes finish. The same ordering protects gated event/civic/job source rows. Successful output still promotes status normally. Multi-file output is not transactional; a partial write is explicitly failed and requires review rather than falsely claiming confirmed freshness.

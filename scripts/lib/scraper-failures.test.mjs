@@ -90,6 +90,68 @@ test('businesses: Socrata fixtures dedupe into published listings and count publ
   assert.ok(Number.isFinite(Date.parse(row.lastSuccessAt)));
 });
 
+const successfulFeeds = `globalThis.fetch=async (url)=>{
+  url=String(url);
+  if(url==='https://leander.chamberspace.net/calendar') return new Response('<a href="/event/fixture/123">Fixture</a>');
+  if(url.includes('ICSDownload')) return new Response('BEGIN:VEVENT\\r\\nDTSTART:20990101T100000Z\\r\\nSUMMARY:Fixture celebration\\r\\nEND:VEVENT');
+  if(url.includes('/event/fixture/123')) return new Response('<html></html>');
+  if(url.startsWith('https://leandertx.api.civicclerk.com/v1/Events?')) return Response.json({value:[{id:123,eventName:'Fixture board meeting',eventCategoryName:'City Council',startDateTime:'2099-01-01T17:00:00Z'}]});
+  if(url.startsWith('https://data.texas.gov/resource/jrea-zgmq.json?')) return Response.json(Array.from({length:500},()=>({taxpayer_number:'1',outlet_number:'1',outlet_name:'FIXTURE CAFE',outlet_address:'123 MAIN ST',outlet_naics_code:'722511'})));
+  throw new Error('unexpected URL '+url);
+};`;
+
+for (const [name,source] of [['events','chamber'],['civic','civicclerk-meetings'],['businesses','tx-sales-tax-businesses']]) {
+  test(`${name}: failed output write cannot advance the last confirmed success`, (t) => {
+    const f=fixture(t);
+    const previous=[{id:'old-good',title:'Confirmed fixture',source:'chamber',startsAt:Date.now()+86400000}];
+    f.write(name,previous);
+    f.write('source-status',[{id:source,state:'ok',lastSuccessAt:'2026-10-01T12:00:00Z',recordsKept:1,historical:false}]);
+    f.network(`${successfulFeeds}
+      import fs from 'node:fs'; import {syncBuiltinESMExports} from 'node:module';
+      const write=fs.writeFileSync;
+      fs.writeFileSync=(path,...args)=>{if(String(path).endsWith('/src/data/${name}.json'))throw new Error('fixture output write failed');return write(path,...args)};
+      syncBuiltinESMExports();`);
+    const run=f.run(name);
+    assert.equal(run.status,1,run.stderr);
+    assert.deepEqual(f.read(name),previous);
+    const row=f.read('source-status').find(r=>r.id===source);
+    assert.equal(row.state,'failed');
+    assert.equal(row.lastSuccessAt,'2026-10-01T12:00:00Z');
+    assert.equal(row.recordsKept,1);
+  });
+}
+
+test('businesses: transform failure cannot publish success provenance over last-good output', (t) => {
+  const f=fixture(t);
+  const previous=[{id:'old-good',name:'Confirmed fixture'}];
+  f.write('businesses',previous);
+  f.write('source-status',[{id:'tx-sales-tax-businesses',state:'ok',lastSuccessAt:'2026-10-01T12:00:00Z',recordsKept:1,historical:false}]);
+  f.network(`globalThis.fetch=async()=>Response.json(Array(500).fill(null));`);
+  const run=f.run('businesses');
+  assert.equal(run.status,1,run.stderr);
+  assert.deepEqual(f.read('businesses'),previous);
+  const row=f.read('source-status').find(r=>r.id==='tx-sales-tax-businesses');
+  assert.equal(row.state,'failed');
+  assert.equal(row.lastSuccessAt,'2026-10-01T12:00:00Z');
+  assert.equal(row.recordsKept,1);
+});
+
+test('civic: failure writing the second output cannot confirm success for the partial publication', (t) => {
+  const f=fixture(t);
+  f.write('source-status',[{id:'civicclerk-meetings',state:'ok',lastSuccessAt:'2026-10-01T12:00:00Z',recordsKept:1}]);
+  f.network(`${successfulFeeds}
+    import fs from 'node:fs'; import {syncBuiltinESMExports} from 'node:module';
+    const write=fs.writeFileSync;
+    fs.writeFileSync=(path,...args)=>{if(String(path).endsWith('/src/data/news.json'))throw new Error('fixture second output failed');return write(path,...args)};
+    syncBuiltinESMExports();`);
+  const run=f.run('civic');
+  assert.equal(run.status,1,run.stderr);
+  assert.equal(f.read('civic')[0].id,'civic-123','the first file may already have been written');
+  const row=f.read('source-status').find(r=>r.id==='civicclerk-meetings');
+  assert.equal(row.state,'failed');
+  assert.equal(row.lastSuccessAt,'2026-10-01T12:00:00Z');
+});
+
 for (const [name, source] of [['events','chamber'],['civic','civicclerk-meetings'],['businesses','tx-sales-tax-businesses']]) {
   test(`${name}: offline source preserves last-good records, records failure and exits nonzero`, (t) => {
     const f = fixture(t);

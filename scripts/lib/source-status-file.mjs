@@ -21,6 +21,26 @@ export function recordStatus(rows, path = STATUS_PATH) {
 }
 
 /**
+ * A successful fetch is only a candidate until transformation and output writes
+ * finish. Persist a conservative failed/unconfirmed state first, preserving the
+ * last published success, then let the caller record its candidate rows AFTER
+ * all output writes succeed. A throw or process crash cannot leave fresh "ok"
+ * provenance over old data. This does not claim multi-file writes are atomic.
+ */
+export function recordPendingStatus(rows, path = STATUS_PATH) {
+  const previous = new Map(readStatus(path).map((row) => [row.id, row]));
+  recordStatus(rows.map((row) => {
+    if (row.state !== 'ok') return row;
+    const prev = previous.get(row.id);
+    const recordsKept = prev?.recordsKept ?? 0;
+    return {
+      ...row, state: 'failed', reason: 'refresh output not confirmed; last verified success retained',
+      lastSuccessAt: prev?.lastSuccessAt ?? null, recordsKept, historical: recordsKept > 0,
+    };
+  }), path);
+}
+
+/**
  * Runs one gated source. When it is off, nothing is fetched, the previous
  * records are returned as history, and a paused row is produced.
  * @returns {Promise<{ items: object[], row: object }>}

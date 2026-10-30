@@ -22,7 +22,7 @@
  * file untouched and the script exits nonzero.
  */
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
-import { recordStatus, runTracked } from "./lib/source-status-file.mjs";
+import { recordStatus, recordPendingStatus, runTracked } from "./lib/source-status-file.mjs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
@@ -200,7 +200,7 @@ async function main() {
     }
     return rows;
   }, prev);
-  recordStatus([source.row]);
+  recordPendingStatus([source.row]);
   if (source.row.state !== "ok") { process.exitCode = 1; return; }
   const rows = source.items;
 
