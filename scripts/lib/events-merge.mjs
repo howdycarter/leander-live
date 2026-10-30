@@ -11,11 +11,12 @@
 //
 // LISD calendar records (sources "lisd-district" and "lisd-campus") follow
 // stricter rules:
-// - A failed fetch keeps that source's previous records (last good).
+// - A failed fetch keeps that source's previous records (last good), and so
+//   does a source not fetched this run (LEANDER_ENABLE_LISD_ICS off).
 // - Cancelled occurrences are not published.
 // - An event expires only after it ends (endsAt is exclusive).
 // - Duplicates are found by occurrence identity only. Within LISD, that is
-//   the record ID, which is derived from UID and RECURRENCE-ID. Against
+//   UID plus RECURRENCE-ID (occurrenceKey), across both LISD feeds. Against
 //   civic.json, an event is dropped only when both are board meetings with
 //   the same start time, building and room (see sameOccurrenceAsCivic).
 //   Nothing is excluded by title alone.
@@ -164,8 +165,14 @@ export function mergeEventSources({ prev, results, civic = [], now }) {
     fresh.push(ev);
   }
 
-  // LISD sources.
-  let lisd = LISD_SOURCES.flatMap((s) => itemsFor(s));
+  // LISD sources. A source with no result this run (flag off) keeps its
+  // previous records, which then expire on the normal end-time rule.
+  let lisd = LISD_SOURCES.flatMap((s) => {
+    if (results.some((r) => r.source === s)) return itemsFor(s);
+    const kept = (prevBySource[s] || []).map((e) => ({ ...e }));
+    if (kept.length > 0) report.sources[s] = { used: 'retained', count: 0 };
+    return kept;
+  });
   const live = [];
   for (const ev of lisd) {
     if (ev.cancelled) report.lisd.cancelledSkipped++;
@@ -180,7 +187,9 @@ export function mergeEventSources({ prev, results, civic = [], now }) {
     if (dup) report.lisd.civicDuplicates++;
     return !dup;
   });
-  const deduped = dedupe(notCivic, { keyOf: (e) => e.id });
+  // Occurrence identity across both feeds: UID + RECURRENCE-ID (occurrenceKey),
+  // falling back to the record ID. District wins over campus (feed order).
+  const deduped = dedupe(notCivic, { keyOf: (e) => (typeof e.occurrenceKey === 'string' && e.occurrenceKey !== '' ? `occ:${e.occurrenceKey}` : e.id) });
   report.lisd.duplicateIds = deduped.duplicates.length;
   lisd = deduped.items;
 
