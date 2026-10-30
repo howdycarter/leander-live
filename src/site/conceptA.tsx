@@ -11,12 +11,12 @@ import {
   CalendarSearch,
   Heart,
   MapPin,
-  Search,
   Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ALL_EVENTS, ALL_JOBS, CompanyMark, EventCard, formatPay, inRange, type EventItem, type JobItem } from "./content";
 import { useSavedEvents } from "./state";
+import { UpliftSearch } from "./upliftSearch";
 
 /* ================================================================
    Concept A — "Bright & Bold" design system.
@@ -97,22 +97,16 @@ export function HomeHero() {
           }}
           role="search"
         >
-          <div className="relative">
-            <Search
-              className="absolute left-5 top-1/2 h-5 w-5 -translate-y-1/2 text-stone-400"
-              aria-hidden="true"
-            />
-            <input
-              type="search"
+          <div className="uplift-hero-search">
+            <UpliftSearch
               value={q}
-              onChange={(e) => setQ(e.target.value)}
+              onValueChange={setQ}
               placeholder="Search events, places, or categories…"
-              aria-label="Search Leander events"
-              className="h-14 w-full rounded-full border-0 bg-white/95 pl-12 pr-32 text-[15px] text-stone-900 shadow-xl placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-400"
+              label="Search Leander events"
             />
             <Button
               type="submit"
-              className="absolute right-1.5 top-1/2 h-11 -translate-y-1/2 rounded-full bg-gold px-6 font-bold text-navy hover:bg-gold/85"
+              className="h-11 shrink-0 rounded-full bg-gold px-6 font-bold text-navy hover:bg-gold/85"
             >
               Search
             </Button>

@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { trackEvent } from "./analytics";
+import { UpliftSearch } from "./upliftSearch";
 import { downloadEventIcs } from "./ics";
 import { eventDateLabel, eventTimeLabel, isStillListed } from "./eventTime";
 import type { Business, Job, LiveEvent } from "../data/types";
@@ -510,12 +511,13 @@ export function EventCard({
   const rawBlurb = event.blurb ?? event.description;
   const blurb = rawBlurb && !isBoilerplateText(rawBlurb) ? plainText(rawBlurb) : null;
   return (
-    <article
+    <Card
       className={cn(
-        "group relative flex gap-3 overflow-hidden rounded-2xl border border-border bg-card p-3 pl-4 shadow-[0_1px_2px_rgba(22,50,79,0.07)] transition-shadow hover:shadow-md",
+        "uplift-event-card group relative overflow-hidden rounded-2xl border border-border bg-card shadow-[0_1px_2px_rgba(22,50,79,0.07)] transition-shadow hover:shadow-md",
         className,
       )}
     >
+      <CardContent className="flex gap-3 p-3 pl-4">
       <span
         aria-hidden="true"
         className="absolute inset-y-0 left-0 w-1"
@@ -575,11 +577,12 @@ export function EventCard({
           <p className="mt-0.5 line-clamp-1 text-[13px] text-muted-foreground">{blurb}</p>
         )}
       </div>
-    </article>
+      </CardContent>
+    </Card>
   );
 }
 
-/* Filter pill built on the shadcn Button primitive: the default (active) /
+/* Filter pill built on the genuine UIARC Button primitive: the default (active) /
    outline (inactive) variants carry the color story, with pill overrides
    for the mockup look (rounded-full, auto height, cream-theme borders). */
 export function FilterPill({
@@ -620,17 +623,12 @@ export function FeedFilters({
 }) {
   return (
     <div className="mb-5 flex flex-col gap-3">
-      <div className="relative">
-        <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          type="search"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search events, places, or categories…"
-          aria-label="Search events"
-          className="h-11 rounded-full bg-card pl-11 shadow-sm"
-        />
-      </div>
+      <UpliftSearch
+        value={query}
+        onValueChange={setQuery}
+        placeholder="Search events, places, or categories…"
+        label="Search events"
+      />
 
       {/* Desktop filter row */}
       <div className="hidden items-center gap-2 md:flex" role="group" aria-label="Filter events">

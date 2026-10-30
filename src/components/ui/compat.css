@@ -1,0 +1,20 @@
+/* Composition glue only; all callsite Tailwind overrides live in utilities above this layer. */
+@layer components {
+  .arc-button-compat { text-decoration: none; }
+  .arc-button-compat svg { width: 1rem; height: 1rem; flex: none; }
+  .arc-composed-card > div { padding: 0; }
+  .arc-select-compat { display: contents; }
+  /* Preserve the original visible labels; UIARC's internal label still names the control. */
+  .arc-select-compat > div > label { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .arc-dialog-compat > div:first-child { padding: 0; border: 0; }
+  .arc-dialog-compat > div:nth-child(2) { padding: 0; margin-top: 1rem; }
+  .arc-dialog-heading { min-width: 0; flex: 1; }
+  .arc-dialog-body { display: grid; gap: 1rem; }
+  .arc-dialog-compat > div:first-child > button { position: absolute; right: 1rem; top: 1rem; width: 1rem; height: 1rem; margin: 0; border: 0; border-radius: var(--radius-sm); background: transparent; opacity: .7; }
+  .arc-dialog-compat > div:first-child > button:hover { opacity: 1; }
+  .arc-alert-compat > span:first-child { width: 1rem; height: 1rem; }
+  .arc-alert-compat p { margin-top: 0; font-size: .875rem; line-height: 1.5; }
+  .arc-checkbox-compat > span { width: 1rem; height: 1rem; border-color: var(--color-primary); border-radius: var(--radius-sm); }
+  .arc-checkbox-compat > span > span { background: var(--color-primary); }
+  .arc-checkbox-compat > span > svg { width: 1rem; height: 1rem; }
+}
