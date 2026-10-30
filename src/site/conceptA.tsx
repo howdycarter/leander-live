@@ -14,9 +14,10 @@ import {
   Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { ALL_EVENTS, ALL_JOBS, CompanyMark, EventCard, formatPay, inRange, type EventItem, type JobItem } from "./content";
+import { ALL_EVENTS, ALL_JOBS, CompanyMark, EventCard, plainText, inRange, type EventItem, type JobItem } from "./content";
 import { useSavedEvents } from "./state";
 import { UpliftSearch } from "./upliftSearch";
+import { ListingStatus } from "./sourceStatus";
 
 /* ================================================================
    Concept A — "Bright & Bold" design system.
@@ -123,7 +124,7 @@ export function HomeHero() {
             <strong className="font-display text-lg text-white">
               {ALL_JOBS.length}
             </strong>{" "}
-            local jobs
+            collected job listings
           </span>
           <Link to="/events" className="font-semibold text-gold hover:underline">
             Browse everything <ArrowRight className="inline h-4 w-4" />
@@ -279,7 +280,7 @@ export function JobsPreview() {
             Jobs in Leander
           </h2>
           <p className="mt-1.5 text-[15px] text-stone-600">
-            Local work, right here in town — posted by Leander employers.
+            Collected local job listings — confirm current openings with the employer.
           </p>
         </div>
         <Button asChild variant="link" className="h-auto px-0 font-semibold text-primary">
@@ -318,9 +319,10 @@ export function JobsPreview() {
                 </span>
                 {job.payRange && (
                   <span className="mt-0.5 block text-[13px] font-extrabold text-navy">
-                    {formatPay(job.payRange)}
+                    {plainText(job.payRange)}
                   </span>
                 )}
+                <ListingStatus item={job} compact />
               </span>
               <ArrowRight className="h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
             </Link>
@@ -419,8 +421,8 @@ export function BusinessCtaBand() {
               Put your business in front of the whole town.
             </h2>
             <p className="max-w-xl text-[15px] text-white/80">
-              Featured listings, sponsored events, and AI-qualified service leads —
-              priced for local businesses, not agencies.
+              Ask about proposed featured listings, sponsored events, and job
+              placements. Rates and availability need confirmation.
             </p>
             <div className="flex flex-wrap gap-3">
               <Button
@@ -512,12 +514,13 @@ export function FeaturedEvents({
         <Card className="border-dashed border-border">
           <CardContent className="p-8 text-center text-sm text-stone-600">
             Nothing in “{chip}” right now —{" "}
-            <button
-              className="font-semibold text-primary underline"
+            <Button
+              variant="link"
+              className="h-auto p-0 font-semibold text-primary underline"
               onClick={() => setChip("All")}
             >
               show everything
-            </button>
+            </Button>
             .
           </CardContent>
         </Card>

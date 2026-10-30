@@ -71,5 +71,9 @@
     "src/site/ics.ts": "22641ca4eddf45a654b428a736908a3d728178fdd8b1686319898cdb6bc15650",
     "src/site/pages.tsx": "ee09d4edc8e972e5ba537b27587d5cc84ecfe0f94df4ceb2035ff101988cd224",
     "src/site/state.tsx": "d2e2ff5573c98e7eef61be7e264f89646d4a0aadc332d7b1d797e1f5179f6424"
+  },
+  "presentationExceptions": {
+    "src/site/chrome.tsx": "Truthful route metadata and genuine UIARC footer action; original logo, navigation destinations and chrome classes guarded separately.",
+    "src/site/pages.tsx": "Source-status disclosure and advertising honesty; original route tree, photography, hero identities and section layout guarded separately."
   }
 }

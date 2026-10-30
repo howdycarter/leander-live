@@ -28,6 +28,7 @@ import {
 import { downloadEventIcs } from "./ics";
 import { useSavedEvents } from "./state";
 import { trackEvent } from "./analytics";
+import { ListingStatus } from "./sourceStatus";
 import { buildEventJsonLd } from "./eventJsonLd";
 
 function eventImage(event: EventItem) {
@@ -274,8 +275,9 @@ export function EventDetailPage() {
                         </Button>
                       )}
                     </div>
+                    <ListingStatus item={event} />
                     <p className="text-center text-xs text-muted-foreground">
-                      Free to attend unless noted. Details subject to change — check the
+                      Check the official page for admission and fees. Details subject to change — check the
                       official page before you head out.
                     </p>
                   </CardContent>

@@ -143,13 +143,14 @@ function Footer() {
             <FooterLink to="/reminders">Get reminders</FooterLink>
             <FooterLink to="/advertise">Advertise</FooterLink>
             <li>
-              <button
+              <Button
                 type="button"
+                variant="link"
                 onClick={openSubmit}
-                className="inline-block py-1 text-left text-[15px] text-white/80 hover:text-white"
+                className="h-auto justify-start rounded-none px-0 py-1 text-left text-[15px] text-white/80 hover:text-white"
               >
                 Submit an event
-              </button>
+              </Button>
             </li>
           </ul>
         </nav>
@@ -255,7 +256,7 @@ export function ScrollToTop() {
 /* ---------------- per-route title & description ---------------- */
 
 const DEFAULT_DESCRIPTION =
-  "A real-time community events board for Leander, Texas. Browse local events or submit your own.";
+  "A community events board for Leander, Texas. Browse local events or submit your own.";
 
 const ROUTE_META: Record<string, { title: string; description: string }> = {
   "/": {
@@ -270,12 +271,12 @@ const ROUTE_META: Record<string, { title: string; description: string }> = {
   "/jobs": {
     title: "Jobs in Leander, TX — Leander Live",
     description:
-      "Local jobs posted by Leander employers — full-time, part-time, and contract work in Leander, Texas.",
+      "Collected Leander job listings — verify current openings directly with the employer.",
   },
   "/businesses": {
     title: "Businesses in Leander, TX — Leander Live",
     description:
-      "The Leander business directory — restaurants, shops, salons, services, and new openings, built from official Texas sales-tax permit records and refreshed twice daily.",
+      "The Leander business directory — restaurants, shops, salons, services, and new openings, built from official Texas sales-tax permit records — confirm details with each business.",
   },
   "/city-hall": {
     title: "City Hall — Leander Live",
@@ -285,7 +286,7 @@ const ROUTE_META: Record<string, { title: string; description: string }> = {
   "/community": {
     title: "For Businesses — Leander Live",
     description:
-      "Put your business in front of Leander — featured listings, sponsored events, and qualified local leads from the community board.",
+      "Put your business in front of Leander — inquiries about featured listings and sponsored events on the community board.",
   },
   "/reminders": {
     title: "Event Reminders — Leander Live",
@@ -300,7 +301,7 @@ const ROUTE_META: Record<string, { title: string; description: string }> = {
   "/advertise": {
     title: "Advertise — Leander Live",
     description:
-      "Featured placements and AI-qualified service leads for Leander businesses, priced for local businesses — not agencies.",
+      "Ask about proposed featured placements for Leander businesses. Pricing and availability require written confirmation; no online checkout.",
   },
   "/privacy": {
     title: "Privacy Policy — Leander Live",

@@ -7,16 +7,17 @@ import {renderToStaticMarkup} from 'react-dom/server';
 import {createServer} from 'vite';
 import {load} from 'cheerio';
 import postcss from 'postcss';
-let server,router,state,pages,content,concept;
+let server,router,state,pages,content,concept,sourceStatus,chrome;
 before(async()=>{
  server=await createServer({server:{middlewareMode:true},optimizeDeps:{noDiscovery:true,include:[]},appType:'custom',resolve:{alias:{'react-router-dom':new URL('../node_modules/react-router-dom/dist/index.mjs',import.meta.url).pathname}},ssr:{resolve:{conditions:['module-sync','import']}}});
- [router,state,pages,content,concept]=await Promise.all(['/node_modules/react-router-dom/dist/index.mjs','/src/site/state.tsx','/src/site/pages.tsx','/src/site/content.tsx','/src/site/conceptA.tsx'].map(p=>server.ssrLoadModule(p)));
+ [router,state,pages,content,concept,sourceStatus,chrome]=await Promise.all(['/node_modules/react-router-dom/dist/index.mjs','/src/site/state.tsx','/src/site/pages.tsx','/src/site/content.tsx','/src/site/conceptA.tsx','/src/site/sourceStatus.tsx','/src/site/chrome.tsx'].map(p=>server.ssrLoadModule(p)));
 });
 after(async()=>{await server?.close()});
 function render(Component,url='/'){return renderToStaticMarkup(h(router.MemoryRouter,{initialEntries:[url]},h(state.SavedEventsProvider,null,h(state.SiteActionsProvider,null,h(Component)))));}
 test('all original photography/logo assets, routes, data and feed protections remain byte-identical',async()=>{
- const {sha256}=JSON.parse(await fs.readFile(new URL('../scripts/lib/fixtures/uiarc-preserved-files.json',import.meta.url),'utf8'));
- for(const [name,expected] of Object.entries(sha256))assert.equal(createHash('sha256').update(await fs.readFile(new URL('../'+name,import.meta.url))).digest('hex'),expected,name);
+ const {sha256,presentationExceptions}=JSON.parse(await fs.readFile(new URL('../scripts/lib/fixtures/uiarc-preserved-files.json',import.meta.url),'utf8'));
+ assert.deepEqual(Object.keys(presentationExceptions).sort(),['src/site/chrome.tsx','src/site/pages.tsx']);
+ for(const [name,expected] of Object.entries(sha256).filter(([name])=>!presentationExceptions[name]))assert.equal(createHash('sha256').update(await fs.readFile(new URL('../'+name,import.meta.url))).digest('hex'),expected,name);
 });
 test('home preserves original hero identity, headline, tagline and imagery',()=>{
  const $=load(render(pages.HomePage));
@@ -82,4 +83,72 @@ test('production distribution includes the complete authentic Arc MIT notice',as
  const notice=await fs.readFile(new URL('../dist/third-party-notices.txt',import.meta.url),'utf8');
  assert.ok(notice.includes(license));assert.match(notice,/Copyright \(c\) 2026 Elia Kuratli/);
  const html=await fs.readFile(new URL('../dist/index.html',import.meta.url),'utf8');assert.match(html,/rel="license" href="\/third-party-notices.txt"/);
+});
+
+
+test('chrome retains the original logo, mobile navigation and desktop destinations',()=>{
+ const $=load(render(chrome.SiteLayout));
+ assert.equal($('header img').attr('src'),'/brand/logo-leander-live.png');
+ assert.equal($('footer img').attr('src'),'/brand/logo-leander-live.png');
+ assert.deepEqual($('nav[aria-label=Mobile] a').map((_,e)=>$(e).attr('href')).get(),['/','/events','/jobs','/events?saved=1','/about']);
+ assert.deepEqual($('header nav a').map((_,e)=>$(e).attr('href')).get(),['/events','/jobs','/businesses','/city-hall','/community','/about']);
+ assert.match($('header').attr('class'),/sticky top-0/);
+ assert.match($('footer').attr('class'),/bg-navy/);
+ assert.match($('footer button').attr('class'),/arc-button-compat/);
+});
+
+test('truthful source states do not infer paused or fresh from absent/null metadata',()=>{
+ for(const [company,id] of [['City of Leander','governmentjobs-city-of-leander'],['Williamson County','governmentjobs-williamson-county'],['Leander ISD','lisd-applitrack-jobs']])assert.equal(sourceStatus.sourceStatusFor({company}).id,id);
+ assert.equal(sourceStatus.sourceStatusFor({source:'applitrack'}).id,'lisd-applitrack-jobs');
+ assert.equal(sourceStatus.sourceStatusFor({source:'city-calendar'}).id,'leandertx-city-calendar');
+ assert.equal(sourceStatus.sourceStatusFor({id:'lisd-board-example'}).id,'lisd-board-agendas');
+ assert.equal(sourceStatus.sourceStatusFor({source:'leandertx-city-news'}).id,'leandertx-city-news');
+ for(const source of ['chamber','civicclerk','texas-permits','anchor'])assert.equal(sourceStatus.sourceStatusFor({source}),undefined);
+ assert.doesNotMatch(sourceStatus.statusText(),/paused|refreshed/);
+ assert.match(sourceStatus.statusText(sourceStatus.sourceStatusFor({company:'Leander ISD'})),/Source paused · Historical listing · Last successful update unknown/);
+ assert.match(sourceStatus.statusText({state:'failed',lastSuccessAt:null}),/Latest refresh failed/);
+ assert.equal(sourceStatus.statusText({state:'ok',lastSuccessAt:null}),'Last successful refresh unknown');
+ assert.equal(sourceStatus.statusText({state:'ok',lastSuccessAt:'invalid'}),'Last successful refresh unknown');
+ assert.equal(sourceStatus.statusText({state:'ok',lastSuccessAt:'2026-10-30T01:00:00Z'}),'Source refreshed Oct 29, 2026');
+});
+
+test('historical jobs retain original source pay, without guessing a salary period',()=>{
+ const job=content.ALL_JOBS.find(j=>j.title.includes('Chief of Police'));assert.ok(job);
+ const $=load(render(()=>h(content.JobRow,{job,onSelect(){}})));
+ assert.ok($.text().includes(content.plainText(job.payRange)));
+ assert.doesNotMatch($.text(),/150062\/hr|150,062\/hr/);
+ assert.match($.text(),/Source paused · Historical listing/);
+ assert.match($('button').attr('class'),/arc-button-compat/);
+ const home=render(concept.JobsPreview);assert.ok(home.includes(content.plainText(job.payRange)));
+ const board=render(content.JobsBoard);assert.match(board,/Some source updates are paused/);assert.match(board,/collected listings/);
+});
+
+test('events expose reviewed status without changing original hero and card identity',()=>{
+ const event=content.ALL_EVENTS.find(e=>e.source==='city-calendar');assert.ok(event);
+ const html=render(()=>h(content.EventCard,{event,saved:false,onToggleSaved(){}}));
+ assert.match(html,/Source paused · Historical listing/);
+ assert.match(render(pages.EventsPage,'/events'),/Some source updates are paused/);
+});
+
+
+test('reminder cards use the same all-day date/time helpers as event cards',async()=>{
+ const source=await fs.readFile(new URL('../src/site/content.tsx',import.meta.url),'utf8');
+ const reminders=source.slice(source.indexOf('export function RemindersContent'),source.indexOf('/* ---------------- lead forms'));
+ assert.match(reminders,/eventDateLabel\(event, \{ withYear: true \}\)\} · \{eventTimeLabel\(event\)/);
+ assert.doesNotMatch(reminders,/formatTime\(event.startsAt\)/);
+});
+
+
+test('initial and built HTML descriptions do not claim real-time updates',async()=>{
+ for(const path of ['../index.html','../dist/index.html']){
+  const $=load(await fs.readFile(new URL(path,import.meta.url),'utf8'));
+  assert.equal($('meta[name=description]').attr('content'),'A community events board for Leander, Texas. Browse local events or submit your own.');
+ }
+});
+
+test('city news publisher labels match each destination, including local editorial',()=>{
+ const $=load(render(pages.CityHallPage,'/city-hall'));
+ const union=$('a[href="https://www.leanderunion.com/"]');
+ assert.equal(union.length,1);assert.match(union.text(),/Read on leanderunion.com/);assert.doesNotMatch(union.text(),/Read on leandertx.gov|Source paused/);
+ for(const el of $('a[href*="CivicAlerts.aspx"]').toArray())assert.match($(el).text(),/Read on leandertx.gov/);
 });

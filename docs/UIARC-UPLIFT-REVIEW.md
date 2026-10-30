@@ -1,4 +1,26 @@
-# Preservation-first UIARC uplift: source review checkpoint
+# Preservation-first UIARC uplift: review log
+
+## Current checkpoint (2026-10-30)
+
+The historical source-only gate below was independently reviewed and published as draft [PR19](https://github.com/howdycarter/leander-live/pull/19), head `69d04599073db67d6262e35b81a7f71de158ca40`, tree `f1d54b19340e1b1079ebb94a00ad32eb7e6b4e47`. An explicitly authorized, separate preview is READY at https://leander-live-9s4tc662p-howdycarter.vercel.app/ (`dpl_DTgicnN3cJmXLtSdXPzvtG6QHgCu`, preview target, no aliases). Production is unchanged. The old replacement PR16 remains separate.
+
+Actual desktop/narrow visual evidence and the precise tested/not-run matrix are in `UIARC-PREVIEW-QA.md`. These observations supersede only the initial checkpoint's “NOT RUN” status; they do **not** approve the later source corrections for release.
+
+### Subsequent source-only release corrections
+
+- Read-only source-status presentation consumes the reviewed flat metadata, maps only known sources, and never treats missing status or null last-success as fresh. Compact historical/paused notes retain existing card and row layouts; full notes appear on details, with UIARC Alert notices on events/jobs/civic pages. No source activation or data edits.
+- Salary presentation uses the exact source text (HTML-decoded), without inventing hourly/annual units. The pre-existing formatter remains untouched but is no longer used by job presentation.
+- Reminder cards use the same reviewed all-day date/time helpers. Shared date, ICS and JSON-LD modules remain untouched.
+- Three advertising rates are clearly proposed, not confirmed offers. Service leads are unavailable. Unsupported checkout, reservation, exclusivity, automated lead/newsletter and freshness claims are removed; all Stripe URLs stay empty and no checkout branch can activate accidentally.
+- Existing event/job/business forms prepare an email draft only, retain fields, provide explicit not-sent messaging and copy/manual fallback. Event datetime is explicitly Central. No sending backend, storage of visitor details, payment or fulfillment is added. Copy completion is bound to the exact draft/context generation and invalidated on edits, re-preparation and unmount; a shared lock prevents older pending writes from overwriting a newer copied draft. Deferred-promise regressions cover all three form hookups.
+- The four remaining native action surfaces now use the existing genuine UIARC Button adapter, retaining their original layout and semantics. Job/business row buttons use the adapter's documented asChild styling composition to avoid introducing animated label wrappers around multi-line rows. Unused historical component files remain untouched and are not claimed migrated.
+- The original 70-file baseline hashes are retained as evidence. Only `chrome.tsx` and `pages.tsx` have explicit presentation exceptions for the above safety wording/components; separate structural assertions guard logo, desktop/mobile navigation, page identity, section order and routes. Asset/data/feed/date hashes and original import-boundary tests remain unchanged. New files are included in Git's tracked view before final tests.
+
+The source corrections require independent review and a new exact-head preview before runtime claims can cover them. No production release is authorized by the screenshots alone.
+
+---
+
+## Historical first gate
 
 ## User direction and boundaries
 
