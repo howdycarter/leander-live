@@ -152,6 +152,16 @@ test('events expose reviewed status without changing original hero and card iden
  assert.match(render(pages.EventsPage,'/events'),/Some source updates are paused/);
 });
 
+test('events, jobs and civic listing freshness banners are static accessible notes',()=>{
+ for(const [Page,url] of [[pages.EventsPage,'/events'],[pages.JobsPage,'/jobs'],[pages.CityHallPage,'/city-hall']]){
+  const $=load(render(Page,url));const banner=$('[aria-label="Listing freshness"]');
+  assert.equal(banner.length,1,url);assert.equal(banner.attr('role'),'note',url);
+  assert.equal(banner.attr('aria-live'),undefined,url);
+  assert.equal(banner.find('[role="alert"],[role="status"],[aria-live]').length,0,url);
+  assert.match(banner.text(),/Some source updates are paused/);
+ }
+});
+
 
 test('reminder cards use the same all-day date/time helpers as event cards',async()=>{
  const source=await fs.readFile(new URL('../src/site/content.tsx',import.meta.url),'utf8');

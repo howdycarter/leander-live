@@ -35,7 +35,7 @@ Seven vendored files are byte-for-byte upstream; ten CSS modules differ only by 
 - **Card:** optional generated title, omitted when the caller composes its own heading. The actual UIARC surface and hover/reduced-motion implementation remain in use.
 - **Checkbox:** do not replace an external label's meaningful accessible name with the upstream generic “Checkbox” fallback. An explicit `aria-label` still works.
 - **DialogContent:** an optional React header slot supports existing rich title/description content while retaining UIARC's portal, motion, focus trap, Escape dismissal and outside-pointer handling.
-- **Alert:** optional title and icon let existing confirmation messages retain their original copy and supplied icon without adding an invented heading. The actual UIARC alert layout and presence behavior remain in use.
+- **Alert:** optional title and icon let existing confirmation messages retain their original copy and supplied icon without adding an invented heading. An explicit caller `role` is honored, so static listing-freshness banners retain `role="note"` without a live-region role; absent an override, the original `danger` → `alert` and other tones → `status` defaults remain. The actual UIARC alert layout and presence behavior remain in use.
 
 Other adapters:
 
@@ -49,7 +49,7 @@ Existing unused avatar, dropdown-menu, sheet, skeleton, table and tabs files/dep
 
 ## Verification and boundaries
 
-- `npm run test:uiarc`: eight focused SSR compatibility checks (buttons, semantic links, card headings, external/internal labels, checkbox naming, Select mapping, and closed Dialog state).
+- `npm run test:uiarc`: eleven focused SSR compatibility checks (buttons, semantic links, card headings, external/internal labels, checkbox naming, Select mapping, closed Dialog state, and Alert defaults/caller-controlled non-live and live semantics across presence paths).
 - `npm run build`: TypeScript plus production Vite build.
 - Existing feed/parser/date and listing validation tests are untouched.
 - SSR/source checks establish component structure and CSS layer precedence, **not** visual fidelity or full keyboard/browser behavior. Browser/native actions were not performed in this source-only task.

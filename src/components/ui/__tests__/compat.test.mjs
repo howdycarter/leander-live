@@ -4,12 +4,13 @@ import { fileURLToPath } from 'node:url';
 import { createElement as h } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { createServer } from 'vite';
+import { load } from 'cheerio';
 
 let server;
 const components = {};
 before(async () => {
   server = await createServer({ root: fileURLToPath(new URL('../../../../', import.meta.url)), server: { middlewareMode: true }, optimizeDeps: { noDiscovery: true, include: [] }, appType: 'custom' });
-  for (const name of ['button', 'card', 'input', 'textarea', 'checkbox', 'select', 'badge', 'dialog']) {
+  for (const name of ['button', 'card', 'input', 'textarea', 'checkbox', 'select', 'badge', 'dialog', 'alert']) {
     Object.assign(components, await server.ssrLoadModule(`/src/components/ui/${name}.tsx`));
   }
 });
@@ -87,4 +88,36 @@ test('controlled closed dialogs render no interactive overlay', () => {
       h('button', null, 'Send email'))));
   assert.doesNotMatch(html, /role="dialog"/);
   assert.doesNotMatch(html, /Send email/);
+});
+
+test('alerts keep their tone-based live roles when no caller role is supplied', () => {
+  for (const [tone, role] of [['info', 'status'], ['success', 'status'], ['warning', 'status'], ['danger', 'alert']]) {
+    const $ = load(renderToStaticMarkup(h(components.Alert, { tone }, 'Update')));
+    assert.equal($('.arc-alert-compat').attr('role'), role, tone);
+  }
+  const $ = load(renderToStaticMarkup(h(components.Alert, { variant: 'destructive' }, 'Action failed')));
+  assert.equal($('.arc-alert-compat').attr('role'), 'alert');
+});
+
+test('explicit static note roles survive every alert tone and presence path', () => {
+  for (const tone of ['info', 'success', 'warning', 'danger']) {
+    for (const presence of [{}, { open: true }, { onDismiss() {} }]) {
+      const $ = load(renderToStaticMarkup(h(components.Alert, { tone, role: 'note', 'aria-label': 'Listing freshness', ...presence }, 'Collected listings')));
+      const note = $('.arc-alert-compat');
+      assert.equal(note.attr('role'), 'note', tone + ' ' + Object.keys(presence));
+      assert.equal(note.attr('aria-label'), 'Listing freshness');
+      assert.equal(note.attr('aria-live'), undefined);
+      assert.equal($('[role="status"], [role="alert"], [aria-live]').length, 0);
+    }
+  }
+});
+
+test('explicit live-region attributes and caller roles remain caller-controlled', () => {
+  for (const props of [{ role: 'note', 'aria-live': 'off' }, { role: 'alert', 'aria-live': 'assertive', 'aria-atomic': true }]) {
+    const $ = load(renderToStaticMarkup(h(components.Alert, props, 'Caller-defined semantics')));
+    const alert = $('.arc-alert-compat');
+    assert.equal(alert.attr('role'), props.role);
+    assert.equal(alert.attr('aria-live'), props['aria-live']);
+    if (props['aria-atomic']) assert.equal(alert.attr('aria-atomic'), 'true');
+  }
 });
