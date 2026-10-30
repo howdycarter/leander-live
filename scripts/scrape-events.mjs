@@ -11,6 +11,7 @@
  */
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { parseLisdIcs, feedUrl } from "./lib/ics.mjs";
+import { deriveBlurb } from "./lib/blurb.mjs";
 import { mergeEventSources, lisdRecordToEvent, lisdSourceResult } from "./lib/events-merge.mjs";
 import { recordStatus, runGated } from "./lib/source-status-file.mjs";
 import { fileURLToPath } from "node:url";
@@ -62,26 +63,6 @@ function mapCategory(text, fallback) {
   if (/(hike|trail|run |5k|marathon|golf|fishing|kayak|paddle|park|camping|outdoor|nature|bike|cycling)/.test(t)) return "Outdoors";
   if (/(workshop|class|training|course|seminar|education|learn|lecture|book club|library|stem)/.test(t)) return "Learn";
   return fallback || "Community";
-}
-
-const BOILERPLATE_DESC_RE = /see the (City of Leander|Leander Chamber of Commerce) calendar for details/i;
-
-/**
- * Card blurb: neither source publishes a short hook, so derive one
- * mechanically from the event's own description — its first sentence,
- * clamped. Never invented copy; events whose only text is the boilerplate
- * placeholder get no blurb.
- */
-function deriveBlurb(ev) {
-  if (ev.blurb && String(ev.blurb).trim()) return;
-  const desc = (ev.description || "").replace(/\s+/g, " ").trim();
-  if (desc.length < 60 || BOILERPLATE_DESC_RE.test(desc)) return;
-  const firstSentence = (desc.match(/^[^.!?]+[.!?]+/) || [desc])[0].trim();
-  let blurb = firstSentence.length >= 40 ? firstSentence : desc;
-  if (blurb.length > 140) {
-    blurb = blurb.slice(0, 140).replace(/\s+\S*$/, "").trim() + "…";
-  }
-  if (blurb) ev.blurb = blurb;
 }
 
 function loadPrevious() {
