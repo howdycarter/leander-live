@@ -1,245 +1,26 @@
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import {
-  Briefcase,
-  CalendarDays,
-  Heart,
-  House,
-  Menu,
-  Plus,
-  type LucideIcon,
-} from "lucide-react";
-import { cn } from "@/lib/utils";
-import { useSiteActions } from "./state";
-import { trackEvent } from "./analytics";
-import { ALL_EVENTS } from "./content";
+import { ArrowUpRight, BriefcaseBusiness, CalendarDays, Heart, House, Menu, Search, Store, X } from "lucide-react";
+import { ALL_BUSINESSES, ALL_EVENTS, ALL_JOBS } from "./content";
 
-/* ---------------- brand ---------------- */
-
-export function BrandLockup({ className = "h-10" }: { className?: string }) {
-  return (
-    <Link to="/" className="flex shrink-0 items-center" aria-label="Leander Live home">
-      <img
-        src="/brand/logo-leander-live.png"
-        alt="Leander Live — People, Places, Opportunities"
-        className={cn(className, "w-auto")}
-      />
-    </Link>
-  );
+export function BrandLockup({ className = "" }: { className?: string }) {
+  return <Link to="/" className={`brand-lockup ${className}`} aria-label="Leander Live home"><span className="brand-word">leander<span className="brand-live">live</span><span className="brand-dot" aria-hidden="true">.</span></span><span className="brand-subtitle">A little more local.</span></Link>;
 }
-
-/* ---------------- header ---------------- */
-
-const NAV_LINKS = [
-  { to: "/events", label: "Events" },
-  { to: "/jobs", label: "Jobs" },
-  { to: "/businesses", label: "Businesses" },
-  { to: "/city-hall", label: "City Hall" },
-  { to: "/community", label: "Community" },
-  { to: "/about", label: "About" },
-];
-
+const NAV_LINKS = [{ to: "/events", label: "Events" }, { to: "/jobs", label: "Jobs" }, { to: "/businesses", label: "Businesses" }, { to: "/city-hall", label: "City Hall" }];
 function Header() {
-  const { openSubmit } = useSiteActions();
-  return (
-    <header className="sticky top-0 z-40 border-b border-border bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/85">
-      <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-3 px-4">
-        <BrandLockup className="h-9" />
-        {/* Nav appears at md (768px), not lg: the bottom TabBar is md:hidden,
-            so gating the header nav to lg left 768–1023px viewports
-            (unfolded foldables, small tablets) with no navigation at all. */}
-        <nav className="hidden items-center gap-3 text-sm font-semibold md:flex lg:gap-6 lg:text-[15px]" aria-label="Primary">
-          {NAV_LINKS.map(({ to, label }) => (
-            <NavLink
-              key={to}
-              to={to}
-              className={({ isActive }) =>
-                cn(
-                  "py-2",
-                  isActive
-                    ? "text-navy underline decoration-gold decoration-[3px] underline-offset-8"
-                    : "text-foreground/60 hover:text-navy",
-                )
-              }
-            >
-              {label}
-            </NavLink>
-          ))}
-        </nav>
-        <div className="flex items-center gap-2">
-          <Button
-            onClick={() => {
-              trackEvent("submit_event_opened");
-              openSubmit();
-            }}
-            className="rounded-full px-4 font-bold"
-          >
-            <Plus className="h-4 w-4" />
-            <span className="hidden sm:inline">Submit Event</span>
-            <span className="sm:hidden">Submit</span>
-          </Button>
-        </div>
-      </div>
-    </header>
-  );
+  const [open, setOpen] = useState(false);
+  const menuButton = useRef<HTMLButtonElement>(null);
+  const location = useLocation();
+  useEffect(() => { setOpen(false); }, [location.pathname, location.search]);
+  useEffect(() => { if (!open) return; const close = (event: KeyboardEvent) => { if (event.key === "Escape") { setOpen(false); menuButton.current?.focus(); } }; document.addEventListener("keydown", close); return () => document.removeEventListener("keydown", close); }, [open]);
+  return <header className="site-header"><div className="shell header-inner"><BrandLockup /><nav className="desktop-nav" aria-label="Primary">{NAV_LINKS.map(({ to, label }) => <NavLink key={to} to={to}>{label}</NavLink>)}</nav><div className="header-actions"><Link className="header-icon" to="/search" aria-label="Search Leander Live"><Search size={20} /></Link><Link className="header-saved" to="/events?saved=1" aria-label="Saved events"><Heart size={19} /></Link><Button asChild className="header-submit"><Link to="/submit">Add a listing <ArrowUpRight size={16} /></Link></Button><Button ref={menuButton} className="menu-toggle" variant="ghost" size="icon" onClick={() => setOpen(!open)} aria-expanded={open} aria-controls="mobile-menu" aria-label={open ? "Close navigation" : "Open navigation"}>{open ? <X size={22} /> : <Menu size={22} />}</Button></div></div>{open && <nav className="mobile-menu shell" id="mobile-menu" aria-label="More navigation">{[...NAV_LINKS, { to: "/events?saved=1", label: "Saved events" }, { to: "/submit", label: "Add a listing" }, { to: "/advertise", label: "Promote locally" }, { to: "/about", label: "About Leander Live" }].map(({ to, label }) => <Link key={to} to={to}>{label}<ArrowUpRight size={16} /></Link>)}</nav>}</header>;
 }
-
-/* ---------------- footer ---------------- */
-
-function FooterLink({ to, children }: { to: string; children: React.ReactNode }) {
-  return (
-    <li>
-      <Link
-        to={to}
-        className="inline-block py-1 text-[15px] text-white/80 hover:text-white"
-      >
-        {children}
-      </Link>
-    </li>
-  );
-}
-
-function FooterHeading({ children }: { children: React.ReactNode }) {
-  return (
-    <p className="mb-2 text-xs font-bold uppercase tracking-[0.14em] text-gold">
-      {children}
-    </p>
-  );
-}
-
 function Footer() {
-  const { openSubmit } = useSiteActions();
-  return (
-    <footer className="mt-16 bg-navy text-white">
-      <div className="mx-auto grid max-w-6xl grid-cols-2 gap-x-6 gap-y-8 px-4 py-8 sm:py-12 lg:grid-cols-[1.4fr_1fr_1fr_1fr] lg:gap-10">
-        <div className="col-span-2 lg:col-span-1">
-          <span className="inline-flex rounded-xl bg-white px-2.5 py-1.5">
-            <BrandLockup className="h-9" />
-          </span>
-          <p className="mt-3 max-w-xs text-[15px] leading-relaxed text-white/75">
-            Real events, local people, a stronger Leander — one community board for
-            the whole town.
-          </p>
-          <p className="mt-3 hidden text-xs font-semibold tracking-[0.22em] text-white/50 lg:block">
-            SMALL TOWN SPIRIT. A BRIGHTER TOMORROW.
-          </p>
-        </div>
-        <nav aria-label="Explore">
-          <FooterHeading>Explore</FooterHeading>
-          <ul className="flex flex-col gap-1 font-medium">
-            <FooterLink to="/events">Events</FooterLink>
-            <FooterLink to="/jobs">Jobs</FooterLink>
-            <FooterLink to="/businesses">Businesses</FooterLink>
-            <FooterLink to="/city-hall">City Hall</FooterLink>
-            <FooterLink to="/community">Community</FooterLink>
-          </ul>
-        </nav>
-        <nav aria-label="Company">
-          <FooterHeading>Company</FooterHeading>
-          <ul className="flex flex-col gap-1 font-medium">
-            <FooterLink to="/about">About</FooterLink>
-            <FooterLink to="/reminders">Get reminders</FooterLink>
-            <FooterLink to="/advertise">Advertise</FooterLink>
-            <li>
-              <button
-                type="button"
-                onClick={openSubmit}
-                className="inline-block py-1 text-left text-[15px] text-white/80 hover:text-white"
-              >
-                Submit an event
-              </button>
-            </li>
-          </ul>
-        </nav>
-        <nav aria-label="Legal" className="col-span-2 lg:col-span-1">
-          <FooterHeading>Legal</FooterHeading>
-          <ul className="flex flex-row gap-5 font-medium lg:flex-col lg:gap-1">
-            <FooterLink to="/privacy">Privacy</FooterLink>
-          </ul>
-        </nav>
-      </div>
-      <Separator className="bg-white/15" />
-      <div className="mx-auto max-w-6xl px-4 py-3.5 text-center text-[13px] text-white/60">
-        <p>
-          © 2026 Leander Live · Built by{" "}
-          <a
-            href="https://howdycarter.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-semibold text-gold hover:underline"
-          >
-            Howdy Carter
-          </a>
-        </p>
-      </div>
-    </footer>
-  );
+  return <footer className="site-footer"><div className="shell footer-grid"><div><BrandLockup /><p>Good things happen when<br />you know your neighbors.</p><span className="footer-location">Leander, Texas</span></div><nav aria-label="Explore"><h2>Find your local</h2>{NAV_LINKS.map(({ to, label }) => <Link key={to} to={to}>{label}</Link>)}</nav><nav aria-label="Contribute"><h2>Be part of it</h2><Link to="/submit?type=event">Submit an event</Link><Link to="/submit?type=job">Post a job</Link><Link to="/submit?type=business">Add a business</Link><Link to="/advertise">Promotion options</Link></nav><nav aria-label="Information"><h2>The small print</h2><Link to="/about">About the board</Link><Link to="/reminders">Calendar help</Link><Link to="/privacy">Privacy</Link><a href="mailto:chris@howdycarter.com">Get in touch <ArrowUpRight size={13} /></a></nav></div><div className="shell footer-bottom"><p>© {new Date().getFullYear()} Leander Live · An independent community guide.</p><p>Built by <a href="https://howdycarter.com" target="_blank" rel="noopener noreferrer">Howdy Carter</a></p></div></footer>;
 }
-
-/* ---------------- mobile tab bar ---------------- */
-
-type TabDef = {
-  id: string;
-  label: string;
-  to: string;
-  Icon: LucideIcon;
-  isActive: (pathname: string, params: URLSearchParams) => boolean;
-};
-
-const TABS: TabDef[] = [
-  { id: "home", label: "Home", to: "/", Icon: House, isActive: (p) => p === "/" },
-  {
-    id: "events",
-    label: "Events",
-    to: "/events",
-    Icon: CalendarDays,
-    isActive: (p, s) => p === "/events" && s.get("saved") !== "1",
-  },
-  { id: "jobs", label: "Jobs", to: "/jobs", Icon: Briefcase, isActive: (p) => p === "/jobs" },
-  {
-    id: "saved",
-    label: "Saved",
-    to: "/events?saved=1",
-    Icon: Heart,
-    isActive: (p, s) => p === "/events" && s.get("saved") === "1",
-  },
-  { id: "more", label: "More", to: "/about", Icon: Menu, isActive: (p) => p === "/about" },
-];
-
 function TabBar() {
-  const { pathname, search } = useLocation();
-  const params = new URLSearchParams(search);
-  return (
-    <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden">
-      <nav className="grid grid-cols-5" aria-label="Mobile">
-        {TABS.map(({ id, label, to, Icon, isActive }) => {
-          const active = isActive(pathname, params);
-          return (
-            <Link
-              key={id}
-              to={to}
-              aria-current={active ? "page" : undefined}
-              className={cn(
-                "relative flex flex-col items-center gap-0.5 py-2 text-[11px] font-semibold",
-                active ? "text-navy" : "text-foreground/45",
-              )}
-            >
-              {active && (
-                <span
-                  aria-hidden="true"
-                  className="absolute inset-x-6 top-0 h-[3px] rounded-full bg-gold"
-                />
-              )}
-              <Icon className={cn("h-5 w-5", id === "saved" && active && "fill-current")} />
-              {label}
-            </Link>
-          );
-        })}
-      </nav>
-    </div>
-  );
+  return <nav className="mobile-tabs" aria-label="Quick navigation">{[{ to: "/", label: "Home", Icon: House }, { to: "/events", label: "Events", Icon: CalendarDays }, { to: "/jobs", label: "Jobs", Icon: BriefcaseBusiness }, { to: "/businesses", label: "Local", Icon: Store }].map(({ to, label, Icon }) => <NavLink end={to === "/"} to={to} key={to}><Icon size={20} aria-hidden="true" /><span>{label}</span></NavLink>)}</nav>;
 }
 
 /* ---------------- route helpers ---------------- */
@@ -255,9 +36,11 @@ export function ScrollToTop() {
 /* ---------------- per-route title & description ---------------- */
 
 const DEFAULT_DESCRIPTION =
-  "A real-time community events board for Leander, Texas. Browse local events or submit your own.";
+  "Discover local events, jobs, businesses, and city information in Leander, Texas. Find your local on Leander Live.";
 
 const ROUTE_META: Record<string, { title: string; description: string }> = {
+  "/search": { title: "Search Leander — Leander Live", description: DEFAULT_DESCRIPTION },
+  "/submit": { title: "Add a local listing — Leander Live", description: "Submit a local event, job, or business for review. Prepare your listing and send it by email." },
   "/": {
     title: "Leander Live — What's happening in Leander, TX",
     description: DEFAULT_DESCRIPTION,
@@ -275,7 +58,7 @@ const ROUTE_META: Record<string, { title: string; description: string }> = {
   "/businesses": {
     title: "Businesses in Leander, TX — Leander Live",
     description:
-      "The Leander business directory — restaurants, shops, salons, services, and new openings, built from official Texas sales-tax permit records and refreshed twice daily.",
+      "The Leander business directory — restaurants, shops, salons, services, and new openings, built from public Texas sales-tax permit records.",
   },
   "/city-hall": {
     title: "City Hall — Leander Live",
@@ -300,7 +83,7 @@ const ROUTE_META: Record<string, { title: string; description: string }> = {
   "/advertise": {
     title: "Advertise — Leander Live",
     description:
-      "Featured placements and AI-qualified service leads for Leander businesses, priced for local businesses — not agencies.",
+      "Explore proposed promotion options for Leander events, jobs, and businesses. Inquiries are reviewed by email; no online payment is collected.",
   },
   "/privacy": {
     title: "Privacy Policy — Leander Live",
@@ -327,6 +110,10 @@ export function RouteMeta() {
         if (blurb) description = blurb.slice(0, 155);
       }
     }
+    const job = pathname.startsWith("/jobs/") ? ALL_JOBS.find(item => `/jobs/${item.id}` === pathname) : undefined;
+    const business = pathname.startsWith("/businesses/") ? ALL_BUSINESSES.find(item => `/businesses/${item.id}` === pathname) : undefined;
+    if (job) { title = `${job.title} at ${job.company} — Leander Live`; description = `Explore ${job.title} with ${job.company} in ${job.location}. View details and apply with the employer.`; }
+    if (business) { title = `${business.name} — Leander Live`; description = `${business.name}, ${business.category} in Leander, Texas. View public listing details and recorded address.`; }
     document.title = title;
     const meta = document.querySelector<HTMLMetaElement>('meta[name="description"]');
     if (meta) meta.setAttribute("content", description);
@@ -352,12 +139,5 @@ export function Canonical() {
 /* ---------------- layout ---------------- */
 
 export function SiteLayout() {
-  return (
-    <div className="min-h-screen bg-background pb-20 text-foreground md:pb-0" id="top">
-      <Header />
-      <Outlet />
-      <Footer />
-      <TabBar />
-    </div>
-  );
+  return <div className="site-root" id="top"><a className="skip-link" href="#route-content">Skip to content</a><Header /><div id="route-content" tabIndex={-1}><Outlet /></div><Footer /><TabBar /></div>;
 }

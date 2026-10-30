@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { PageHero } from "./conceptA";
+import { SourceStatusBanner, ListingStatus } from "./sourceStatus";
 import { formatDate, formatTime } from "./content";
 import type { CivicMeeting, NewsItem } from "../data/types";
 import meetingsRaw from "../data/civic.json";
@@ -28,7 +29,7 @@ function MeetingCard({ meeting }: { meeting: CivicMeeting }) {
             {meeting.body}
           </Badge>
         </div>
-        <h3 className="font-display text-lg font-bold leading-snug text-navy">
+        <ListingStatus item={meeting} /><h3 className="font-display text-lg font-bold leading-snug text-navy">
           {meeting.title}
         </h3>
         <div className="flex flex-col gap-1.5 text-sm text-foreground/75">
@@ -113,7 +114,7 @@ export function CityHallPage() {
         title="City Hall"
         subtitle="Council and board meetings, agenda packets, and city news — what your local government is up to, in plain sight."
       />
-      <main className="mx-auto max-w-6xl px-4 py-6">
+      <main className="mx-auto max-w-6xl px-4 py-6"><SourceStatusBanner kind="civic" />
         {/* Upcoming meetings */}
         <section aria-label="Upcoming meetings">
           <div className="mb-4">

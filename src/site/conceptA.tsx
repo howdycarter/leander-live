@@ -39,25 +39,7 @@ export function PageHero({
   subtitle?: ReactNode;
   children?: ReactNode;
 }) {
-  return (
-    <div
-      className="relative overflow-hidden"
-      style={{ backgroundColor: NAVY }}
-      role="region"
-      aria-label={typeof title === "string" ? title : "Page header"}
-    >
-      <div className="absolute inset-0 opacity-25" aria-hidden="true">
-        <img src={SUNSET} alt="" className="h-full w-full object-cover" />
-        <div className="absolute inset-0" style={{ backgroundColor: NAVY, opacity: 0.6 }} />
-      </div>
-      <div className="relative mx-auto max-w-6xl px-4 py-5 md:py-10">
-        <p className="text-[11px] font-extrabold uppercase tracking-[0.25em] text-gold">{eyebrow}</p>
-        <h1 className="font-display mt-1.5 text-[28px] font-black leading-[1.08] tracking-tight text-white md:text-[44px]">{title}</h1>
-        {subtitle && <div className="mt-2 max-w-2xl text-[15px] text-white/80">{subtitle}</div>}
-        {children}
-      </div>
-    </div>
-  );
+  return <section className="page-intro shell"><p className="eyebrow">{eyebrow}</p><div className="page-intro-row"><div><h1>{title}</h1>{subtitle && <div className="intro-copy">{subtitle}</div>}</div></div>{children}</section>;
 }
 
 /* ---------------- homepage hero ---------------- */
