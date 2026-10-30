@@ -100,3 +100,59 @@ test('(a) blurb: double-encoded markup is fully normalized', () => {
   assert.doesNotMatch(ev.blurb, /[<>]|&[a-z#0-9]+;|href/i);
   assert.match(ev.blurb, /^Story time at the Leander Public Library/);
 });
+
+// Cancellation precedence in cross-feed dedupe (canonical key only, fixtures only).
+const merge = (district, campus, extra = {}) => mergeEventSources({
+  prev: [], now: NOW, civic: [],
+  results: [{ source: 'lisd-district', ok: true, items: district }, { source: 'lisd-campus', ok: true, items: campus }],
+  ...extra,
+});
+const lisdIds = (events) => events.filter((e) => e.source.startsWith('lisd-')).map((e) => e.id).sort();
+
+test('(e) cancellation wins: district-cancelled + campus-confirmed, same UID/RECURRENCE-ID -> nothing published', () => {
+  const { events, report } = merge(
+    [lisdEv('lisd-district', 'lisd-d1', 'uid-9@google.com#20261106', { cancelled: true })],
+    [lisdEv('lisd-campus', 'lisd-c1', 'uid-9@google.com#20261106')],
+  );
+  assert.deepEqual(lisdIds(events), []);
+  assert.equal(report.lisd.duplicateIds, 1);
+});
+
+test('(e) cancellation wins: same UID with no RECURRENCE-ID on either copy -> nothing published', () => {
+  const { events } = merge(
+    [lisdEv('lisd-district', 'lisd-d2', 'uid-8@google.com', { cancelled: true })],
+    [lisdEv('lisd-campus', 'lisd-c2', 'uid-8@google.com')],
+  );
+  assert.deepEqual(lisdIds(events), []);
+});
+
+test('(e) a cancelled occurrence does not suppress a different RECURRENCE-ID of the same UID', () => {
+  const { events } = merge(
+    [lisdEv('lisd-district', 'lisd-d3', 'uid-7@google.com#20261106', { cancelled: true })],
+    [lisdEv('lisd-campus', 'lisd-c3', 'uid-7@google.com#20261113'), lisdEv('lisd-campus', 'lisd-c4', 'uid-7@google.com')],
+  );
+  assert.deepEqual(lisdIds(events), ['lisd-c3', 'lisd-c4']);
+});
+
+test('(e) no UID/occurrenceKey -> no cross-feed suppression, even with identical title and time', () => {
+  const { events } = merge(
+    [lisdEv('lisd-district', 'lisd-d5', undefined, { cancelled: true })],
+    [lisdEv('lisd-campus', 'lisd-c5', undefined), lisdEv('lisd-campus', 'lisd-c6', '')],
+  );
+  assert.deepEqual(lisdIds(events), ['lisd-c5', 'lisd-c6']);
+});
+
+test('(e) non-LISD events are unaffected by LISD cancellations', () => {
+  const city = { id: 'city-1', source: 'city-calendar', title: 'Early release', startsAt: NOW + 2 * D, endsAt: NOW + 2 * D + H, venue: 'Leander ISD' };
+  const { events } = merge(
+    [lisdEv('lisd-district', 'lisd-d7', 'uid-6@google.com', { cancelled: true })],
+    [],
+    { prev: [city], results: [
+      { source: 'city-calendar', ok: true, items: [city] },
+      { source: 'lisd-district', ok: true, items: [lisdEv('lisd-district', 'lisd-d7', 'uid-6@google.com', { cancelled: true })] },
+      { source: 'lisd-campus', ok: true, items: [] },
+    ] },
+  );
+  assert.deepEqual(events.filter((e) => !e.source.startsWith('lisd-')).map((e) => e.id), ['city-1']);
+  assert.deepEqual(lisdIds(events), []);
+});

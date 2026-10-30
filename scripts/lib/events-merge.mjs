@@ -13,7 +13,8 @@
 // stricter rules:
 // - A failed fetch keeps that source's previous records (last good), and so
 //   does a source not fetched this run (LEANDER_ENABLE_LISD_ICS off).
-// - Cancelled occurrences are not published.
+// - Cancelled occurrences are not published. Cancellation wins across feeds:
+//   a cancelled copy suppresses every copy with the same occurrenceKey.
 // - An event expires only after it ends (endsAt is exclusive).
 // - Duplicates are found by occurrence identity only. Within LISD, that is
 //   UID plus RECURRENCE-ID (occurrenceKey), across both LISD feeds. Against
@@ -173,9 +174,19 @@ export function mergeEventSources({ prev, results, civic = [], now }) {
     if (kept.length > 0) report.sources[s] = { used: 'retained', count: 0 };
     return kept;
   });
+  // Occurrence identity across both feeds: UID + RECURRENCE-ID (occurrenceKey),
+  // falling back to the per-feed record ID (so no key means no cross-feed match).
+  // Dedupe runs BEFORE the cancellation filter, and cancellation wins: if any
+  // copy of an occurrence is cancelled (e.g. district cancelled, campus still
+  // confirmed), no copy is published. Otherwise the district copy is kept
+  // (feed order). No title/time matching.
+  const occKey = (e) => (typeof e.occurrenceKey === 'string' && e.occurrenceKey !== '' ? `occ:${e.occurrenceKey}` : e.id);
+  const cancelledKeys = new Set(lisd.filter((e) => e.cancelled).map(occKey).filter((k) => typeof k === 'string' && k !== ''));
+  const deduped = dedupe(lisd, { keyOf: occKey });
+  report.lisd.duplicateIds = deduped.duplicates.length;
   const live = [];
-  for (const ev of lisd) {
-    if (ev.cancelled) report.lisd.cancelledSkipped++;
+  for (const ev of deduped.items) {
+    if (ev.cancelled || (typeof occKey(ev) === 'string' && cancelledKeys.has(occKey(ev)))) report.lisd.cancelledSkipped++;
     else live.push(ev);
   }
   const { fresh: current, expired } = partitionByFreshness(live, {
@@ -187,11 +198,7 @@ export function mergeEventSources({ prev, results, civic = [], now }) {
     if (dup) report.lisd.civicDuplicates++;
     return !dup;
   });
-  // Occurrence identity across both feeds: UID + RECURRENCE-ID (occurrenceKey),
-  // falling back to the record ID. District wins over campus (feed order).
-  const deduped = dedupe(notCivic, { keyOf: (e) => (typeof e.occurrenceKey === 'string' && e.occurrenceKey !== '' ? `occ:${e.occurrenceKey}` : e.id) });
-  report.lisd.duplicateIds = deduped.duplicates.length;
-  lisd = deduped.items;
+  lisd = notCivic;
 
   // Same stable sort as before (start time only), so existing order is unchanged.
   const events = [...anchors, ...fresh, ...lisd].sort((a, b) => a.startsAt - b.startsAt);
