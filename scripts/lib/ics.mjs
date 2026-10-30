@@ -114,16 +114,22 @@ function isRealDateTime(value) {
  * with no definition, and a DTEND before DTSTART. Returns an error message,
  * or null when the VEVENT is acceptable.
  */
-function validateVevent(vevent) {
+function validateVevent(vevent, feedZones) {
   for (const [name, params, , ...values] of vevent.jCal[1]) {
     if (!DATE_PROPS.includes(name)) continue;
     if (name === 'recurrence-id' && params.range) {
       return `RECURRENCE-ID;RANGE=${String(params.range).toUpperCase()} is not supported`;
     }
-    if (params.tzid && !ICAL.TimezoneService.has(params.tzid)) return `unknown TZID ${params.tzid} on ${name.toUpperCase()}`;
+    if (params.tzid && !feedZones.has(params.tzid)) return `unknown TZID ${params.tzid} on ${name.toUpperCase()}`;
     for (const v of values) {
       if (typeof v !== 'string') continue; // PERIOD values are handled by ical.js
       if (!isRealDateTime(v)) return `invalid date ${v} on ${name.toUpperCase()}`;
+    }
+  }
+  for (const [name, , , value] of vevent.jCal[1]) {
+    if (name !== 'duration') continue;
+    if (typeof value !== 'string' || !/^\+?P(\d+W|(\d+D)?(T(\d+H)?(\d+M)?(\d+S)?)?)$/.test(value) || value.replace(/^\+/, '') === 'P' || value.endsWith('T')) {
+      return `invalid DURATION ${value}`;
     }
   }
   const start = vevent.getFirstPropertyValue('dtstart');
@@ -185,7 +191,15 @@ function buildRecord({ uid, recurrenceId, item, start, end, source }) {
  * Cancelled events are returned with cancelled: true, not dropped.
  * Throws IcsParseError when the input as a whole is unusable.
  */
-export function parseLisdIcs(icsText, { feedId, windowStart, windowEnd, maxOccurrencesPerEvent } = {}) {
+export function parseLisdIcs(icsText, options = {}) {
+  try {
+    return parseFeed(icsText, options);
+  } finally {
+    ICAL.TimezoneService.reset(); // nothing from this feed leaks into the next parse
+  }
+}
+
+function parseFeed(icsText, { feedId, windowStart, windowEnd, maxOccurrencesPerEvent } = {}) {
   if (typeof feedId !== 'string' || !Object.hasOwn(LISD_FEEDS, feedId)) {
     throw new TypeError(`feedId must be one of: ${Object.keys(LISD_FEEDS).join(', ')}`);
   }
@@ -209,10 +223,19 @@ export function parseLisdIcs(icsText, { feedId, windowStart, windowEnd, maxOccur
   if (root.name !== 'vcalendar') throw new IcsParseError('ICS root is not VCALENDAR');
 
   // Register the feed's own timezone definitions, with Chicago as a fallback.
-  if (!ICAL.TimezoneService.has(TIMEZONE)) ICAL.TimezoneService.register(getChicagoZone());
+  // Zones are resolved per feed. The ical.js registry is process-global, so
+  // it is cleared before and after each parse, and a TZID is accepted only
+  // when this feed defines it in a VTIMEZONE (or it is America/Chicago, the
+  // site's built-in fallback).
+  ICAL.TimezoneService.reset();
+  const feedZones = new Set([TIMEZONE]);
+  ICAL.TimezoneService.register(getChicagoZone());
   for (const vtz of root.getAllSubcomponents('vtimezone')) {
     const tz = new ICAL.Timezone(vtz);
-    if (tz.tzid && !ICAL.TimezoneService.has(tz.tzid)) ICAL.TimezoneService.register(tz);
+    if (tz.tzid && !feedZones.has(tz.tzid)) {
+      ICAL.TimezoneService.register(tz);
+      feedZones.add(tz.tzid);
+    }
   }
 
   const calendarName = text(root.getFirstPropertyValue('x-wr-calname'));
@@ -231,7 +254,7 @@ export function parseLisdIcs(icsText, { feedId, windowStart, windowEnd, maxOccur
     const uid = text(vevent.getFirstPropertyValue('uid'));
     if (!uid) { errors.push({ index, error: 'VEVENT is missing UID' }); return; }
     if (!vevent.getFirstPropertyValue('dtstart')) { errors.push({ index, uid, error: 'VEVENT is missing DTSTART' }); return; }
-    const invalid = validateVevent(vevent);
+    const invalid = validateVevent(vevent, feedZones);
     if (invalid) { errors.push({ index, uid, error: invalid }); return; }
     if (vevent.hasProperty('recurrence-id')) overrides.push({ uid, vevent });
     else if (masters.has(uid)) errors.push({ index, uid, error: 'duplicate UID without RECURRENCE-ID' });
