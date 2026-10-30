@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Leander Live submitted listing",
+  "description": "One entry in src/data/submitted-listings.json. Checked by scripts/lib/submitted-listings.mjs (npm run validate:listings).",
+  "type": "object",
+  "required": ["id", "kind", "title", "organization", "url", "submittedAt", "expiresAt", "rights", "paid"],
+  "properties": {
+    "id": { "type": "string", "pattern": "^sub-[a-z0-9-]{3,60}$" },
+    "kind": { "enum": ["job", "event"] },
+    "title": { "type": "string", "minLength": 1, "maxLength": 200 },
+    "organization": { "type": "string", "minLength": 1, "maxLength": 200 },
+    "description": { "type": "string", "maxLength": 2000 },
+    "url": { "type": "string", "format": "uri", "pattern": "^https://" },
+    "submittedAt": { "type": "string", "format": "date-time" },
+    "expiresAt": { "type": "string", "format": "date-time", "description": "Must be after submittedAt." },
+    "startsAt": { "type": "string", "format": "date-time", "description": "Required for events." },
+    "endsAt": { "type": "string", "format": "date-time", "description": "Events only; not before startsAt." },
+    "rights": { "const": "submitter-owns-or-may-share" },
+    "paid": { "type": "boolean", "description": "True for a paid placement." }
+  }
+}

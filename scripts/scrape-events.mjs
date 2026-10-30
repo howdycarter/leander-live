@@ -12,6 +12,7 @@
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { parseLisdIcs, feedUrl } from "./lib/ics.mjs";
 import { mergeEventSources, lisdRecordToEvent, lisdSourceResult } from "./lib/events-merge.mjs";
+import { recordStatus, runGated } from "./lib/source-status-file.mjs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import * as cheerio from "cheerio";
@@ -273,7 +274,21 @@ async function main() {
   );
   const now = Date.now();
   const results = [];
-  for (const [source, scrape] of [["city-calendar", scrapeCityCalendar], ["chamber", scrapeChamber]]) {
+
+  // Source compliance: leandertx.gov is off unless LEANDER_ENABLE_LEANDERTX=1.
+  // When it is paused or fails, the merge keeps the previous city events as
+  // history, and they expire on the normal rule.
+  const prevCity = prev.filter((e) => e.source === "city-calendar" && !String(e.id).startsWith("anchor-"));
+  const cityGate = await runGated("leandertx-city-calendar", () => scrapeCityCalendar(), prevCity);
+  recordStatus([cityGate.row]);
+  if (cityGate.row.state === "ok") {
+    results.push({ source: "city-calendar", ok: true, items: cityGate.items });
+    console.error(`city-calendar: OK (${cityGate.items.length} events)`);
+  } else {
+    results.push({ source: "city-calendar", ok: false, error: cityGate.row.reason });
+  }
+
+  for (const [source, scrape] of [["chamber", scrapeChamber]]) {
     try {
       const items = await scrape();
       results.push({ source, ok: true, items });
