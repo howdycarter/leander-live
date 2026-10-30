@@ -13,8 +13,9 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^1.47.0",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
+    "motion": "^14.8.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
     "react-router-dom": "^7.18.4",
     "tailwind-merge": "^3.7.0",
     "tailwindcss": "^4.3.3"
@@ -38,7 +39,10 @@
     "scrape": "node scripts/scrape-events.mjs && node scripts/scrape-jobs.mjs && node scripts/scrape-civic.mjs && node scripts/scrape-signals.mjs",
     "refresh": "node scripts/run-refresh.mjs",
     "test": "node --test scripts/lib/*.test.mjs",
-    "validate:listings": "node scripts/validate-listings.mjs"
+    "validate:listings": "node scripts/validate-listings.mjs",
+    "test:uiarc": "node --test src/components/ui/__tests__/compat.test.mjs",
+    "test:preservation": "node --test qa/preservation.test.mjs",
+    "render:preservation": "node qa/render-preservation.mjs"
   },
   "type": "module",
   "version": "0.1.0"

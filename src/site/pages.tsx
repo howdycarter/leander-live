@@ -1,4 +1,5 @@
 import { overlapsDateFilter } from "./eventTime";
+import { SourceStatusBanner } from "./sourceStatus";
 import { useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -101,6 +102,7 @@ export function EventsPage() {
         }
       />
       <main className="mx-auto max-w-6xl px-4 py-6 @container">
+      <SourceStatusBanner kind="events" />
       <div className="mb-4 flex items-end justify-between gap-4">
         <h2 className="font-display text-2xl font-extrabold tracking-tight text-navy">
           {savedOnly ? "Your saved events" : "Find your thing"}
@@ -164,7 +166,7 @@ export function JobsPage() {
     <>
       <PageHero
         title="Jobs in Leander"
-        subtitle="Local work, right here in town — posted by Leander employers."
+        subtitle="Collected local job listings — confirm current openings with the employer."
       />
       <main className="mx-auto max-w-6xl px-4 py-6">
         <JobsBoard />
@@ -181,7 +183,7 @@ export function BusinessesPage() {
       <PageHero
         eyebrow="Local directory"
         title="Businesses in Leander"
-        subtitle="Every storefront, kitchen, salon, and service in town — from official Texas permit records, refreshed twice a day."
+        subtitle="Explore local storefronts, kitchens, salons, and services from Texas permit records. Confirm current details with each business."
       />
       <main className="mx-auto max-w-6xl px-4 py-6">
         <BusinessesBoard />
@@ -198,7 +200,7 @@ export function CommunityPage() {
       <PageHero
         eyebrow="For local businesses"
         title="Put your business in front of Leander"
-        subtitle="Featured listings, sponsored events, and qualified local leads — from the community board Leander actually reads."
+        subtitle="Ask about proposed featured listings, sponsored events, and job placements on Leander’s community board."
       />
       <main className="mx-auto max-w-6xl px-4 py-10">
         <div className="grid max-w-4xl gap-6">
@@ -372,11 +374,10 @@ export function NotFoundPage() {
 
 import { Badge } from "@/components/ui/badge";
 import { Check } from "lucide-react";
-import { AD_PACKAGES, SERVICE_LEAD_STEPS, formatPrice, type AdPackage } from "./monetization";
+import { AD_PACKAGES, SERVICE_LEAD_STEPS, type AdPackage } from "./monetization";
 import { trackEvent } from "./analytics";
 
 function PackageCard({ pkg, onInterested }: { pkg: AdPackage; onInterested: (pkg: AdPackage) => void }) {
-  const live = pkg.stripeUrl.length > 0;
   return (
     <Card className="flex flex-col">
       <CardContent className="flex flex-1 flex-col gap-4 p-6">
@@ -385,8 +386,8 @@ function PackageCard({ pkg, onInterested }: { pkg: AdPackage; onInterested: (pkg
           <p className="mt-1 text-sm text-muted-foreground">{pkg.tagline}</p>
         </div>
         <p className="font-display text-4xl font-black tracking-tight text-navy">
-          ${pkg.price}
-          <span className="text-base font-semibold text-muted-foreground">{pkg.cadence}</span>
+          {pkg.unavailable ? "Unavailable" : `$${pkg.price}`}
+          <span className="text-base font-semibold text-muted-foreground">{pkg.unavailable ? "" : `${pkg.cadence} · proposed`}</span>
         </p>
         <ul className="flex flex-col gap-2 text-sm">
           {pkg.features.map((f) => (
@@ -400,38 +401,15 @@ function PackageCard({ pkg, onInterested }: { pkg: AdPackage; onInterested: (pkg
           <Button
             className="w-full rounded-full"
             onClick={() => {
-              if (live) {
-                trackEvent("stripe_checkout_started", { package: pkg.id, price: pkg.price });
-                window.open(pkg.stripeUrl, "_blank", "noopener");
-              } else {
-                trackEvent("advertise_cta_clicked", { package: pkg.id });
-                onInterested(pkg);
-              }
+              trackEvent("advertise_cta_clicked", { package: pkg.id });
+              onInterested(pkg);
             }}
           >
             {pkg.cta} <ArrowRight className="h-4 w-4" />
           </Button>
-          {!live && (
-            <p className="mt-2 text-center text-xs text-muted-foreground">
-              Checkout opens soon — reserve your spot below.
-            </p>
-          )}
-          {pkg.exclusivity && pkg.exclusivity.stripeUrl.length > 0 && (
-            <Button
-              variant="outline"
-              className="mt-3 w-full rounded-full"
-              onClick={() => {
-                trackEvent("stripe_checkout_started", {
-                  package: `${pkg.id}-exclusivity`,
-                  price: pkg.exclusivity!.price,
-                });
-                window.open(pkg.exclusivity!.stripeUrl, "_blank", "noopener");
-              }}
-            >
-              Own your category — ${pkg.exclusivity.price}
-              {pkg.exclusivity.cadence} <ArrowRight className="h-4 w-4" />
-            </Button>
-          )}
+          <p className="mt-2 text-center text-xs text-muted-foreground">
+            Inquiry only. No payment or reservation.
+          </p>
         </div>
       </CardContent>
     </Card>
@@ -452,7 +430,7 @@ export function AdvertisePage() {
       <PageHero
         eyebrow="For Leander businesses"
         title="Get found by the whole town."
-        subtitle="Featured placements and AI-qualified service leads — priced for local businesses, not agencies."
+        subtitle="Explore proposed local advertising options. Rates and availability need confirmation; no payment is collected here."
       >
         <div className="mt-6 flex flex-wrap gap-3">
           <Badge className="bg-white/15 text-white hover:bg-white/25">
@@ -478,12 +456,12 @@ export function AdvertisePage() {
             Service leads
           </p>
           <h2 className="font-display mt-2 text-3xl font-bold">
-            Neighbors ask. We qualify. You get the job.
+            Questions welcome. Service leads are not available.
           </h2>
           <p className="mt-2 max-w-2xl text-muted-foreground">
-            Tell us what you do and where you work. When a neighbor needs your
-            trade, we route the qualified lead to you — {formatPrice(AD_PACKAGES[3])}, or own
-            your trade exclusively for $299/mo.
+            No lead qualification, delivery, or exclusive categories are offered.
+            You can use the email form to ask about proposed advertising placements;
+            preparing an inquiry does not send it.
           </p>
           <div className="mt-6 grid gap-4 md:grid-cols-3">
             {SERVICE_LEAD_STEPS.map((s, i) => (
@@ -500,11 +478,11 @@ export function AdvertisePage() {
 
         <section ref={formRef} className="mt-16 scroll-mt-24">
           <div className="max-w-2xl">
-            <h2 className="font-display text-3xl font-bold">Reserve your spot</h2>
+            <h2 className="font-display text-3xl font-bold">Ask about a placement</h2>
             <p className="mt-2 text-muted-foreground">
               {selectedPkg
-                ? `You picked ${AD_PACKAGES.find((p) => p.id === selectedPkg)?.name} — tell us about your business and we'll get you set up.`
-                : "Tell us about your business and what you want — we'll get you set up personally."}
+                ? `Ask about ${AD_PACKAGES.find((p) => p.id === selectedPkg)?.name} — this is an inquiry, not an order or reservation.`
+                : "Tell us about your business and what you would like to discuss. Rates and availability are not yet confirmed."}
             </p>
             <div className="mt-6">
               <BusinessForm

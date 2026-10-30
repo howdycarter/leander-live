@@ -1,0 +1,4 @@
+/* Establish the cascade before any component module is loaded. */
+@layer theme, base, components, utilities;
+/* The upstream foundation file is untouched. Brand overrides stay in index.css. */
+@import "../arc/foundation.css" layer(base);

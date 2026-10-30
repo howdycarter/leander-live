@@ -11,12 +11,13 @@ import {
   CalendarSearch,
   Heart,
   MapPin,
-  Search,
   Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { ALL_EVENTS, ALL_JOBS, CompanyMark, EventCard, formatPay, inRange, type EventItem, type JobItem } from "./content";
+import { ALL_EVENTS, ALL_JOBS, CompanyMark, EventCard, plainText, inRange, type EventItem, type JobItem } from "./content";
 import { useSavedEvents } from "./state";
+import { UpliftSearch } from "./upliftSearch";
+import { ListingStatus } from "./sourceStatus";
 
 /* ================================================================
    Concept A — "Bright & Bold" design system.
@@ -97,22 +98,16 @@ export function HomeHero() {
           }}
           role="search"
         >
-          <div className="relative">
-            <Search
-              className="absolute left-5 top-1/2 h-5 w-5 -translate-y-1/2 text-stone-400"
-              aria-hidden="true"
-            />
-            <input
-              type="search"
+          <div className="uplift-hero-search">
+            <UpliftSearch
               value={q}
-              onChange={(e) => setQ(e.target.value)}
+              onValueChange={setQ}
               placeholder="Search events, places, or categories…"
-              aria-label="Search Leander events"
-              className="h-14 w-full rounded-full border-0 bg-white/95 pl-12 pr-32 text-[15px] text-stone-900 shadow-xl placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-400"
+              label="Search Leander events"
             />
             <Button
               type="submit"
-              className="absolute right-1.5 top-1/2 h-11 -translate-y-1/2 rounded-full bg-gold px-6 font-bold text-navy hover:bg-gold/85"
+              className="h-11 shrink-0 rounded-full bg-gold px-6 font-bold text-navy hover:bg-gold/85"
             >
               Search
             </Button>
@@ -129,7 +124,7 @@ export function HomeHero() {
             <strong className="font-display text-lg text-white">
               {ALL_JOBS.length}
             </strong>{" "}
-            local jobs
+            collected job listings
           </span>
           <Link to="/events" className="font-semibold text-gold hover:underline">
             Browse everything <ArrowRight className="inline h-4 w-4" />
@@ -285,7 +280,7 @@ export function JobsPreview() {
             Jobs in Leander
           </h2>
           <p className="mt-1.5 text-[15px] text-stone-600">
-            Local work, right here in town — posted by Leander employers.
+            Collected local job listings — confirm current openings with the employer.
           </p>
         </div>
         <Button asChild variant="link" className="h-auto px-0 font-semibold text-primary">
@@ -306,7 +301,8 @@ export function JobsPreview() {
           </CardContent>
         </Card>
       ) : (
-        <div className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card shadow-[0_1px_2px_rgba(22,50,79,0.07)]">
+        <Card className="arc-jobs-preview overflow-hidden rounded-2xl border border-border bg-card shadow-[0_1px_2px_rgba(22,50,79,0.07)]">
+          <CardContent className="divide-y divide-border p-0">
           {preview.map((job: JobItem) => (
             <Link
               key={job.id}
@@ -324,14 +320,16 @@ export function JobsPreview() {
                 </span>
                 {job.payRange && (
                   <span className="mt-0.5 block text-[13px] font-extrabold text-navy">
-                    {formatPay(job.payRange)}
+                    {plainText(job.payRange)}
                   </span>
                 )}
+                <ListingStatus item={job} compact />
               </span>
               <ArrowRight className="h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
             </Link>
           ))}
-        </div>
+          </CardContent>
+        </Card>
       )}
     </section>
   );
@@ -425,8 +423,8 @@ export function BusinessCtaBand() {
               Put your business in front of the whole town.
             </h2>
             <p className="max-w-xl text-[15px] text-white/80">
-              Featured listings, sponsored events, and AI-qualified service leads —
-              priced for local businesses, not agencies.
+              Ask about proposed featured listings, sponsored events, and job
+              placements. Rates and availability need confirmation.
             </p>
             <div className="flex flex-wrap gap-3">
               <Button
@@ -518,12 +516,13 @@ export function FeaturedEvents({
         <Card className="border-dashed border-border">
           <CardContent className="p-8 text-center text-sm text-stone-600">
             Nothing in “{chip}” right now —{" "}
-            <button
-              className="font-semibold text-primary underline"
+            <Button
+              variant="link"
+              className="h-auto p-0 font-semibold text-primary underline"
               onClick={() => setChip("All")}
             >
               show everything
-            </button>
+            </Button>
             .
           </CardContent>
         </Card>

@@ -9,6 +9,10 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { trackEvent } from "./analytics";
+import { businessDraftKey, businessEmailDraft, centralDateTimeInput, emailDraftText, eventEmailDraft, hasRequiredDraftFields, jobEmailDraft, type EmailDraft } from "./emailDrafts";
+import { useDraftCopy } from "./useDraftCopy";
+import { UpliftSearch } from "./upliftSearch";
+import { ListingStatus, SourceStatusBanner } from "./sourceStatus";
 import { downloadEventIcs } from "./ics";
 import { eventDateLabel, eventTimeLabel, isStillListed } from "./eventTime";
 import type { Business, Job, LiveEvent } from "../data/types";
@@ -39,7 +43,6 @@ import {
   CalendarDays,
   ChevronRight,
   CalendarPlus,
-  CircleCheck,
   Clock,
   Heart,
   Leaf,
@@ -109,7 +112,6 @@ const BUSINESS_VERTICALS = [
   "Other",
 ] as const;
 
-const BUSINESS_INTERESTS = ["Featured listing", "Buy leads", "Sponsored event"] as const;
 
 const DATE_FILTERS = ["All", "Today", "This Weekend", "This Month"] as const;
 export type DateFilter = (typeof DATE_FILTERS)[number];
@@ -312,11 +314,6 @@ export function CompanyMark({ name, className }: { name: string; className?: str
   );
 }
 
-function toLocalInputValue(d: Date) {
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-}
-
 function startOfDay(d: Date) {
   const p = centralParts(d);
   return new Date(centralMidnightMs(p.year, p.month, p.day));
@@ -510,12 +507,13 @@ export function EventCard({
   const rawBlurb = event.blurb ?? event.description;
   const blurb = rawBlurb && !isBoilerplateText(rawBlurb) ? plainText(rawBlurb) : null;
   return (
-    <article
+    <Card
       className={cn(
-        "group relative flex gap-3 overflow-hidden rounded-2xl border border-border bg-card p-3 pl-4 shadow-[0_1px_2px_rgba(22,50,79,0.07)] transition-shadow hover:shadow-md",
+        "uplift-event-card group relative overflow-hidden rounded-2xl border border-border bg-card shadow-[0_1px_2px_rgba(22,50,79,0.07)] transition-shadow hover:shadow-md",
         className,
       )}
     >
+      <CardContent className="flex gap-3 p-3 pl-4">
       <span
         aria-hidden="true"
         className="absolute inset-y-0 left-0 w-1"
@@ -574,12 +572,14 @@ export function EventCard({
         {blurb && (
           <p className="mt-0.5 line-clamp-1 text-[13px] text-muted-foreground">{blurb}</p>
         )}
+        <ListingStatus item={event} compact />
       </div>
-    </article>
+      </CardContent>
+    </Card>
   );
 }
 
-/* Filter pill built on the shadcn Button primitive: the default (active) /
+/* Filter pill built on the genuine UIARC Button primitive: the default (active) /
    outline (inactive) variants carry the color story, with pill overrides
    for the mockup look (rounded-full, auto height, cream-theme borders). */
 export function FilterPill({
@@ -620,17 +620,12 @@ export function FeedFilters({
 }) {
   return (
     <div className="mb-5 flex flex-col gap-3">
-      <div className="relative">
-        <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          type="search"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search events, places, or categories…"
-          aria-label="Search events"
-          className="h-11 rounded-full bg-card pl-11 shadow-sm"
-        />
-      </div>
+      <UpliftSearch
+        value={query}
+        onValueChange={setQuery}
+        placeholder="Search events, places, or categories…"
+        label="Search events"
+      />
 
       {/* Desktop filter row */}
       <div className="hidden items-center gap-2 md:flex" role="group" aria-label="Filter events">
@@ -698,26 +693,21 @@ export function SubmitDialogContent() {
   const [venue, setVenue] = useState("");
   const [category, setCategory] = useState<string>("");
   const [url, setUrl] = useState("");
-  const [when, setWhen] = useState(() => toLocalInputValue(new Date(Date.now() + 7 * 86400000)));
-  const [sent, setSent] = useState(false);
+  const [when, setWhen] = useState(() => centralDateTimeInput(new Date(Date.now() + 7 * 86400000)));
+  const [preparedDraft, setPreparedDraft] = useState<EmailDraft | null>(null);
+  const [draftError, setDraftError] = useState("");
+  const { copyStatus, copyDraft, resetCopy } = useDraftCopy(preparedDraft, LEAD_EMAIL);
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    const body = [
-      `Event: ${title}`,
-      `When: ${new Date(when).toLocaleString("en-US")}`,
-      `Venue: ${venue}`,
-      category ? `Category: ${category}` : null,
-      url.trim() ? `Link: ${url.trim()}` : null,
-      "",
-      "Description:",
-      description,
-    ]
-      .filter((l) => l !== null)
-      .join("\n");
-    window.location.href = mailtoFor(`Event submission: ${title}`, body);
-    trackEvent("event_submitted_mailto", { category: category || "uncategorized" });
-    setSent(true);
+    if (!hasRequiredDraftFields([title, description, venue, when])) {
+      setDraftError("Add an event name, description, date and venue; spaces alone are not enough.");
+      return;
+    }
+    setDraftError("");
+    resetCopy();
+    setPreparedDraft(eventEmailDraft({ title, description, venue, category, url, when }));
+    trackEvent("event_email_draft_prepared", { category: category || "uncategorized" });
   }
 
   return (
@@ -728,18 +718,29 @@ export function SubmitDialogContent() {
           Community submissions are reviewed before they appear on the board.
         </DialogDescription>
       </DialogHeader>
-      {sent ? (
+      {preparedDraft ? (
         <div className="flex flex-col items-start gap-4 py-2">
           <Alert>
-            <CircleCheck className="h-4 w-4 text-secondary" />
+            <Mail className="h-4 w-4 text-secondary" />
             <AlertDescription>
-              🎉 Your email app should have opened with your event details — just hit
-              send and we&apos;ll review it for the board.
+              Email draft prepared — not sent. Open your email app and send it,
+              or copy the draft below. Publication is subject to review.
             </AlertDescription>
           </Alert>
-          <Button variant="outline" onClick={() => setSent(false)}>
-            Submit another
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <Button asChild>
+              <a href={mailtoFor(preparedDraft.subject, preparedDraft.body)}>Open email app</a>
+            </Button>
+            <Button variant="outline" onClick={copyDraft}>Copy draft</Button>
+            <Button variant="outline" onClick={() => { resetCopy(); setPreparedDraft(null); }}>
+              Edit details
+            </Button>
+          </div>
+          {copyStatus && <p role="status" className="text-xs text-muted-foreground">{copyStatus}</p>}
+          <div className="grid w-full gap-2">
+            <Label htmlFor="ev-draft">Email draft — select to copy manually</Label>
+            <Textarea id="ev-draft" readOnly rows={5} value={emailDraftText(preparedDraft, LEAD_EMAIL)} />
+          </div>
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -753,7 +754,7 @@ export function SubmitDialogContent() {
           </div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="grid gap-2">
-              <Label htmlFor="ev-when">Date &amp; time</Label>
+              <Label htmlFor="ev-when">Date &amp; time (Central)</Label>
               <Input id="ev-when" type="datetime-local" value={when} onChange={(e) => setWhen(e.target.value)} required />
             </div>
             <div className="grid gap-2">
@@ -780,12 +781,13 @@ export function SubmitDialogContent() {
               <Input id="ev-url" type="url" value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://…" />
             </div>
           </div>
+          {draftError && <p role="alert" className="text-xs text-destructive">{draftError}</p>}
           <Button type="submit">
-            <Mail className="h-4 w-4" /> Email your submission
+            <Mail className="h-4 w-4" /> Prepare email draft
           </Button>
           <p className="text-xs text-muted-foreground">
-            This opens your email app with everything prefilled — send it to get your
-            event on the board.
+            Nothing is sent here. Send the draft from your email app for review,
+            and confirm that you own or have permission to share the information.
           </p>
         </form>
       )}
@@ -885,7 +887,7 @@ export function JobRow({
         </span>
         <span className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[13px] text-foreground/75">
           {job.payRange && (
-            <span className="font-extrabold text-navy">{formatPay(job.payRange)}</span>
+            <span className="font-extrabold text-navy">{plainText(job.payRange)}</span>
           )}
           <JobTypeTag type={job.type} />
           {job.postedAt && (
@@ -899,6 +901,7 @@ export function JobRow({
             </span>
           )}
         </span>
+        <ListingStatus item={job} compact />
       </span>
       <ChevronRight className="h-4 w-4 shrink-0 text-foreground/30" aria-hidden="true" />
     </>
@@ -909,14 +912,11 @@ export function JobRow({
     return <div className={rowClass}>{inner}</div>;
   }
   return (
-    <button
-      type="button"
-      onClick={onSelect}
-      className={cn(rowClass, "cursor-pointer")}
-      aria-label={`${job.title.trim()} at ${job.company} — view details`}
-    >
-      {inner}
-    </button>
+    <Button asChild variant="ghost" className={cn(rowClass, "h-auto justify-start whitespace-normal rounded-none font-normal hover:text-foreground")}>
+      <button type="button" onClick={onSelect} aria-label={`${job.title.trim()} at ${job.company} — view details`}>
+        {inner}
+      </button>
+    </Button>
   );
 }
 
@@ -943,7 +943,7 @@ function JobDetailContent({ job }: { job: JobItem }) {
       </DialogHeader>
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 rounded-xl bg-muted px-4 py-3 text-sm">
         {job.payRange && (
-          <span className="text-base font-extrabold text-navy">{formatPay(job.payRange)}</span>
+          <span className="text-base font-extrabold text-navy">{plainText(job.payRange)}</span>
         )}
         <JobTypeTag type={job.type} className="text-foreground/80" />
         {job.postedAt && (
@@ -954,6 +954,7 @@ function JobDetailContent({ job }: { job: JobItem }) {
         )}
         {job.featured && <FeaturedJobBadge />}
       </div>
+      <ListingStatus item={job} />
       <div className="space-y-3 text-sm leading-relaxed text-foreground/90">
         {paragraphs.slice(0, 20).map((p, i) => (
           <p key={i}>{p}</p>
@@ -979,26 +980,20 @@ function PostJobDialogContent() {
   const [payRange, setPayRange] = useState("");
   const [description, setDescription] = useState("");
   const [applyUrl, setApplyUrl] = useState("");
-  const [sent, setSent] = useState(false);
+  const [preparedDraft, setPreparedDraft] = useState<EmailDraft | null>(null);
+  const [draftError, setDraftError] = useState("");
+  const { copyStatus, copyDraft, resetCopy } = useDraftCopy(preparedDraft, LEAD_EMAIL);
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    const body = [
-      `Job title: ${title}`,
-      `Company: ${company}`,
-      `Location: ${location}`,
-      `Type: ${JOB_TYPE_LABEL[type] ?? type}`,
-      payRange.trim() ? `Pay range: ${payRange.trim()}` : null,
-      `Apply link: ${applyUrl}`,
-      "",
-      "Description:",
-      description,
-    ]
-      .filter((l) => l !== null)
-      .join("\n");
-    window.location.href = mailtoFor(`Job posting: ${title} at ${company}`, body);
-    trackEvent("job_posted_mailto", { type });
-    setSent(true);
+    if (!hasRequiredDraftFields([title, company, location, applyUrl, description])) {
+      setDraftError("Complete the required job details; spaces alone are not enough.");
+      return;
+    }
+    setDraftError("");
+    resetCopy();
+    setPreparedDraft(jobEmailDraft({ title, company, location, type: JOB_TYPE_LABEL[type] ?? type, payRange, applyUrl, description }));
+    trackEvent("job_email_draft_prepared", { type });
   }
 
   return (
@@ -1009,18 +1004,29 @@ function PostJobDialogContent() {
           Job posts are reviewed before they appear on the board.
         </DialogDescription>
       </DialogHeader>
-      {sent ? (
+      {preparedDraft ? (
         <div className="flex flex-col items-start gap-4 py-2">
           <Alert>
-            <CircleCheck className="h-4 w-4 text-secondary" />
+            <Mail className="h-4 w-4 text-secondary" />
             <AlertDescription>
-              Your email app should have opened with your job details — just hit
-              send and we&apos;ll review it for the board.
+              Email draft prepared — not sent. Open your email app and send it,
+              or copy the draft below. Publication is subject to review.
             </AlertDescription>
           </Alert>
-          <Button variant="outline" onClick={() => setSent(false)}>
-            Post another
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <Button asChild>
+              <a href={mailtoFor(preparedDraft.subject, preparedDraft.body)}>Open email app</a>
+            </Button>
+            <Button variant="outline" onClick={copyDraft}>Copy draft</Button>
+            <Button variant="outline" onClick={() => { resetCopy(); setPreparedDraft(null); }}>
+              Edit details
+            </Button>
+          </div>
+          {copyStatus && <p role="status" className="text-xs text-muted-foreground">{copyStatus}</p>}
+          <div className="grid w-full gap-2">
+            <Label htmlFor="job-draft">Email draft — select to copy manually</Label>
+            <Textarea id="job-draft" readOnly rows={5} value={emailDraftText(preparedDraft, LEAD_EMAIL)} />
+          </div>
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -1110,12 +1116,13 @@ function PostJobDialogContent() {
               placeholder="What does the role involve? Any requirements?"
             />
           </div>
+          {draftError && <p role="alert" className="text-xs text-destructive">{draftError}</p>}
           <Button type="submit">
-            <Mail className="h-4 w-4" /> Email your job post
+            <Mail className="h-4 w-4" /> Prepare email draft
           </Button>
           <p className="text-xs text-muted-foreground">
-            This opens your email app with everything prefilled — send it to get
-            your opening on the board.
+            Nothing is sent here. Send the draft from your email app for review,
+            and confirm that you own or have permission to share the information.
           </p>
         </form>
       )}
@@ -1135,9 +1142,10 @@ export function JobsBoard() {
 
   return (
     <div className="@container">
+      <SourceStatusBanner kind="jobs" />
       <div className="mb-4 flex items-center justify-between gap-3">
         <p className="text-sm font-semibold text-foreground/70">
-          {filtered.length === 1 ? "1 opening" : `${filtered.length} openings`}
+          {filtered.length === 1 ? "1 collected listing" : `${filtered.length} collected listings`}
           {typeFilter !== "All" ? " · filtered" : " in Leander"}
         </p>
         <Button
@@ -1253,14 +1261,11 @@ export function BusinessRow({
     return <div className={rowClass}>{inner}</div>;
   }
   return (
-    <button
-      type="button"
-      onClick={onSelect}
-      className={cn(rowClass, "cursor-pointer")}
-      aria-label={`${business.name} — view details`}
-    >
-      {inner}
-    </button>
+    <Button asChild variant="ghost" className={cn(rowClass, "h-auto justify-start whitespace-normal rounded-none font-normal hover:text-foreground")}>
+      <button type="button" onClick={onSelect} aria-label={`${business.name} — view details`}>
+        {inner}
+      </button>
+    </Button>
   );
 }
 
@@ -1316,7 +1321,7 @@ function BusinessDetailContent({ business }: { business: BusinessItem }) {
         </a>
       </Button>
       <p className="-mt-2 text-center text-xs text-muted-foreground">
-        Directory data: Texas Comptroller sales-tax permit holders, refreshed twice daily.
+        Directory data: Texas Comptroller sales-tax permit records. Confirm current details with the business.
       </p>
     </DialogContent>
   );
@@ -1452,7 +1457,7 @@ export function RemindersContent() {
                   <p className="truncate font-semibold">{event.title}</p>
                   <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
                     <CalendarDays className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-                    {formatDate(event.startsAt)} · {formatTime(event.startsAt)}
+                    {eventDateLabel(event, { withYear: true })} · {eventTimeLabel(event)}
                   </p>
                 </div>
                 <Button
@@ -1481,43 +1486,29 @@ export function BusinessForm({ packageName }: { packageName?: string }) {
   const [phone, setPhone] = useState("");
   const [vertical, setVertical] = useState("");
   const [interests, setInterests] = useState<string[]>([]);
-  const [sent, setSent] = useState(false);
-  const [sentName, setSentName] = useState({ contact: "", business: "" });
+  const [preparedDraft, setPreparedDraft] = useState<(EmailDraft & { packageName?: string; inputKey: string }) | null>(null);
+  const [draftError, setDraftError] = useState("");
   const [contactError, setContactError] = useState(false);
+  const currentDraftKey = businessDraftKey({ businessName, contactName, email, phone, vertical, interests, packageName });
+  const activeDraft = preparedDraft?.packageName === packageName && preparedDraft?.inputKey === currentDraftKey ? preparedDraft : null;
+  const { copyStatus, copyDraft, resetCopy } = useDraftCopy(activeDraft, LEAD_EMAIL, currentDraftKey);
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    // The form promises "at least one of email or phone" — enforce it, or the
-    // lead arrives with no way to reach the business.
+    // Keep every field intact: a prepared draft is not a submitted inquiry.
     if (!email.trim() && !phone.trim()) {
       setContactError(true);
       return;
     }
     setContactError(false);
-    const body = [
-      `Business: ${businessName}`,
-      `Contact: ${contactName}`,
-      email.trim() ? `Email: ${email.trim()}` : null,
-      phone.trim() ? `Phone: ${phone.trim()}` : null,
-      vertical ? `Vertical: ${vertical}` : null,
-      interests.length > 0 ? `Interested in: ${interests.join(", ")}` : null,
-      packageName ? `Package: ${packageName}` : null,
-    ]
-      .filter((l) => l !== null)
-      .join("\n");
-    window.location.href = mailtoFor(
-      `Advertiser inquiry: ${businessName}${packageName ? ` (${packageName})` : ""}`,
-      body,
-    );
-    trackEvent("business_lead_mailto", { vertical, interest_count: interests.length });
-    setSentName({ contact: contactName, business: businessName });
-    setSent(true);
-    setBusinessName("");
-    setContactName("");
-    setEmail("");
-    setPhone("");
-    setVertical("");
-    setInterests([]);
+    if (!hasRequiredDraftFields([businessName, contactName, vertical])) {
+      setDraftError("Add your business name, contact name and vertical; spaces alone are not enough.");
+      return;
+    }
+    setDraftError("");
+    resetCopy();
+    setPreparedDraft({ ...businessEmailDraft({ businessName, contactName, email, phone, vertical, interests, packageName }), packageName, inputKey: currentDraftKey });
+    trackEvent("business_email_draft_prepared", { vertical, interest_count: interests.length });
   }
 
   return (
@@ -1526,22 +1517,34 @@ export function BusinessForm({ packageName }: { packageName?: string }) {
         <CardTitle className="flex items-center gap-2">
           <Building2 className="h-5 w-5 text-secondary" /> Tell us about your business
         </CardTitle>
-        <CardDescription>We&apos;ll reach out with ways to get in front of Leander.</CardDescription>
+        <CardDescription>Prepare an inquiry about proposed placements. Nothing is sent or purchased here.</CardDescription>
       </CardHeader>
       <CardContent>
-        {sent ? (
-          <div className="flex flex-col items-start gap-4">
-            <Alert>
-              <CircleCheck className="h-4 w-4 text-secondary" />
-              <AlertDescription>
-                🎉 Thanks, {sentName.contact ? sentName.contact.split(" ")[0] : "there"}! Your
-                email app should have opened — hit send and we&apos;ll be in touch about{" "}
-                <strong>{sentName.business}</strong> soon.
-              </AlertDescription>
-            </Alert>
-            <Button variant="outline" onClick={() => setSent(false)}>Submit another business</Button>
+      {preparedDraft && preparedDraft.packageName === packageName && preparedDraft.inputKey === currentDraftKey ? (
+        <div className="flex flex-col items-start gap-4 py-2">
+          <Alert>
+            <Mail className="h-4 w-4 text-secondary" />
+            <AlertDescription>
+              Email draft prepared — not sent. Open your email app and send it,
+              or copy the draft below. No payment or reservation has been made.
+            </AlertDescription>
+          </Alert>
+          <div className="flex flex-wrap gap-2">
+            <Button asChild>
+              <a href={mailtoFor(preparedDraft.subject, preparedDraft.body)}>Open email app</a>
+            </Button>
+            <Button variant="outline" onClick={copyDraft}>Copy draft</Button>
+            <Button variant="outline" onClick={() => { resetCopy(); setPreparedDraft(null); }}>
+              Edit details
+            </Button>
           </div>
-        ) : (
+          {copyStatus && <p role="status" className="text-xs text-muted-foreground">{copyStatus}</p>}
+          <div className="grid w-full gap-2">
+            <Label htmlFor="bz-draft">Email draft — select to copy manually</Label>
+            <Textarea id="bz-draft" readOnly rows={5} value={emailDraftText(preparedDraft, LEAD_EMAIL)} />
+          </div>
+        </div>
+      ) : (
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="grid gap-2">
@@ -1585,7 +1588,7 @@ export function BusinessForm({ packageName }: { packageName?: string }) {
             <div className="grid gap-2">
               <Label>I&apos;m interested in</Label>
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-                {BUSINESS_INTERESTS.map((i) => (
+                {["Featured listing", "Featured job", "Sponsored event"].map((i) => (
                   <label key={i} className="flex cursor-pointer items-center gap-2 rounded-md border px-3 py-2 text-sm hover:bg-muted/50">
                     <Checkbox checked={interests.includes(i)} onCheckedChange={() => setInterests((prev) => toggleInList(prev, i))} />
                     {i}
@@ -1594,8 +1597,9 @@ export function BusinessForm({ packageName }: { packageName?: string }) {
               </div>
             </div>
             <p className="text-xs text-muted-foreground">{PRIVACY_NOTE}</p>
+            {draftError && <p role="alert" className="text-xs text-destructive">{draftError}</p>}
             <Button type="submit">
-              <Mail className="h-4 w-4" /> Get in touch
+              <Mail className="h-4 w-4" /> Prepare email draft
             </Button>
           </form>
         )}

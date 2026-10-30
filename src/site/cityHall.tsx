@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { PageHero } from "./conceptA";
+import { ListingStatus, SourceStatusBanner } from "./sourceStatus";
 import { formatDate, formatTime } from "./content";
 import type { CivicMeeting, NewsItem } from "../data/types";
 import meetingsRaw from "../data/civic.json";
@@ -43,6 +44,7 @@ function MeetingCard({ meeting }: { meeting: CivicMeeting }) {
             </span>
           )}
         </div>
+        <ListingStatus item={meeting} />
         <div className="flex flex-wrap gap-2 pt-1">
           {meeting.agendaUrl ? (
             <Button asChild size="sm" className="rounded-full">
@@ -72,6 +74,14 @@ function MeetingCard({ meeting }: { meeting: CivicMeeting }) {
   );
 }
 
+function publisherLabel(url: string): string {
+  try {
+    return new URL(url).hostname.replace(/^www\./, "") || "the source";
+  } catch {
+    return "the source";
+  }
+}
+
 function NewsCard({ item }: { item: NewsItem }) {
   return (
     <a
@@ -90,8 +100,9 @@ function NewsCard({ item }: { item: NewsItem }) {
       {item.summary && (
         <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{item.summary}</p>
       )}
+      {!item.id.startsWith("local-") && <ListingStatus item={{ source: "leandertx-city-news" }} />}
       <span className="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-primary">
-        Read on leandertx.gov <ArrowUpRight className="h-3.5 w-3.5" />
+        Read on {publisherLabel(item.url)} <ArrowUpRight className="h-3.5 w-3.5" />
       </span>
     </a>
   );
@@ -114,6 +125,7 @@ export function CityHallPage() {
         subtitle="Council and board meetings, agenda packets, and city news — what your local government is up to, in plain sight."
       />
       <main className="mx-auto max-w-6xl px-4 py-6">
+        <SourceStatusBanner kind="civic" />
         {/* Upcoming meetings */}
         <section aria-label="Upcoming meetings">
           <div className="mb-4">
@@ -195,7 +207,7 @@ export function CityHallPage() {
             <div>
               <h2 className="font-display text-2xl font-bold text-navy">City news</h2>
               <p className="mt-1 text-[15px] text-stone-600">
-                Fresh from leandertx.gov — announcements, road work, and public notices.
+                Collected from leandertx.gov — check the source for current announcements and public notices.
               </p>
             </div>
             <Button asChild variant="link" className="h-auto px-0 font-semibold text-primary">
@@ -210,7 +222,7 @@ export function CityHallPage() {
                 <CardTitle className="text-base">No recent headlines</CardTitle>
               </CardHeader>
               <CardContent className="-mt-2 text-sm text-stone-600">
-                Headlines refresh automatically — check back soon.
+                Check leandertx.gov directly for current headlines.
               </CardContent>
             </Card>
           ) : (

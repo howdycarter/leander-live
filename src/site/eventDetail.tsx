@@ -1,14 +1,17 @@
-import { useEffect, useState } from "react";
+import { useEffect, useId, useLayoutEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { createEventShareManager, eventShareUrl, LINK_COPY_MESSAGES, NATIVE_SHARE_MESSAGES, type LinkCopyState, type NativeShareState } from "./eventShare";
 import { eventDateLabel, eventTimeLabel } from "./eventTime";
 import {
   ArrowLeft,
   ArrowUpRight,
   CalendarDays,
   CalendarPlus,
-  Check,
   Clock,
   MapPin,
   Share2,
@@ -28,45 +31,81 @@ import {
 import { downloadEventIcs } from "./ics";
 import { useSavedEvents } from "./state";
 import { trackEvent } from "./analytics";
+import { ListingStatus } from "./sourceStatus";
 import { buildEventJsonLd } from "./eventJsonLd";
+import { clipboardWriteLock } from "./clipboardWrites";
 
 function eventImage(event: EventItem) {
   return event.image ?? "/images/event-night-market.jpg";
 }
 
-function ShareButton({ event }: { event: EventItem }) {
-  const [copied, setCopied] = useState(false);
+const eventSharing = createEventShareManager(clipboardWriteLock);
 
-  async function share() {
-    const url = window.location.href;
-    if (typeof navigator !== "undefined" && "share" in navigator) {
-      try {
-        await navigator.share({
-          title: event.title,
-          text: event.blurb ?? event.description,
-          url,
-        });
-        trackEvent("event_shared", { event_id: event.id, method: "webshare" });
-        return;
-      } catch {
-        /* user dismissed — fall through to copy */
-      }
-    }
-    try {
-      await navigator.clipboard.writeText(url);
-      setCopied(true);
-      trackEvent("event_shared", { event_id: event.id, method: "copy_link" });
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      /* clipboard unavailable */
-    }
+function ShareButton({ event }: { event: EventItem }) {
+  const [open, setOpen] = useState(false);
+  const [url, setUrl] = useState("");
+  const [nativeStatus, setNativeStatus] = useState<NativeShareState>("idle");
+  const [copyStatus, setCopyStatus] = useState<LinkCopyState>("idle");
+  const [session] = useState(() => eventSharing.createSession());
+  const fieldId = useId();
+
+  useLayoutEffect(() => () => session.invalidate(), [session]);
+
+  function openShare() {
+    session.invalidate();
+    setUrl(eventShareUrl(window.location.origin, window.location.pathname));
+    setNativeStatus(typeof navigator.share === "function" ? "idle" : "unavailable");
+    setCopyStatus("idle");
+    setOpen(true);
+    trackEvent("event_share_options_opened", { event_id: event.id });
+  }
+
+  function changeOpen(next: boolean) {
+    if (!next) session.invalidate();
+    setOpen(next);
   }
 
   return (
-    <Button variant="outline" className="rounded-full" onClick={share}>
-      {copied ? <Check className="h-4 w-4" /> : <Share2 className="h-4 w-4" />}
-      {copied ? "Link copied" : "Share"}
-    </Button>
+    <>
+      <Button variant="outline" className="rounded-full" onClick={openShare}>
+        <Share2 className="h-4 w-4" /> Share
+      </Button>
+      <Dialog open={open} onOpenChange={changeOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Share this event</DialogTitle>
+            <DialogDescription>{event.title}</DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4">
+            <p role="status" aria-live="polite" aria-atomic="true" className="text-sm text-muted-foreground">
+              {NATIVE_SHARE_MESSAGES[nativeStatus]}
+            </p>
+            <div className="grid gap-2">
+              <Label htmlFor={fieldId}>Event link — select to copy manually</Label>
+              <Input id={fieldId} readOnly value={url} onFocus={(e) => e.currentTarget.select()} aria-describedby={`${fieldId}-copy-status`} />
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Button disabled={copyStatus === "pending"} onClick={() => void session.copy(
+                url,
+                typeof navigator.clipboard?.writeText === "function" ? (text) => navigator.clipboard.writeText(text) : undefined,
+                (status) => {
+                  setCopyStatus(status);
+                  if (status === "copied") trackEvent("event_link_copied", { event_id: event.id });
+                },
+              )}>Copy link</Button>
+              <Button variant="outline" disabled={nativeStatus === "pending" || nativeStatus === "unavailable"} onClick={() => void session.share(
+                { title: event.title, text: event.blurb ?? event.description, url },
+                typeof navigator.share === "function" ? (data) => navigator.share(data) : undefined,
+                setNativeStatus,
+              )}>Share with device</Button>
+            </div>
+            <p id={`${fieldId}-copy-status`} role="status" aria-live="polite" aria-atomic="true" className="text-xs text-muted-foreground">
+              {LINK_COPY_MESSAGES[copyStatus]}
+            </p>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
 
@@ -265,7 +304,7 @@ export function EventDetailPage() {
                       <CalendarPlus className="h-4 w-4" /> Add to calendar
                     </Button>
                     <div className="flex gap-2">
-                      <ShareButton event={event} />
+                      <ShareButton key={event.id} event={event} />
                       {event.url && (
                         <Button asChild variant="outline" className="flex-1 rounded-full">
                           <a href={event.url} target="_blank" rel="noopener noreferrer">
@@ -274,8 +313,9 @@ export function EventDetailPage() {
                         </Button>
                       )}
                     </div>
+                    <ListingStatus item={event} />
                     <p className="text-center text-xs text-muted-foreground">
-                      Free to attend unless noted. Details subject to change — check the
+                      Check the official page for admission and fees. Details subject to change — check the
                       official page before you head out.
                     </p>
                   </CardContent>
