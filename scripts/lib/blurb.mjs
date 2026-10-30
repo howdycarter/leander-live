@@ -9,20 +9,36 @@ const BOILERPLATE_DESC_RE = /see the (City of Leander|Leander Chamber of Commerc
  */
 const NAMED = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " ", rsquo: "\u2019", lsquo: "\u2018", rdquo: "\u201d", ldquo: "\u201c", mdash: "\u2014", ndash: "\u2013", hellip: "\u2026" };
 
-/** Strip tags and decode entities, so truncation counts visible text only. */
-export function htmlToPlain(raw) {
-  return String(raw ?? "")
+function stripTags(s) {
+  return s
     .replace(/<(script|style)\b[^>]*>[\s\S]*?<\/\1>/gi, " ")
-    .replace(/<[^>]*>/g, " ")
-    .replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi, (m, e) => {
-      if (e[0] === "#") {
-        const cp = e[1] === "x" || e[1] === "X" ? parseInt(e.slice(2), 16) : parseInt(e.slice(1), 10);
-        return Number.isFinite(cp) && cp > 0 && cp <= 0x10ffff ? String.fromCodePoint(cp) : " ";
-      }
-      return NAMED[e.toLowerCase()] ?? m;
-    })
-    .replace(/\s+/g, " ")
-    .trim();
+    .replace(/<\/?[a-z!/?][^>]*>?/gi, " ");
+}
+
+function decodeOnce(s) {
+  return s.replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi, (m, e) => {
+    if (e[0] === "#") {
+      const cp = e[1] === "x" || e[1] === "X" ? parseInt(e.slice(2), 16) : parseInt(e.slice(1), 10);
+      return Number.isFinite(cp) && cp > 0 && cp <= 0x10ffff ? String.fromCodePoint(cp) : " ";
+    }
+    return NAMED[e.toLowerCase()] ?? m;
+  });
+}
+
+/**
+ * Plain visible text: strip tags, decode entities, and repeat until stable
+ * (bounded), so encoded or double-encoded markup ("&lt;a ...&gt;",
+ * "&amp;lt;a ...&amp;gt;") cannot survive as tags. Any leftover angle
+ * brackets are removed, so the output never contains a tag fragment.
+ */
+export function htmlToPlain(raw) {
+  let s = String(raw ?? "");
+  for (let i = 0; i < 5; i++) {
+    const next = stripTags(decodeOnce(stripTags(s)));
+    if (next === s) break;
+    s = next;
+  }
+  return s.replace(/[<>]/g, " ").replace(/\s+/g, " ").trim();
 }
 
 export function deriveBlurb(ev) {

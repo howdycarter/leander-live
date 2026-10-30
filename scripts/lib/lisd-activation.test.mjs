@@ -84,3 +84,19 @@ test('(d) flag disabled: previous LISD records are retained and still expire by 
   assert.deepEqual(events.map((e) => e.id), ['lisd-live']);
   assert.equal(report.sources['lisd-district'].used, 'retained');
 });
+
+test('(a) blurb: entity-encoded anchor never leaves a tag fragment', () => {
+  const ev = { description: '&lt;a href="https://example.test/x"&gt;Leander library&lt;/a&gt; hosts a hands-on robotics workshop and open lab for families this weekend.' };
+  deriveBlurb(ev);
+  assert.ok(ev.blurb);
+  assert.doesNotMatch(ev.blurb, /[<>]|href/);
+  assert.match(ev.blurb, /^Leander library hosts a hands-on robotics workshop/);
+});
+
+test('(a) blurb: double-encoded markup is fully normalized', () => {
+  const ev = { description: '&amp;lt;p&amp;gt;&amp;lt;a href=&amp;quot;https://example.test&amp;quot;&amp;gt;Story time&amp;lt;/a&amp;gt; at the Leander Public Library for toddlers and caregivers, every Tuesday morning.&amp;lt;/p&amp;gt;' };
+  deriveBlurb(ev);
+  assert.ok(ev.blurb);
+  assert.doesNotMatch(ev.blurb, /[<>]|&[a-z#0-9]+;|href/i);
+  assert.match(ev.blurb, /^Story time at the Leander Public Library/);
+});
