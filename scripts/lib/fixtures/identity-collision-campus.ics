@@ -1,0 +1,11 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//leander-live//synthetic fixture//EN
+X-WR-CALNAME:Identity collision campus
+BEGIN:VEVENT
+UID:example#2026-11-06
+DTSTART;VALUE=DATE:20261106
+DTEND;VALUE=DATE:20261107
+SUMMARY:Unrelated campus open house
+END:VEVENT
+END:VCALENDAR

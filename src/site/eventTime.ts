@@ -120,7 +120,8 @@ export function eventTimeLabel(event: EventTiming): string {
 /**
  * True while an event is still worth listing.
  * All-day events stay listed through their last day.
- * Timed events follow the site's existing rule: listed until 24 hours after the start.
+ * Timed events stay listed until their end (exclusive); without a valid end,
+ * the site's existing rule applies: listed until 24 hours after the start.
  */
 export function isStillListed(event: EventTiming, now: number): boolean {
   const span = allDaySpan(event);
@@ -129,6 +130,10 @@ export function isStillListed(event: EventTiming, now: number): boolean {
     const lastMs = Date.UTC(span.last.year, span.last.month - 1, span.last.day);
     return lastMs >= Date.UTC(today.year, today.month - 1, today.day);
   }
+  // Timed: visible until a valid end (exclusive). Absent or invalid end
+  // (non-finite, or end <= start) keeps the 24-hours-after-start rule.
+  const end = event.endsAt;
+  if (typeof end === "number" && Number.isFinite(end) && end > event.startsAt) return now < end;
   return event.startsAt >= now - DAY_MS;
 }
 
@@ -167,17 +172,25 @@ export function eventDaySpan(event: EventTiming): { first: number; last: number 
 }
 
 /**
- * Date-span overlap for the Today and This Month filters, in America/Chicago.
+ * Date-span overlap for the Today, This Weekend and This Month filters, in America/Chicago.
  * Today is the current Central day. This Month runs from today through the
  * last day of the current Central month. An event matches when any of its
  * days falls inside the range, so multi-day and overnight events count.
  */
-export function overlapsDateFilter(event: EventTiming, filter: "Today" | "This Month", now: number): boolean {
+export function overlapsDateFilter(event: EventTiming, filter: "Today" | "This Weekend" | "This Month", now: number): boolean {
   const today = centralYmd(now);
-  const rangeFirst = dayNum(today);
-  const rangeLast = filter === "Today"
-    ? rangeFirst
-    : dayNum({ year: today.year, month: today.month, day: new Date(Date.UTC(today.year, today.month, 0)).getUTCDate() });
+  let rangeFirst = dayNum(today);
+  let rangeLast = rangeFirst;
+  if (filter === "This Month") {
+    rangeLast = dayNum({ year: today.year, month: today.month, day: new Date(Date.UTC(today.year, today.month, 0)).getUTCDate() });
+  } else if (filter === "This Weekend") {
+    // Friday through Sunday: this week's on Fri/Sat/Sun, else the coming one.
+    // Ends are exclusive (eventDaySpan), so an event ending at Friday 00:00 is out.
+    const dow = new Date(Date.UTC(today.year, today.month - 1, today.day)).getUTCDay();
+    const offset = dow === 6 ? -1 : dow === 0 ? -2 : (5 - dow + 7) % 7;
+    rangeFirst += offset;
+    rangeLast = rangeFirst + 2;
+  }
   const span = eventDaySpan(event);
   return span.first <= rangeLast && span.last >= rangeFirst;
 }

@@ -69,6 +69,10 @@ No commercial permission is assumed, and none is claimed: nothing read grants co
 - https://www.leanderisd.org/calendar/ (5:46 PM) offers an "iCal URL" for each calendar, which is an offer to subscribe, not a grant to republish commercially.
 - Google Terms of Service, https://policies.google.com/terms?hl=en-US (5:47 PM), "Abuse of our services" list: no "using automated means to access content from any of our services in violation of the machine-readable instructions on our web pages (for example, robots.txt files...)". calendar.google.com's robots.txt disallows "/".
 
+#### Cancellation precedence across LISD feeds
+
+The district and all-campus feeds can carry the same occurrence. Occurrences match only on the canonical identity, the (UID, RECURRENCE-ID or null) tuple, stored as `occurrenceIdentity` (a JSON array, so it is unambiguous). The older `occurrenceKey` string (`uid#rid`) is kept as a readable label only: a recurring UID `example` with RECURRENCE-ID `2026-11-06` and a separate UID `example#2026-11-06` share that label but are different occurrences. Retained records that carry only the legacy label (no `occurrenceIdentity` or `uid`) are keyed by their per-feed record ID, so they never match or suppress anything across feeds. No committed data carries LISD records today. LISD record IDs are now hashed from the tuple, so they differ from IDs produced before this change. There is no title or time matching. Dedupe runs before the cancellation filter, and cancellation wins: if the district copy is cancelled and the campus copy is still confirmed (or the reverse), neither is published. A different RECURRENCE-ID is a different occurrence and is unaffected. A record with no key falls back to its per-feed record ID, so it never suppresses or is suppressed across feeds. See `scripts/lib/events-merge.mjs` and `scripts/lib/lisd-activation.test.mjs`. The feeds stay off; this only governs a future activation.
+
 ## Manual submitted listings
 
 This is the permitted path for jobs and events while the feeds are paused.

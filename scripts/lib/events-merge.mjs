@@ -11,11 +11,13 @@
 //
 // LISD calendar records (sources "lisd-district" and "lisd-campus") follow
 // stricter rules:
-// - A failed fetch keeps that source's previous records (last good).
-// - Cancelled occurrences are not published.
+// - A failed fetch keeps that source's previous records (last good), and so
+//   does a source not fetched this run (LEANDER_ENABLE_LISD_ICS off).
+// - Cancelled occurrences are not published. Cancellation wins across feeds:
+//   a cancelled copy suppresses every copy with the same occurrence identity.
 // - An event expires only after it ends (endsAt is exclusive).
 // - Duplicates are found by occurrence identity only. Within LISD, that is
-//   the record ID, which is derived from UID and RECURRENCE-ID. Against
+//   the (UID, RECURRENCE-ID) tuple (occurrenceIdentity), across both LISD feeds. Against
 //   civic.json, an event is dropped only when both are board meetings with
 //   the same start time, building and room (see sameOccurrenceAsCivic).
 //   Nothing is excluded by title alone.
@@ -164,11 +166,34 @@ export function mergeEventSources({ prev, results, civic = [], now }) {
     fresh.push(ev);
   }
 
-  // LISD sources.
-  let lisd = LISD_SOURCES.flatMap((s) => itemsFor(s));
+  // LISD sources. A source with no result this run (flag off) keeps its
+  // previous records, which then expire on the normal end-time rule.
+  let lisd = LISD_SOURCES.flatMap((s) => {
+    if (results.some((r) => r.source === s)) return itemsFor(s);
+    const kept = (prevBySource[s] || []).map((e) => ({ ...e }));
+    if (kept.length > 0) report.sources[s] = { used: 'retained', count: 0 };
+    return kept;
+  });
+  // Occurrence identity across both feeds: UID + RECURRENCE-ID (occurrenceKey),
+  // falling back to the per-feed record ID (so no key means no cross-feed match).
+  // Dedupe runs BEFORE the cancellation filter, and cancellation wins: if any
+  // copy of an occurrence is cancelled (e.g. district cancelled, campus still
+  // confirmed), no copy is published. Otherwise the district copy is kept
+  // (feed order). No title/time matching.
+  // Identity is the injective (UID, RECURRENCE-ID|null) tuple. Records that
+  // carry only the legacy, ambiguous occurrenceKey string (older retained
+  // history) are keyed by their per-feed ID, so they never match across feeds.
+  const occKey = (e) => {
+    if (typeof e.occurrenceIdentity === 'string' && e.occurrenceIdentity !== '') return `occ:${e.occurrenceIdentity}`;
+    if (typeof e.uid === 'string' && e.uid !== '') return `occ:${JSON.stringify([e.uid, e.recurrenceId || null])}`;
+    return e.id;
+  };
+  const cancelledKeys = new Set(lisd.filter((e) => e.cancelled).map(occKey).filter((k) => typeof k === 'string' && k !== ''));
+  const deduped = dedupe(lisd, { keyOf: occKey });
+  report.lisd.duplicateIds = deduped.duplicates.length;
   const live = [];
-  for (const ev of lisd) {
-    if (ev.cancelled) report.lisd.cancelledSkipped++;
+  for (const ev of deduped.items) {
+    if (ev.cancelled || (typeof occKey(ev) === 'string' && cancelledKeys.has(occKey(ev)))) report.lisd.cancelledSkipped++;
     else live.push(ev);
   }
   const { fresh: current, expired } = partitionByFreshness(live, {
@@ -180,9 +205,7 @@ export function mergeEventSources({ prev, results, civic = [], now }) {
     if (dup) report.lisd.civicDuplicates++;
     return !dup;
   });
-  const deduped = dedupe(notCivic, { keyOf: (e) => e.id });
-  report.lisd.duplicateIds = deduped.duplicates.length;
-  lisd = deduped.items;
+  lisd = notCivic;
 
   // Same stable sort as before (start time only), so existing order is unchanged.
   const events = [...anchors, ...fresh, ...lisd].sort((a, b) => a.startsAt - b.startsAt);
@@ -209,6 +232,9 @@ export function lisdRecordToEvent(record, sourceId, category) {
     source: sourceId,
     sourceUrl: record.source.feedUrl,
     occurrenceKey: record.occurrenceKey,
+    occurrenceIdentity: record.occurrenceIdentity,
+    uid: record.uid,
+    recurrenceId: record.recurrenceId,
     cancelled: record.cancelled,
   };
 }

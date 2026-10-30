@@ -14,7 +14,8 @@ import {
   Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { ALL_EVENTS, ALL_JOBS, CompanyMark, EventCard, plainText, inRange, type EventItem, type JobItem } from "./content";
+import { overlapsDateFilter } from "./eventTime";
+import { ALL_EVENTS, ALL_JOBS, CompanyMark, EventCard, plainText, type EventItem, type JobItem } from "./content";
 import { useSavedEvents } from "./state";
 import { UpliftSearch } from "./upliftSearch";
 import { ListingStatus } from "./sourceStatus";
@@ -204,7 +205,7 @@ export function WeekendSpotlight() {
   const { saved, toggleSaved } = useSavedEvents();
   const now = useMemo(() => new Date(), []);
   const weekend = useMemo(
-    () => ALL_EVENTS.filter((e) => inRange(e.startsAt, "This Weekend", now)),
+    () => ALL_EVENTS.filter((e) => overlapsDateFilter(e, "This Weekend", now.getTime())),
     [now],
   );
 
@@ -471,7 +472,7 @@ export function FeaturedEvents({
     const events = ALL_EVENTS.slice(0, limit);
     if (chip === "All") return events;
     if (chip === "This weekend")
-      return events.filter((e: EventItem) => inRange(e.startsAt, "This Weekend", now));
+      return events.filter((e: EventItem) => overlapsDateFilter(e, "This Weekend", now.getTime()));
     return events.filter((e: EventItem) => e.category === chip);
   }, [chip, limit, now]);
 

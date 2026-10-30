@@ -41,7 +41,7 @@
     "test": "node --test scripts/lib/*.test.mjs",
     "validate:listings": "node scripts/validate-listings.mjs",
     "test:uiarc": "node --test src/components/ui/__tests__/compat.test.mjs",
-    "test:preservation": "node --test qa/preservation.test.mjs",
+    "test:preservation": "node --test qa/preservation.test.mjs qa/weekend-visibility.test.mjs",
     "render:preservation": "node qa/render-preservation.mjs"
   },
   "type": "module",
