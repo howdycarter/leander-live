@@ -4,8 +4,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { Dialog } from "@/components/ui/dialog";
-import { SubmitDialogContent } from "./content";
+import { useNavigate } from "react-router-dom";
 
 /* ---------------- saved events (localStorage only — no backend) ---------------- */
 
@@ -64,16 +63,8 @@ type SiteActionsValue = {
 const SiteActionsContext = createContext<SiteActionsValue | null>(null);
 
 export function SiteActionsProvider({ children }: { children: ReactNode }) {
-  const [submitOpen, setSubmitOpen] = useState(false);
-
-  return (
-    <SiteActionsContext.Provider value={{ openSubmit: () => setSubmitOpen(true) }}>
-      {children}
-      <Dialog open={submitOpen} onOpenChange={setSubmitOpen}>
-        <SubmitDialogContent />
-      </Dialog>
-    </SiteActionsContext.Provider>
-  );
+  const navigate = useNavigate();
+  return <SiteActionsContext.Provider value={{ openSubmit: () => navigate("/submit?type=event") }}>{children}</SiteActionsContext.Provider>;
 }
 
 export function useSiteActions(): SiteActionsValue {
