@@ -67,7 +67,7 @@
     "src/data/types.ts": "6968cf9136a5de76e4f4c35bc214b6d3762caabd52a2bf937f3998ab45a8be35",
     "src/site/chrome.tsx": "ae7adba35dda57b2f5e2c14629d6b93b57b80941c3e5e281fab8c8e1529c2631",
     "src/site/eventJsonLd.ts": "159d790862df6634815d8616226504e3803bf705c526d7db7826474218b28df7",
-    "src/site/eventTime.ts": "728652f81e4fbd5102a4913148f05a8c4856c171fae544b6acb94b46a7198da3",
+    "src/site/eventTime.ts": "0703f12d19086ae144234df204511167b27be750db3283a6ddf03c73e86d9812",
     "src/site/ics.ts": "22641ca4eddf45a654b428a736908a3d728178fdd8b1686319898cdb6bc15650",
     "src/site/pages.tsx": "d1df3f8698a733d7cf6f7bf831e7c0d5a2cf392a5a59999ff225202f27fcff15",
     "src/site/state.tsx": "d2e2ff5573c98e7eef61be7e264f89646d4a0aadc332d7b1d797e1f5179f6424"

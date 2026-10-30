@@ -120,7 +120,8 @@ export function eventTimeLabel(event: EventTiming): string {
 /**
  * True while an event is still worth listing.
  * All-day events stay listed through their last day.
- * Timed events follow the site's existing rule: listed until 24 hours after the start.
+ * Timed events stay listed until their end (exclusive); without a valid end,
+ * the site's existing rule applies: listed until 24 hours after the start.
  */
 export function isStillListed(event: EventTiming, now: number): boolean {
   const span = allDaySpan(event);
@@ -129,6 +130,10 @@ export function isStillListed(event: EventTiming, now: number): boolean {
     const lastMs = Date.UTC(span.last.year, span.last.month - 1, span.last.day);
     return lastMs >= Date.UTC(today.year, today.month - 1, today.day);
   }
+  // Timed: visible until a valid end (exclusive). Absent or invalid end
+  // (non-finite, or end <= start) keeps the 24-hours-after-start rule.
+  const end = event.endsAt;
+  if (typeof end === "number" && Number.isFinite(end) && end > event.startsAt) return now < end;
   return event.startsAt >= now - DAY_MS;
 }
 
