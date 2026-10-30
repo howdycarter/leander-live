@@ -301,7 +301,8 @@ export function JobsPreview() {
           </CardContent>
         </Card>
       ) : (
-        <div className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card shadow-[0_1px_2px_rgba(22,50,79,0.07)]">
+        <Card className="arc-jobs-preview overflow-hidden rounded-2xl border border-border bg-card shadow-[0_1px_2px_rgba(22,50,79,0.07)]">
+          <CardContent className="divide-y divide-border p-0">
           {preview.map((job: JobItem) => (
             <Link
               key={job.id}
@@ -327,7 +328,8 @@ export function JobsPreview() {
               <ArrowRight className="h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
             </Link>
           ))}
-        </div>
+          </CardContent>
+        </Card>
       )}
     </section>
   );

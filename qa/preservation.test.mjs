@@ -35,6 +35,28 @@ test('homepage uses real UIARC search and keeps the original search purpose',()=
  assert.match(input.attr('class'),/_input_/);assert.equal($('label[for="'+input.attr('id')+'"]').text(),'Search Leander events');
  assert.equal($('button[type=submit]').text(),'Search');
 });
+test('homepage jobs preview uses a genuine Arc Card without changing its links or row spacing',()=>{
+ const $=load(render(concept.JobsPreview));const card=$('article.arc-jobs-preview');
+ assert.equal(card.length,1);assert.match(card.attr('class'),/_card_/);
+ for(const token of ['overflow-hidden','rounded-2xl','border-border','bg-card','shadow-[0_1px_2px_rgba(22,50,79,0.07)]'])assert.ok(card.attr('class').split(' ').includes(token),token);
+ const rows=card.children('div').children('.divide-y.divide-border.p-0').children('a');
+ const expected=[...content.ALL_JOBS.filter(j=>j.featured),...content.ALL_JOBS.filter(j=>!j.featured)].slice(0,3);
+ assert.equal(rows.length,expected.length);
+ rows.each((i,e)=>{
+  const row=$(e),job=expected[i];assert.equal(row.attr('href'),'/jobs');
+  assert.equal(row.attr('aria-label'),`${job.title.trim()} at ${job.company} — view on the jobs board`);
+  assert.equal(row.attr('class'),'flex items-center gap-3 px-3.5 py-3 transition-colors hover:bg-muted/70 sm:px-4');
+  assert.ok(row.text().includes(job.title.trim()));assert.ok(row.text().includes(job.company));
+  if(job.payRange)assert.ok(row.text().includes(content.plainText(job.payRange)));
+ });
+ assert.equal(card.find('button,h3,[role=button]').length,0);
+});
+test('grouped jobs Card retains a stationary surface instead of lifting all links together',async()=>{
+ const css=await fs.readFile(new URL('../src/components/ui/compat.css',import.meta.url),'utf8');
+ let stationary=false;postcss.parse(css).walkRules('.arc-jobs-preview',rule=>{
+  rule.walkDecls('transform',d=>{stationary=d.value==='none'&&d.important;});
+ });assert.ok(stationary);
+});
 test('event cards retain photography, category edge, detail links and save control on UIARC surfaces',()=>{
  const event=content.ALL_EVENTS.find(e=>e.image);assert.ok(event);
  const $=load(render(()=>h(content.EventCard,{event,saved:false,onToggleSaved(){}})));

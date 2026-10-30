@@ -1,8 +1,9 @@
 import { useLayoutEffect, useState } from "react";
 import { createDraftCopyManager, emailDraftText, type EmailDraft } from "./emailDrafts";
+import { clipboardWriteLock } from "./clipboardWrites";
 
 // One lock covers every form and survives a form unmount while a write is pending.
-const clipboardCopies = createDraftCopyManager();
+const clipboardCopies = createDraftCopyManager(clipboardWriteLock);
 
 export function useDraftCopy(draft: EmailDraft | null, recipient: string, contextKey = "") {
   const [session] = useState(() => clipboardCopies.createSession());

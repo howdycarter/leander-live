@@ -3,6 +3,8 @@
   .arc-button-compat { text-decoration: none; }
   .arc-button-compat svg { width: 1rem; height: 1rem; flex: none; }
   .arc-composed-card > div { padding: 0; }
+  /* This is a group of independent job links, not one hovering action. */
+  .arc-jobs-preview { transform: none !important; }
   .arc-select-compat { display: contents; }
   /* Preserve the original visible labels; UIARC's internal label still names the control. */
   .arc-select-compat > div > label { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }

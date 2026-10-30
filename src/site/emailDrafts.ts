@@ -89,8 +89,7 @@ export function emailDraftText(draft: EmailDraft, recipient: string): string {
 }
 
 /** Coordinate clipboard writes across forms, including a form that just unmounted. */
-export function createDraftCopyManager() {
-  let pending = false;
+export function createDraftCopyManager(lock = { pending: false }) {
   return {
     createSession() {
       let generation = 0;
@@ -103,12 +102,12 @@ export function createDraftCopyManager() {
         ): Promise<void> {
           // Clipboard writes cannot be cancelled. Never overlap a newer write with
           // an older pending write that could otherwise overwrite its contents.
-          if (pending) {
+          if (lock.pending) {
             publish("A copy is still finishing. Try again, or copy the draft below manually.");
             return;
           }
           const request = ++generation;
-          pending = true;
+          lock.pending = true;
           publish("");
           try {
             await writeText(text);
@@ -116,7 +115,7 @@ export function createDraftCopyManager() {
           } catch {
             if (request === generation) publish("Copy unavailable. Select and copy the draft below manually.");
           } finally {
-            pending = false;
+            lock.pending = false;
           }
         },
       };
