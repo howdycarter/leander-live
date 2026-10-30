@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { SOURCE_GATES, sourceEnabled, statusRow, mergeStatus } from './source-gates.mjs';
+import { SOURCE_GATES, sourceEnabled, statusRow, mergeStatus, signalGateRows } from './source-gates.mjs';
 import { runGated, readStatus } from './source-status-file.mjs';
 import { validateSubmittedListings, activeListings } from './submitted-listings.mjs';
 
@@ -121,4 +121,27 @@ test('history is preserved: committed data files are untouched by the gates', ()
     const rows = JSON.parse(readFileSync(join(ROOT, 'src/data', f), 'utf8'));
     assert.ok(Array.isArray(rows) && rows.length > 0, f);
   }
+});
+
+test('paused signal sources report the history the queue still holds', () => {
+  const queue = [
+    { id: 'n1', source: 'google-news' }, { id: 'n2', source: 'google-news' },
+    { id: 'b1', source: 'boardbook-agenda' }, { id: 'c1', source: 'chamber' },
+  ];
+  const now = '2026-10-30T00:00:00.000Z';
+  const prevStatus = [{ id: 'google-news', lastSuccessAt: '2026-10-01T00:00:00.000Z' }];
+  const [news, lisd] = signalGateRows(
+    [{ id: 'google-news', enabled: false, ok: false }, { id: 'lisd-agenda-signals', enabled: false, ok: false }],
+    queue, { now, prevStatus });
+  assert.equal(news.state, 'paused');
+  assert.equal(news.recordsKept, 2);
+  assert.equal(news.historical, true);
+  assert.equal(news.lastSuccessAt, '2026-10-01T00:00:00.000Z');
+  assert.equal(lisd.recordsKept, 1);
+  assert.equal(lisd.historical, true);
+  const [empty] = signalGateRows([{ id: 'google-news', enabled: false, ok: false }], [], { now });
+  assert.equal(empty.recordsKept, 0);
+  assert.equal(empty.historical, false);
+  const [failed] = signalGateRows([{ id: 'google-news', enabled: true, ok: false }], queue, { now });
+  assert.equal(failed.historical, true);
 });

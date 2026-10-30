@@ -30,7 +30,7 @@
  * which are news whenever we first see them).
  */
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
-import { sourceEnabled, statusRow } from "./lib/source-gates.mjs";
+import { signalGateRows, sourceEnabled } from "./lib/source-gates.mjs";
 import { readStatus, recordStatus } from "./lib/source-status-file.mjs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
@@ -402,28 +402,26 @@ async function main() {
   // unless LEANDER_ENABLE_GOOGLE_NEWS=1 or LEANDER_ENABLE_FIRECRAWL=1.
   const now = new Date().toISOString();
   const prevStatus = readStatus();
-  const gateRow = (id, enabled, ok) => statusRow(id, { enabled, ok, now, prev: prevStatus.find((r) => r.id === id) ?? {} });
-  const rows = [];
+  const gates = [];
+  const gate = (id, enabled, ok = false) => ({ id, enabled, ok });
   if (sourceEnabled("google-news")) {
-    try { await scanGoogleNews(signals, misc, stats); rows.push(gateRow("google-news", true, true)); }
-    catch (e) { warn(`google-news source failed: ${e.message}`); rows.push(gateRow("google-news", true, false)); }
+    try { await scanGoogleNews(signals, misc, stats); gates.push(gate("google-news", true, true)); }
+    catch (e) { warn(`google-news source failed: ${e.message}`); gates.push(gate("google-news", true, false)); }
   } else {
     console.error("google-news: paused (rights pending)");
-    rows.push(gateRow("google-news", false));
+    gates.push(gate("google-news", false));
   }
 
   try { await scanChamber(signals, misc, stats); }
   catch (e) { warn(`chamber source failed: ${e.message}`); }
 
   if (sourceEnabled("lisd-agenda-signals")) {
-    try { await scanLisdAgenda(signals, misc); rows.push(gateRow("lisd-agenda-signals", true, true)); }
-    catch (e) { warn(`lisd-agenda scan failed: ${e.message}`); rows.push(gateRow("lisd-agenda-signals", true, false)); }
+    try { await scanLisdAgenda(signals, misc); gates.push(gate("lisd-agenda-signals", true, true)); }
+    catch (e) { warn(`lisd-agenda scan failed: ${e.message}`); gates.push(gate("lisd-agenda-signals", true, false)); }
   } else {
     console.error("lisd-agenda-signals: paused (rights pending, paid service)");
-    rows.push(gateRow("lisd-agenda-signals", false));
+    gates.push(gate("lisd-agenda-signals", false));
   }
-  recordStatus(rows);
-
   writeJson(MISC_STATE, misc);
 
   const queue = readJson(QUEUE_OUT, []);
@@ -433,6 +431,9 @@ async function main() {
     .sort((a, b) => a.firstSeenAt - b.firstSeenAt)
     .slice(-400);
   writeJson(QUEUE_OUT, merged);
+  // Status is recorded after the queue is final, so recordsKept counts the
+  // signals from each gated source that the published queue still holds.
+  recordStatus(signalGateRows(gates, merged, { now, prevStatus }));
   writeJson(LASTRUN_OUT, {
     at: Date.now(),
     newSignals: freshSignals,

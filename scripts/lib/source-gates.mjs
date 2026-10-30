@@ -96,3 +96,23 @@ export function mergeStatus(prevRows, rows) {
   for (const r of rows) byId.set(r.id, r);
   return [...byId.values()].sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
 }
+
+/** Queue `source` values produced by each gated signal source. */
+export const SIGNAL_SOURCE_TAGS = {
+  'google-news': ['google-news'],
+  'lisd-agenda-signals': ['boardbook-agenda'],
+};
+
+/**
+ * Status rows for the gated signal sources. `queue` is the signal queue as
+ * written, so a paused or failed source reports the history it still has.
+ * @param {{ id: string, enabled: boolean, ok: boolean }[]} gates
+ */
+export function signalGateRows(gates, queue, { now, prevStatus = [] }) {
+  return gates.map(({ id, enabled, ok }) => {
+    const tags = new Set(SIGNAL_SOURCE_TAGS[id] ?? [id]);
+    const recordsKept = queue.filter((s) => tags.has(s.source)).length;
+    const prev = prevStatus.find((r) => r.id === id) ?? {};
+    return statusRow(id, { enabled, ok, recordsKept, prev, now });
+  });
+}
