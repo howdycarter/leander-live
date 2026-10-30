@@ -19,9 +19,10 @@
  * then category, then name — stable ordering so refresh diffs stay small.
  *
  * Robustness: idempotent; a failed or suspicious fetch keeps the previous
- * file untouched and the script still exits 0 (pipeline pattern).
+ * file untouched and the script exits nonzero.
  */
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
+import { recordStatus, runTracked } from "./lib/source-status-file.mjs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
@@ -190,19 +191,18 @@ async function main() {
   // across regenerations instead of wiping them every run.
   const prevFeatured = new Map(prev.filter((b) => b.featured).map((b) => [b.id, true]));
 
-  let rows;
-  try {
+  const source = await runTracked("tx-sales-tax-businesses", async () => {
     const res = await fetch(TAX_URL, { headers: { "User-Agent": UA } });
     if (!res.ok) throw new Error(`HTTP ${res.status} for Socrata query`);
-    rows = JSON.parse(await res.text());
-  } catch (e) {
-    console.error(`WARN: businesses source failed: ${e.message}; keeping ${prev.length} previous listings`);
-    return;
-  }
-  if (!Array.isArray(rows) || rows.length < 500) {
-    console.error(`WARN: suspicious Socrata result (${Array.isArray(rows) ? rows.length : "non-array"} rows); keeping ${prev.length} previous listings`);
-    return;
-  }
+    const rows = JSON.parse(await res.text());
+    if (!Array.isArray(rows) || rows.length < 500) {
+      throw new Error(`suspicious Socrata result (${Array.isArray(rows) ? rows.length : "non-array"} rows)`);
+    }
+    return rows;
+  }, prev);
+  recordStatus([source.row]);
+  if (source.row.state !== "ok") { process.exitCode = 1; return; }
+  const rows = source.items;
 
   const byDedupe = new Map();
   let gatedOut = 0, skipped = 0;
@@ -258,10 +258,11 @@ async function main() {
     a.name.localeCompare(b.name),
   );
   writeFileSync(OUT, JSON.stringify(all, null, 2) + "\n");
+  recordStatus([{ ...source.row, recordsKept: all.length }]);
   console.log(
     `businesses.json: ${all.length} listings (from ${rows.length} Leander outlets; ` +
     `${gatedOut} gated out by NAICS, ${skipped} skipped, ${manualCount} manual merged)`,
   );
 }
 
-main().catch((e) => { console.error(`WARN: fatal: ${e.message}`); process.exit(0); });
+main().catch((e) => { console.error(`WARN: fatal: ${e.message}`); process.exitCode = 1; });

@@ -31,8 +31,22 @@ export async function runGated(id, fetcher, previous, { env = process.env, now =
     log(`${id}: paused (rights pending); keeping ${previous.length} previous records as history`);
     return { items: previous, row: statusRow(id, { enabled: false, recordsKept: previous.length, prev, now }) };
   }
+  return fetchTracked(id, fetcher, previous, { now, log, prev });
+}
+
+// Only these existing automatic sources may use the ungated wrapper. Restricted
+// sources must go through runGated, even when the caller omits an environment.
+const UNGATED_SOURCES = new Set(['chamber', 'civicclerk-meetings', 'tx-sales-tax-businesses']);
+export async function runTracked(id, fetcher, previous, { now = new Date().toISOString(), log = console.error, statusPath = STATUS_PATH } = {}) {
+  if (!UNGATED_SOURCES.has(id)) throw new Error(`${id} is not an ungated source`);
+  const prev = readStatus(statusPath).find((r) => r.id === id) ?? {};
+  return fetchTracked(id, fetcher, previous, { now, log, prev });
+}
+
+async function fetchTracked(id, fetcher, previous, { now, log, prev }) {
   try {
     const items = await fetcher();
+    if (!Array.isArray(items)) throw new Error('source result must be an array');
     return { items, row: statusRow(id, { enabled: true, ok: true, recordsKept: items.length, prev, now }) };
   } catch (e) {
     log(`WARN: ${id} failed: ${e.message}; keeping ${previous.length} previous records`);

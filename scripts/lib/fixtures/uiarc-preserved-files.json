@@ -75,5 +75,15 @@
   "presentationExceptions": {
     "src/site/chrome.tsx": "Truthful route metadata and genuine UIARC footer action; original logo, navigation destinations and chrome classes guarded separately.",
     "src/site/pages.tsx": "Source-status disclosure and advertising honesty; original route tree, photography, hero identities and section layout guarded separately."
+  },
+  "refreshExceptions": {
+    "scripts/lib/source-compliance.test.mjs": "Regression coverage for tracked enabled sources and source-gate preservation.",
+    "scripts/lib/source-status-file.mjs": "Track already-enabled sources, validate result arrays, preserve source gates.",
+    "scripts/run-refresh.mjs": "Propagate failures, invalidate stale reports and detect status-only changes.",
+    "scripts/scrape-businesses.mjs": "Persist verified source status and report failures with a nonzero exit.",
+    "scripts/scrape-civic.mjs": "Track CivicClerk and apply existing six-hour expiry to retained meetings.",
+    "scripts/scrape-events.mjs": "Track Chamber updates and report enabled-source/fatal failures.",
+    "scripts/scrape-jobs.mjs": "Apply existing ISD age policy to retained jobs and propagate failures.",
+    "scripts/scrape-signals.mjs": "Report partial/fatal failures with a nonzero exit while retaining review queue."
   }
 }

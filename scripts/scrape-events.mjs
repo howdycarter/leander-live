@@ -7,13 +7,13 @@
  * Output: src/data/events.json (array of LiveEvent, sorted ascending by startsAt).
  *
  * Robustness: idempotent; a failed source logs WARN: to stderr, keeps the
- * previous records for that source, and the script still exits 0.
+ * previous records for that source, and the script exits nonzero for an enabled-source failure.
  */
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { parseLisdIcs, feedUrl } from "./lib/ics.mjs";
 import { deriveBlurb } from "./lib/blurb.mjs";
 import { mergeEventSources, lisdRecordToEvent, lisdSourceResult } from "./lib/events-merge.mjs";
-import { recordStatus, runGated } from "./lib/source-status-file.mjs";
+import { recordStatus, runGated, runTracked } from "./lib/source-status-file.mjs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import * as cheerio from "cheerio";
@@ -201,6 +201,7 @@ async function scrapeChamber() {
   if (urls.size === 0) throw new Error("no /event/ URLs found on chamber calendar page");
   console.error(`chamber: ${urls.size} event pages found`);
   const events = [];
+  let failedDetails = 0;
   for (const [eid, pageUrl] of urls) {
     await sleep(SLEEP_MS);
     try {
@@ -236,9 +237,11 @@ async function scrapeChamber() {
         source: "chamber",
       });
     } catch (e) {
+      failedDetails++;
       console.error(`WARN: chamber eid ${eid}: ${e.message}`);
     }
   }
+  if (failedDetails) throw new Error(`${failedDetails} Chamber event detail(s) failed; incomplete result rejected`);
   return events;
 }
 
@@ -269,16 +272,12 @@ async function main() {
     results.push({ source: "city-calendar", ok: false, error: cityGate.row.reason });
   }
 
-  for (const [source, scrape] of [["chamber", scrapeChamber]]) {
-    try {
-      const items = await scrape();
-      results.push({ source, ok: true, items });
-      console.error(`${source}: OK (${items.length} events)`);
-    } catch (e) {
-      results.push({ source, ok: false, error: e.message });
-      console.error(`WARN: ${source} source failed: ${e.message}; keeping previous records`);
-    }
-  }
+  const chamber = await runTracked("chamber", scrapeChamber, prev.filter((e) => e.source === "chamber" && !String(e.id).startsWith("anchor-")));
+  recordStatus([chamber.row]);
+  results.push(chamber.row.state === "ok"
+    ? { source: "chamber", ok: true, items: chamber.items }
+    : { source: "chamber", ok: false, error: chamber.row.reason });
+  if (cityGate.row.state === "failed" || chamber.row.state === "failed") process.exitCode = 1;
 
   // Official public Leander ISD calendars. Off unless explicitly enabled.
   if (process.env.LEANDER_ENABLE_LISD_ICS === "1") {
@@ -298,8 +297,9 @@ async function main() {
         const result = lisdSourceResult(source, parsed, (r) => lisdRecordToEvent(r, source, mapCategory(`${r.title} ${r.description}`, "Community")));
         results.push(result);
         if (result.ok) console.error(`${source}: OK (${result.items.length} occurrences)`);
-        else console.error(`WARN: ${source} source failed: ${result.error}; keeping previous records`);
+        else { process.exitCode = 1; console.error(`WARN: ${source} source failed: ${result.error}; keeping previous records`); }
       } catch (e) {
+        process.exitCode = 1;
         results.push({ source, ok: false, error: e.message });
         console.error(`WARN: ${source} source failed: ${e.message}; keeping previous records`);
       }
@@ -323,4 +323,4 @@ async function main() {
   console.log(`events.json: ${all.length} events (${counts})`);
 }
 
-main().catch((e) => { console.error(`WARN: fatal: ${e.message}`); process.exit(0); });
+main().catch((e) => { console.error(`WARN: fatal: ${e.message}`); process.exitCode = 1; });
