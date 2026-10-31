@@ -806,6 +806,19 @@
     "sourceUrl": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders"
   },
   {
+    "id": "biz-32099596952-1",
+    "name": "Valvoline Express Care",
+    "category": "Auto Repair",
+    "naics": "811191",
+    "address": "2101 S Highway 183",
+    "zip": "78641",
+    "permitIssuedAt": 1793336400000,
+    "firstSalesAt": 1794722400000,
+    "featured": false,
+    "source": "tx-sales-tax",
+    "sourceUrl": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders"
+  },
+  {
     "id": "biz-32061026400-111",
     "name": "Valvoline Instant Oil Change 070099",
     "category": "Auto Repair",
@@ -1893,19 +1906,6 @@
     "zip": "78641",
     "permitIssuedAt": 1778562000000,
     "firstSalesAt": 1775019600000,
-    "featured": false,
-    "source": "tx-sales-tax",
-    "sourceUrl": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders"
-  },
-  {
-    "id": "biz-32059213200-1",
-    "name": "Krysia'S Corner",
-    "category": "Clothing & Accessories",
-    "naics": "448140",
-    "address": "2028 Elaina Loop",
-    "zip": "78641",
-    "permitIssuedAt": 1763359200000,
-    "firstSalesAt": 1454306400000,
     "featured": false,
     "source": "tx-sales-tax",
     "sourceUrl": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders"
@@ -3843,6 +3843,19 @@
     "zip": "78641",
     "permitIssuedAt": 1603170000000,
     "firstSalesAt": 1609567200000,
+    "featured": false,
+    "source": "tx-sales-tax",
+    "sourceUrl": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders"
+  },
+  {
+    "id": "biz-32051862962-4",
+    "name": "Fast Break #17",
+    "category": "Gas & Convenience",
+    "naics": "447110",
+    "address": "16061 Ronald W Reagan Blvd",
+    "zip": "78641",
+    "permitIssuedAt": 1793163600000,
+    "firstSalesAt": 1794808800000,
     "featured": false,
     "source": "tx-sales-tax",
     "sourceUrl": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders"
@@ -5837,19 +5850,6 @@
     "sourceUrl": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders"
   },
   {
-    "id": "biz-32061784081-2",
-    "name": "Queen Of Hearts Cpr",
-    "category": "Lessons & Tutoring",
-    "naics": "611699",
-    "address": "263 Housefinch Loop",
-    "zip": "78641",
-    "permitIssuedAt": 1591765200000,
-    "firstSalesAt": 1590987600000,
-    "featured": false,
-    "source": "tx-sales-tax",
-    "sourceUrl": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders"
-  },
-  {
     "id": "biz-32100872335-1",
     "name": "Shako Mako - Iraqi American Association",
     "category": "Lessons & Tutoring",
@@ -7018,6 +7018,19 @@
     "sourceUrl": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders"
   },
   {
+    "id": "biz-32092028441-4",
+    "name": "Austin Chicks Management, LLC",
+    "category": "Restaurants & Food",
+    "naics": "722513",
+    "address": "1060 Hero Way",
+    "zip": "78641",
+    "permitIssuedAt": 1792818000000,
+    "firstSalesAt": 1793685600000,
+    "featured": false,
+    "source": "tx-sales-tax",
+    "sourceUrl": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders"
+  },
+  {
     "id": "biz-32048511912-19",
     "name": "B4 Pizza LLC",
     "category": "Restaurants & Food",
@@ -7260,6 +7273,19 @@
     "zip": "78641",
     "permitIssuedAt": 1554094800000,
     "firstSalesAt": 1556686800000,
+    "featured": false,
+    "source": "tx-sales-tax",
+    "sourceUrl": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders"
+  },
+  {
+    "id": "biz-32090420327-2",
+    "name": "Chiki Chulo Leander",
+    "category": "Restaurants & Food",
+    "naics": "722513",
+    "address": "124 San Gabriel Parkway",
+    "zip": "78641",
+    "permitIssuedAt": 1792818000000,
+    "firstSalesAt": 1792386000000,
     "featured": false,
     "source": "tx-sales-tax",
     "sourceUrl": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders"
@@ -8916,19 +8942,6 @@
     "sourceUrl": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders"
   },
   {
-    "id": "biz-32074215628-1",
-    "name": "The Thirsty Chicken LLC",
-    "category": "Restaurants & Food",
-    "naics": "722513",
-    "address": "104 W Willis Street",
-    "zip": "78641",
-    "permitIssuedAt": 1590123600000,
-    "firstSalesAt": 1596258000000,
-    "featured": false,
-    "source": "tx-sales-tax",
-    "sourceUrl": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders"
-  },
-  {
     "id": "biz-32088622041-2",
     "name": "Tim Horton'S #921176",
     "category": "Restaurants & Food",
@@ -9885,7 +9898,7 @@
     "address": "112 Concho Creek Loop",
     "zip": "78641",
     "permitIssuedAt": 1784264400000,
-    "firstSalesAt": 1780290000000,
+    "firstSalesAt": 1769925600000,
     "featured": false,
     "source": "tx-sales-tax",
     "sourceUrl": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders"

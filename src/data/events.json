@@ -36,32 +36,6 @@
     "blurb": "Trick-or-treating, costumes, and family fun hosted by Leander Parks & Recreation and the Leander Police Department."
   },
   {
-    "id": "citycal-3275",
-    "title": "Teen Homeschool Hangout (Ages 12-17)",
-    "startsAt": 1793383200000,
-    "endsAt": 1793388600000,
-    "venue": "Library Annex Conference Room",
-    "address": "1011 S. Bagdad Rd., Leander TX, 78641",
-    "description": "Teen Homeschool Hangout (Ages 12-17) — see the City of Leander calendar for details.",
-    "url": "https://www.leandertx.gov/Calendar.aspx?EID=3275",
-    "sourceUrl": "https://www.leandertx.gov/Calendar.aspx?EID=3275",
-    "category": "Family",
-    "source": "city-calendar"
-  },
-  {
-    "id": "citycal-3267",
-    "title": "Brick Builders (Ages 3-10)",
-    "startsAt": 1793390400000,
-    "endsAt": 1793395800000,
-    "venue": "Library Annex Studio",
-    "address": "1011 S. Bagdad Rd., Leander TX, 78641",
-    "description": "Brick Builders (Ages 3-10) — see the City of Leander calendar for details.",
-    "url": "https://www.leandertx.gov/Calendar.aspx?EID=3267",
-    "sourceUrl": "https://www.leandertx.gov/Calendar.aspx?EID=3267",
-    "category": "Learn",
-    "source": "city-calendar"
-  },
-  {
     "id": "chamber-168957",
     "title": "Little Monster Mash; Kids Halloween Party",
     "description": "Join us in costume before your night of trick-or-treating for a day time Halloween Party at Lioness Books! We''ll have Spooky Storytime, Pumpkin Painting, all natural ice pops by Bare Pops, and more!Admission and pricing DetailsThis is a free event.",
@@ -191,7 +165,7 @@
     "sourceUrl": "https://leander.chamberspace.net/event/ribbon-cutting-fierce/168967",
     "category": "Community",
     "source": "chamber",
-    "blurb": "The Leander Chamber of Commerce is excited to celebrate the grand opening of FIERCE United&rsquo;s new FIERCE Futsal Facility!"
+    "blurb": "The Leander Chamber of Commerce is excited to celebrate the grand opening of FIERCE United’s new FIERCE Futsal Facility!"
   },
   {
     "id": "chamber-168950",
@@ -380,7 +354,7 @@
     "sourceUrl": "https://leander.chamberspace.net/event/documentary-screening-join-or-die/168979",
     "category": "Community",
     "source": "chamber",
-    "blurb": "Join or Die is a film about why you should join a club &mdash; and why the fate of America depends on it."
+    "blurb": "Join or Die is a film about why you should join a club — and why the fate of America depends on it."
   },
   {
     "id": "citycal-3387",
@@ -408,7 +382,7 @@
     "sourceUrl": "https://leander.chamberspace.net/event/board-training-program/168917",
     "category": "Learn",
     "source": "chamber",
-    "blurb": "I Live Here I Give Here&rsquo;s annual Board Training Program is a full-day immersive educational opportunity featuring two tracks to serve…"
+    "blurb": "I Live Here I Give Here’s annual Board Training Program is a full-day immersive educational opportunity featuring two tracks to serve the…"
   },
   {
     "id": "chamber-168985",
@@ -618,7 +592,7 @@
     "sourceUrl": "https://leander.chamberspace.net/event/ribbon-cutting-chicken-salad-chick/168935",
     "category": "Community",
     "source": "chamber",
-    "blurb": "Join the Leander Chamber of Commerce &amp; Visitors Center as we celebrate the opening of&nbsp; Chicken Salad Chick&rsquo;s new Leander…"
+    "blurb": "Join the Leander Chamber of Commerce & Visitors Center as we celebrate the opening of Chicken Salad Chick’s new Leander location!"
   },
   {
     "id": "citycal-3378",
@@ -738,7 +712,7 @@
     "sourceUrl": "https://leander.chamberspace.net/event/women-s-network-game-night-trivia-social/168771",
     "category": "Community",
     "source": "chamber",
-    "blurb": "Join us for a fun and engaging Women&rsquo;s Network Trivia Night&mdash;an evening designed to bring women together for connection,…"
+    "blurb": "Join us for a fun and engaging Women’s Network Trivia Night—an evening designed to bring women together for connection, laughter, and a…"
   },
   {
     "id": "citycal-3319",

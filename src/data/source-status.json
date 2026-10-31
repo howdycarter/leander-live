@@ -5,7 +5,7 @@
     "reason": "paused: rights pending",
     "basis": "Google News terms section 2 and the Google News feed terms (non-commercial use only).",
     "lastSuccessAt": null,
-    "checkedAt": "2026-10-30T21:09:17.338Z",
+    "checkedAt": "2026-10-31T11:08:55.983Z",
     "recordsKept": 5,
     "historical": true
   },
@@ -15,7 +15,7 @@
     "reason": "paused: rights pending",
     "basis": "NEOGOV Terms of Use sections 4 and 6 (personal, non-commercial use only; no page-scrape, robot or spider access).",
     "lastSuccessAt": null,
-    "checkedAt": "2026-10-30T21:09:02.420Z",
+    "checkedAt": "2026-10-31T11:08:43.001Z",
     "recordsKept": 10,
     "historical": true
   },
@@ -25,7 +25,7 @@
     "reason": "paused: rights pending",
     "basis": "NEOGOV Terms of Use sections 4 and 6 (personal, non-commercial use only; no page-scrape, robot or spider access).",
     "lastSuccessAt": null,
-    "checkedAt": "2026-10-30T21:09:02.437Z",
+    "checkedAt": "2026-10-31T11:08:43.014Z",
     "recordsKept": 10,
     "historical": true
   },
@@ -35,7 +35,7 @@
     "reason": "paused: rights pending, site blocked",
     "basis": "www.leandertx.gov returns HTTP 403, so its terms could not be read.",
     "lastSuccessAt": null,
-    "checkedAt": "2026-10-30T21:08:28.353Z",
+    "checkedAt": "2026-10-31T11:08:13.696Z",
     "recordsKept": 50,
     "historical": true
   },
@@ -45,7 +45,7 @@
     "reason": "paused: rights pending, site blocked",
     "basis": "www.leandertx.gov returns HTTP 403, so its terms could not be read.",
     "lastSuccessAt": null,
-    "checkedAt": "2026-10-30T21:09:11.359Z",
+    "checkedAt": "2026-10-31T11:08:51.964Z",
     "recordsKept": 3,
     "historical": true
   },
@@ -55,7 +55,7 @@
     "reason": "paused: rights pending, paid service",
     "basis": "Fetched through Firecrawl, a paid service. No LISD site terms found that permit commercial reuse.",
     "lastSuccessAt": null,
-    "checkedAt": "2026-10-30T21:09:17.338Z",
+    "checkedAt": "2026-10-31T11:08:55.983Z",
     "recordsKept": 1,
     "historical": true
   },
@@ -65,7 +65,7 @@
     "reason": "paused: rights pending, paid service",
     "basis": "Fetched through Firecrawl, a paid service. AppliTrack reuse terms not reviewed.",
     "lastSuccessAt": null,
-    "checkedAt": "2026-10-30T21:09:02.437Z",
+    "checkedAt": "2026-10-31T11:08:43.014Z",
     "recordsKept": 60,
     "historical": true
   },
@@ -75,7 +75,7 @@
     "reason": "paused: rights pending, paid service",
     "basis": "Fetched through Firecrawl, a paid service. No LISD site terms found that permit commercial reuse.",
     "lastSuccessAt": null,
-    "checkedAt": "2026-10-30T21:09:11.359Z",
+    "checkedAt": "2026-10-31T11:08:51.963Z",
     "recordsKept": 1,
     "historical": true
   }
