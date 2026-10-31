@@ -11,7 +11,11 @@
  *   - navy as the structural color (headings, header/footer, chips)
  *   - burnt orange reserved for calls to action and links
  *   - gold for featured/sponsored highlights
- *   - Archivo (geometric grotesque) for display + UI type; the Caveat
+ *   - Archivo (geometric grotesque) for UI/body type; display headlines
+ *     are Fraunces (serif) per the Oct 31, 2026 mockup-fidelity pass —
+ *     both ChatGPT mockup generations set headlines in a serif display
+ *     face, and the all-Archivo v2 type was the largest single reason
+ *     the live site read as a generic template next to them. The Caveat
  *     script survives only as a rare one-line accent.
  */
 
@@ -57,7 +61,7 @@
   --radius-sm: 0.5rem;
 
   --font-sans: "Archivo", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --font-display: "Archivo", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Fraunces", Georgia, "Times New Roman", serif;
   --font-script: "Caveat", "Segoe Script", cursive;
 }
 
@@ -114,7 +118,8 @@
 }
 
 /* UIARC foundation mapped to the existing Leander Live identity.
- * Brand palette, Archivo typography and photo-led layouts above are preserved.
+ * Brand palette, Archivo UI type, Fraunces display type and photo-led
+ * layouts above are preserved.
  * This is product token configuration, not a replacement component library.
  */
 :root {
@@ -152,7 +157,7 @@
   --text-5xl: 3rem;
   --text-6xl: 3.75rem;
   --font-body: "Archivo", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --font-display: "Archivo", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Fraunces", Georgia, "Times New Roman", serif;
   --shadow-resting: 0 1px 2px rgba(22,50,79,.07);
   --shadow-raised: 0 4px 10px rgba(22,50,79,.09);
 }

@@ -11,6 +11,7 @@ import {
   ALL_JOBS,
   BusinessForm,
   BusinessesBoard,
+  CATEGORIES,
   CrossPromoCard,
   EventCard,
   FeedFilters,
@@ -45,6 +46,7 @@ export function HomePage() {
       <FeaturedEvents
         title="Upcoming in Leander"
         subtitle="Festivals, markets, live music, and Friday-night lights."
+        withRail
       />
       <JobsPreview />
       <HowItWorks />
@@ -65,8 +67,15 @@ export function EventsPage() {
 
   // Concept-page search links here with ?q= — honor it on first load.
   const [query, setQuery] = useState(() => searchParams.get("q") ?? "");
-  const [dateFilter, setDateFilter] = useState<DateFilter>("All");
-  const [category, setCategory] = useState<string>("All");
+  // Hero quick chips land here with ?when= / ?cat= — seed the existing
+  // filters from them; unrecognized values fall back to unfiltered.
+  const [dateFilter, setDateFilter] = useState<DateFilter>(() =>
+    searchParams.get("when") === "weekend" ? "This Weekend" : "All",
+  );
+  const [category, setCategory] = useState<string>(() => {
+    const cat = searchParams.get("cat");
+    return cat && (CATEGORIES as readonly string[]).includes(cat) ? cat : "All";
+  });
 
   const now = useMemo(() => new Date(), []);
 
@@ -145,7 +154,7 @@ export function EventsPage() {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 gap-3 @min-[40rem]:grid-cols-2 @min-[68rem]:grid-cols-3 pane-split">
+        <div className="grid grid-cols-1 gap-3 @min-[40rem]:grid-cols-2 @min-[68rem]:grid-cols-3 pane-split sm:gap-5">
           {filtered.map((event) => (
             <EventCard
               key={event.id}

@@ -1,5 +1,5 @@
 import { useMemo, useState, type ButtonHTMLAttributes, type FormEvent } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -106,7 +106,7 @@ function mailtoFor(subject: string, body: string): string {
 
 /* ---------------- constants ---------------- */
 
-const CATEGORIES = ["Music", "Food & Drink", "Family", "Outdoors", "Learn", "Community"] as const;
+export const CATEGORIES = ["Music", "Food & Drink", "Family", "Outdoors", "Learn", "Community"] as const;
 
 const BUSINESS_VERTICALS = [
   "Home Services",
@@ -466,17 +466,24 @@ export function SaveButton({
   );
 }
 
-/** Mini date block overlaid on the card photo: "OCT / 24". */
-function ThumbDateChip({ startsAt }: { startsAt: number }) {
+function dateChipParts(startsAt: number) {
   const d = new Date(startsAt);
-  const month = d
-    .toLocaleDateString("en-US", { timeZone: SITE_TZ, month: "short" })
-    .toUpperCase();
-  const day = d.toLocaleDateString("en-US", { timeZone: SITE_TZ, day: "numeric" });
+  return {
+    month: d
+      .toLocaleDateString("en-US", { timeZone: SITE_TZ, month: "short" })
+      .toUpperCase(),
+    day: d.toLocaleDateString("en-US", { timeZone: SITE_TZ, day: "numeric" }),
+  };
+}
+
+/** Mini date block overlaid on the card photo: "OCT / 24".
+    Compact card only — the photo-forward (sm+) card uses PhotoDateBadge. */
+function ThumbDateChip({ startsAt }: { startsAt: number }) {
+  const { month, day } = dateChipParts(startsAt);
   return (
     <span
       aria-hidden="true"
-      className="absolute bottom-1.5 left-1.5 flex flex-col items-center rounded-md bg-navy/90 px-1.5 py-0.5 leading-none text-white backdrop-blur-sm"
+      className="absolute bottom-1.5 left-1.5 flex flex-col items-center rounded-md bg-navy/90 px-1.5 py-0.5 leading-none text-white backdrop-blur-sm sm:hidden"
     >
       <span className="text-[9px] font-bold tracking-[0.14em] text-gold">{month}</span>
       <span className="text-[15px] font-extrabold">{day}</span>
@@ -484,14 +491,37 @@ function ThumbDateChip({ startsAt }: { startsAt: number }) {
   );
 }
 
+/** Large date badge overlapping the photo's bottom edge, as in both
+    desktop mockups ("SEP / 20" white block on the photo-forward card). */
+function PhotoDateBadge({ startsAt }: { startsAt: number }) {
+  const { month, day } = dateChipParts(startsAt);
+  return (
+    <span
+      aria-hidden="true"
+      className="absolute -bottom-5 left-4 z-10 hidden flex-col items-center rounded-lg bg-white px-3 py-1.5 leading-none text-navy shadow-md sm:flex"
+    >
+      <span className="text-[10px] font-extrabold tracking-[0.16em] text-primary">
+        {month}
+      </span>
+      <span className="text-[22px] font-black">{day}</span>
+    </span>
+  );
+}
+
 /**
- * Compact event card — one layout at every width (v2).
+ * Event card — responsive split (Oct 31, 2026 mockup-fidelity pass).
  *
- * Fixes from Chris's Oct 24 screenshots: the category pill no longer sits
- * beside the title (it starved the title into one-word lines and overlapped
- * it); category is now a colored left edge + a small label row ABOVE the
- * title, the title gets the full text column at a 2-line clamp, and the
- * card is ~110px tall so 3–4 fit a phone viewport.
+ * Under sm it stays the compact horizontal card from v2: the category
+ * pill no longer sits beside the title (it starved the title into
+ * one-word lines and overlapped it); category is a colored left edge +
+ * a small label row ABOVE the title, the title gets the full text
+ * column at a 2-line clamp, and the card is ~110px tall so 3–4 fit a
+ * phone viewport (the Gen-1 mobile mockup's horizontal pattern).
+ *
+ * At sm+ it becomes the desktop mockups' photo-forward vertical card:
+ * full-width photo (~55% of the card), a large white date badge
+ * overlapping the photo's bottom edge, then title / date-time / venue /
+ * blurb in a padded text block.
  */
 export function EventCard({
   event,
@@ -518,26 +548,29 @@ export function EventCard({
         className,
       )}
     >
-      <CardContent className="flex gap-3 p-3 pl-4">
+      <CardContent className="flex gap-3 p-3 pl-4 sm:flex-col sm:gap-0 sm:p-0">
       <span
         aria-hidden="true"
         className="absolute inset-y-0 left-0 w-1"
         style={{ backgroundColor: style.color }}
       />
-      <Link
-        to={detailUrl}
-        className="relative block h-[92px] w-[92px] shrink-0 overflow-hidden rounded-xl sm:h-[104px] sm:w-[104px]"
-        aria-label={`${event.title} — view details`}
-      >
-        <img
-          src={img}
-          alt=""
-          loading="lazy"
-          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-        />
-        <ThumbDateChip startsAt={event.startsAt} />
-      </Link>
-      <div className="flex min-w-0 flex-1 flex-col">
+      <div className="relative shrink-0">
+        <Link
+          to={detailUrl}
+          className="relative block h-[92px] w-[92px] overflow-hidden rounded-xl sm:aspect-[16/10] sm:h-auto sm:w-full sm:rounded-none"
+          aria-label={`${event.title} — view details`}
+        >
+          <img
+            src={img}
+            alt=""
+            loading="lazy"
+            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+          />
+          <ThumbDateChip startsAt={event.startsAt} />
+        </Link>
+        <PhotoDateBadge startsAt={event.startsAt} />
+      </div>
+      <div className="flex min-w-0 flex-1 flex-col sm:p-4 sm:pt-9">
         <div className="flex items-center gap-2">
           <span
             className="text-[11px] font-extrabold uppercase tracking-[0.12em]"
@@ -561,7 +594,7 @@ export function EventCard({
             className="-mr-1.5 -mt-1.5 ml-auto h-8 w-8 [&_svg]:size-[18px]"
           />
         </div>
-        <h3 className="mt-0.5 line-clamp-2 text-[15px] font-bold leading-snug text-navy">
+        <h3 className="mt-0.5 line-clamp-2 text-[15px] font-bold leading-snug text-navy sm:text-[17px]">
           <Link to={detailUrl} className="transition-colors hover:text-primary">
             {event.title.trim()}
           </Link>
@@ -575,7 +608,9 @@ export function EventCard({
           <span className="truncate">{event.venue}</span>
         </p>
         {blurb && (
-          <p className="mt-0.5 line-clamp-1 text-[13px] text-muted-foreground">{blurb}</p>
+          <p className="mt-0.5 line-clamp-1 text-[13px] text-muted-foreground sm:mt-1 sm:line-clamp-2">
+            {blurb}
+          </p>
         )}
         <ListingStatus item={event} compact />
       </div>
@@ -1333,8 +1368,14 @@ function BusinessDetailContent({ business }: { business: BusinessItem }) {
 }
 
 export function BusinessesBoard() {
+  const [searchParams] = useSearchParams();
   const [query, setQuery] = useState("");
-  const [category, setCategory] = useState<string>("All");
+  // Hero quick chips land here with ?cat= — honor a real category name
+  // (e.g. "Restaurants & Food") as the initial filter, ignore the rest.
+  const [category, setCategory] = useState<string>(() => {
+    const cat = searchParams.get("cat");
+    return cat && ALL_BUSINESSES.some((b) => b.category === cat) ? cat : "All";
+  });
   const [selected, setSelected] = useState<BusinessItem | null>(null);
 
   const categories = useMemo(() => {

@@ -10,8 +10,10 @@ import {
   Building2,
   CalendarSearch,
   Heart,
+  Leaf,
   MapPin,
   Sparkles,
+  Users,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { overlapsDateFilter } from "./eventTime";
@@ -48,9 +50,12 @@ export function PageHero({
       role="region"
       aria-label={typeof title === "string" ? title : "Page header"}
     >
-      <div className="absolute inset-0 opacity-25" aria-hidden="true">
+      {/* Mockup-fidelity pass (Oct 31, 2026): the photo reads at full
+          strength under a navy gradient — the Gen-2 hero treatment —
+          instead of washed out at 25% under a flat 60% overlay. */}
+      <div className="absolute inset-0" aria-hidden="true">
         <img src={SUNSET} alt="" className="h-full w-full object-cover" />
-        <div className="absolute inset-0" style={{ backgroundColor: NAVY, opacity: 0.6 }} />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#16324f]/90 via-[#16324f]/70 to-[#16324f]/50" />
       </div>
       <div className="relative mx-auto max-w-6xl px-4 py-5 md:py-10">
         <p className="text-[11px] font-extrabold uppercase tracking-[0.25em] text-gold">{eyebrow}</p>
@@ -63,6 +68,17 @@ export function PageHero({
 }
 
 /* ---------------- homepage hero ---------------- */
+
+/** The Gen-2 mockup's quick chips under the hero search, wired to the
+    filters that already exist on the destination pages. */
+const HERO_CHIPS = [
+  { label: "Events this weekend", to: "/events?when=weekend" },
+  { label: "Restaurants", to: "/businesses?cat=Restaurants%20%26%20Food" },
+  { label: "Hiring now", to: "/jobs" },
+  { label: "Family friendly", to: "/events?cat=Family" },
+  { label: "LISD", to: "/events?q=LISD" },
+  { label: "Outdoor", to: "/events?cat=Outdoors" },
+] as const;
 
 export function HomeHero() {
   const navigate = useNavigate();
@@ -114,6 +130,17 @@ export function HomeHero() {
             </Button>
           </div>
         </form>
+        <nav aria-label="Popular right now" className="flex flex-wrap gap-2">
+          {HERO_CHIPS.map((chip) => (
+            <Link
+              key={chip.label}
+              to={chip.to}
+              className="rounded-full border border-white/25 bg-navy/45 px-3.5 py-1.5 text-[13px] font-semibold text-white backdrop-blur-sm transition-colors hover:bg-navy/70"
+            >
+              {chip.label}
+            </Link>
+          ))}
+        </nav>
         <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-white/80">
           <span>
             <strong className="font-display text-lg text-white">
@@ -455,14 +482,67 @@ export function BusinessCtaBand() {
 
 const FILTER_CHIPS = ["All", "This weekend", "Music", "Family", "Food & Drink", "Outdoors"] as const;
 
+const RAIL_VALUES = [
+  { Icon: Users, label: "Support Local" },
+  { Icon: Heart, label: "Find Your People" },
+  { Icon: Leaf, label: "Build a Brighter Tomorrow" },
+] as const;
+
+/** The Gen-2 mockup's right-rail community panel, beside Featured
+    Events on desktop. Copy mirrors the Navy CTA band so the message
+    stays single-sourced in spirit; hidden until lg, where the rail
+    column exists. */
+export function CommunityRail() {
+  return (
+    <aside aria-label="A Stronger Leander Together" className="mt-10 lg:mt-0">
+      <Card className="border-border bg-cream shadow-sm lg:sticky lg:top-24">
+        <CardContent className="p-6">
+          <h2 className="font-display text-2xl font-bold leading-tight text-navy">
+            A Stronger Leander Together
+          </h2>
+          <p className="mt-2 text-sm leading-relaxed text-stone-600">
+            Leander Live is your community hub — connecting people, places,
+            and opportunities to help our town thrive.
+          </p>
+          <Button
+            asChild
+            className="mt-4 rounded-full bg-gold font-bold text-navy hover:bg-gold/85"
+          >
+            <Link to="/community">
+              Be Part of It <ArrowRight className="h-4 w-4" />
+            </Link>
+          </Button>
+          <ul className="mt-6 grid grid-cols-3 gap-2">
+            {RAIL_VALUES.map(({ Icon, label }) => (
+              <li
+                key={label}
+                className="flex flex-col items-center gap-1.5 text-center"
+              >
+                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-navy/5 text-navy">
+                  <Icon className="h-5 w-5" aria-hidden="true" />
+                </span>
+                <span className="text-xs font-semibold leading-tight text-navy">
+                  {label}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </CardContent>
+      </Card>
+    </aside>
+  );
+}
+
 export function FeaturedEvents({
   title = "Upcoming in Leander",
   subtitle,
   limit = 8,
+  withRail = false,
 }: {
   title?: string;
   subtitle?: string;
   limit?: number;
+  withRail?: boolean;
 }) {
   const { saved, toggleSaved } = useSavedEvents();
   const [chip, setChip] = useState<(typeof FILTER_CHIPS)[number]>("All");
@@ -477,7 +557,7 @@ export function FeaturedEvents({
   }, [chip, limit, now]);
 
   return (
-    <section aria-label={title} className="mx-auto max-w-6xl px-4 pt-10 sm:pt-16 @container">
+    <section aria-label={title} className="mx-auto max-w-6xl px-4 pt-10 sm:pt-16">
       <div className="mb-2 flex flex-wrap items-end justify-between gap-3">
         <div>
           <h2 className="font-display text-3xl font-bold text-navy">{title}</h2>
@@ -490,6 +570,12 @@ export function FeaturedEvents({
         </Button>
       </div>
 
+      <div
+        className={cn(
+          withRail && "lg:grid lg:grid-cols-[minmax(0,1fr)_19rem] lg:gap-8"
+        )}
+      >
+      <div className="@container">
       <div
         className="-mx-4 mb-6 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0"
         role="group"
@@ -528,7 +614,7 @@ export function FeaturedEvents({
           </CardContent>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 gap-3 @min-[40rem]:grid-cols-2 @min-[68rem]:grid-cols-3 pane-split">
+        <div className="grid grid-cols-1 gap-3 @min-[40rem]:grid-cols-2 @min-[68rem]:grid-cols-3 pane-split sm:gap-5">
           {filtered.map((event: EventItem, i: number) => (
             <EventCard
               key={event.id}
@@ -540,6 +626,9 @@ export function FeaturedEvents({
           ))}
         </div>
       )}
+      </div>
+      {withRail && <CommunityRail />}
+      </div>
     </section>
   );
 }
