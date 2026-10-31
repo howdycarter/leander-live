@@ -23,6 +23,7 @@ import {
   BusinessCtaBand,
   FeaturedEvents,
   HomeHero,
+  IconTrio,
   HowItWorks,
   JobsPreview,
   NavyCtaBand,
@@ -39,6 +40,7 @@ export function HomePage() {
   return (
     <main>
       <HomeHero />
+      <IconTrio overlap />
       <WeekendSpotlight />
       <FeaturedEvents
         title="Upcoming in Leander"

@@ -79,7 +79,7 @@ export function HomeHero() {
         className="absolute inset-0 bg-gradient-to-r from-[#16324f]/90 via-[#16324f]/60 to-[#16324f]/30"
         aria-hidden="true"
       />
-      <div className="relative mx-auto flex max-w-6xl flex-col items-start gap-4 px-4 pb-12 pt-9 text-white md:pb-20 md:pt-16">
+      <div className="relative mx-auto flex max-w-6xl flex-col items-start gap-4 px-4 pb-28 pt-9 text-white md:pb-28 md:pt-16">
         <Badge className="bg-gold px-3 py-1 text-xs font-extrabold uppercase tracking-widest text-navy hover:bg-gold">
           <MapPin className="mr-1 h-3.5 w-3.5" aria-hidden="true" /> Leander, Texas
         </Badge>
@@ -150,7 +150,7 @@ const TRIO = [
     icon: "/brand/icon-businesses.png",
     title: "Businesses",
     blurb: "Shop local. Dine local. Support Leander.",
-    to: "/community",
+    to: "/businesses",
     chip: "Meet your neighbors",
   },
   {

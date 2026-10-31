@@ -98,7 +98,7 @@ export type BusinessItem = Business;
 export type EventItem = LiveEvent;
 export type JobItem = Job;
 
-const LEAD_EMAIL = "chris@howdycarter.com";
+const LEAD_EMAIL = "chris@newtonandcarter.com";
 
 function mailtoFor(subject: string, body: string): string {
   return `mailto:${LEAD_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
