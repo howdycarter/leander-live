@@ -5,7 +5,7 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { SOURCE_GATES, sourceEnabled, statusRow, mergeStatus, signalGateRows } from './source-gates.mjs';
-import { runGated, readStatus } from './source-status-file.mjs';
+import { runGated, readStatus, runTracked } from './source-status-file.mjs';
 import { validateSubmittedListings, activeListings } from './submitted-listings.mjs';
 
 const ROOT = join(import.meta.dirname, '..', '..');
@@ -64,6 +64,35 @@ test('an enabled source records success, and a failure keeps previous records', 
 test('mergeStatus keeps rows from other scripts', () => {
   const merged = mergeStatus([{ id: 'a', state: 'ok' }, { id: 'b', state: 'ok' }], [statusRow('google-news', { enabled: false, now: NOW })]);
   assert.deepEqual(merged.map((r) => r.id), ['a', 'b', 'google-news']);
+});
+
+test('enabled source rejects malformed results and preserves last-good freshness', async (t) => {
+  const dir = mkdtempSync(join(tmpdir(), 'll-status-'));
+  t.after(() => rmSync(dir, { recursive: true, force: true }));
+  const statusPath = join(dir, 'status.json');
+  writeFileSync(statusPath, JSON.stringify([{ id: 'chamber', lastSuccessAt: '2026-10-01T00:00:00Z' }]));
+  const result = await runTracked('chamber', async () => null, [{id:'old'}], { now: NOW, statusPath, log: () => {} });
+  assert.equal(result.row.state, 'failed');
+  assert.equal(result.row.lastSuccessAt, '2026-10-01T00:00:00Z');
+  assert.deepEqual(result.items, [{ id:'old' }]);
+});
+
+test('a successful empty source is fresh and clears its previous records', async (t) => {
+  const dir = mkdtempSync(join(tmpdir(), 'll-status-'));
+  t.after(() => rmSync(dir, { recursive: true, force: true }));
+  const result = await runTracked('chamber', async () => [], [{id:'old'}], { now: NOW, statusPath: join(dir,'status.json') });
+  assert.equal(result.row.state, 'ok');
+  assert.equal(result.row.lastSuccessAt, NOW);
+  assert.equal(result.row.recordsKept, 0);
+  assert.deepEqual(result.items, []);
+});
+
+test('ungated tracking cannot bypass any restricted or unknown source', async () => {
+  for (const id of [...Object.keys(SOURCE_GATES), 'unknown']) {
+    let fetched = false;
+    await assert.rejects(() => runTracked(id, async () => { fetched = true; return []; }, []), /not an ungated source/);
+    assert.equal(fetched, false);
+  }
 });
 
 test('the committed status file lists every gated source as paused with no fake freshness', () => {

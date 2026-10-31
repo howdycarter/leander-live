@@ -1,96 +1,52 @@
 # Refresh pipeline runbook
 
-This runbook covers how to watch, recover and moderate the twice-daily data refresh. It describes the code at commit `3d88dd7` (draft PR #12). Source details are in `docs/data-sources.md`.
+`npm run refresh` runs events, jobs, civic, businesses and signals sequentially. It writes `signals/last-run.json`; it does **not** build, commit, push or deploy. The static site updates only after reviewed data/status changes reach a successful deployment.
 
-## What a run does
+## Before a scheduled run
 
-`node scripts/run-refresh.mjs` runs the five scrapers in order: events, jobs, civic, businesses and signals (`scripts/run-refresh.mjs:31`).
+The AM/PM schedule lives outside this repository in Muse. Repository code does not prove that a schedule fired or that a deployment completed. Keep the existing cadence; inspect the external job's run ID, timestamp, branch/SHA, command results and deployment receipt. Do not create duplicate jobs.
 
-The orchestrator:
+After pulling the intended branch, install the committed lockfile with `npm ci --no-audit --no-fund` before running scrapers. Stop if installation fails. The Oct 30 AM observation recorded a missing `ical.js` import after a pull; installing dependencies alone does not establish a successful scrape or publication.
 
-1. Snapshots the five published data files.
-2. Runs each scraper.
-3. Writes a report to `signals/last-run.json`.
+Keep `LEANDER_ENABLE_NEOGOV`, `LEANDER_ENABLE_GOOGLE_NEWS`, `LEANDER_ENABLE_FIRECRAWL`, `LEANDER_ENABLE_LEANDERTX` and `LEANDER_ENABLE_LISD_ICS` unset unless that exact source has separately cleared its permission/service review. See `source-compliance-runbook.md`. Do not work around blocks, logins or rate limits.
 
-It never builds or deploys. The scheduler decides whether to build and deploy, based on the report's `changed` field and on whether the build succeeds (lines 1 to 15).
+## Interpret the report
 
-The orchestrator always exits with code 0, so the scheduler must read the report rather than rely on the exit code.
+The command now exits **1** for a failed scraper process, an enabled-source failure or an orchestrator fatal error. Paused sources alone exit 0 but produce `status: "degraded"`. A last-good fallback protects availability; it is not fresh data.
 
-## Monitoring
+Always inspect the current report, including after a nonzero exit:
 
-After each run, read `signals/last-run.json`. Check these fields:
+- `at`, `durationMs`, `status`: identify this run; `running` means incomplete. A fatal report includes `fatalError`.
+- `scrapersFailed`, `scrapers.<name>.exitError`, `warnings`: process failures and diagnostic evidence.
+- `sourcesFailed`, `sourcesPaused`: persisted source states. Paused sources are intentional restrictions, not successful fetches.
+- `files.<name>`: count, additions, removals and byte changes. `sourceStatus` is included, so a status-only failure/recovery requires publication consideration too.
+- `newSignals`, `signalWarnings`: current-run items for private review. Signals are never published automatically. A partially failed signals step can still produce valid new review items; old reports are invalidated before work starts.
 
-- **`scrapersFailed`:** scraper processes that exited with an error. Any entry here needs a look.
-- **`scrapers.<name>.warnings`:** every line a scraper logged starting with `WARN:`. A source failure looks like `WARN: city-calendar source failed: HTTP 503; keeping previous records`.
-- **`files.<name>`:** the `total`, `added` and `removed` counts, and `changed`, for each data file.
-- **`newSignals`:** alert-only items for Chris. These are never published.
+`src/data/source-status.json` preserves each source's prior `lastSuccessAt` on failure/pause. `checkedAt` is an attempted check, not a successful fetch. Chamber events, CivicClerk meetings and the existing Texas business pull now record source success/failure as well as the gated feeds. Never backfill a success timestamp without a successful fetch and completed output writes. A successful fetch is first persisted as unconfirmed/failed with its prior success time; only completed transformation and output writes promote it to `ok`. This prevents status-only publication from claiming a refresh after a downstream failure. Multi-file writes are not atomic: a civic partial-write failure remains failed even if its first file was written.
 
-Treat a run as suspicious when either of these happens:
+## Publication gate
 
-- One file loses more than about a quarter of its records in one run.
-- The same source warns on two runs in a row.
+Do not use `changed` alone as proof of a healthy run. A failed run can contain a mixture of fresh sources, retained history and status updates. Review its data/status diff and decide how to publish the truthful failure notice without claiming full freshness. A shell `&&` chain now stops on a failed refresh; the external scheduler must explicitly handle failure reporting/status publication rather than silently discarding the report.
 
-Note that `scripts/scrape-signals.mjs` also writes `signals/last-run.json` during its step. The orchestrator reads that file and then overwrites it with the full report (`scripts/run-refresh.mjs:110`). So after a completed run, the file always holds the orchestrator's report.
+Before any reviewed publication:
 
-## Last-good recovery
+1. Check source permissions and flags, run status, duplicate IDs, large count changes, expired rows and hand-published/paid placements.
+2. Run `npm run validate:listings`, `npm test`, `npm run build`, `npm run test:uiarc`, and `npm run test:preservation`.
+3. Include `src/data/source-status.json` with all reviewed data changes.
+4. Record source commit, exact deployment ID, successful build, public asset/source verification and the run being published. A locally modified file or HTTP 200 from an older deployment does not prove publication.
 
-Every source keeps its previous records when a fetch fails, so one bad request never deletes published data. The details for each source are in `docs/data-sources.md`.
+No repository scheduler or production ingestion is activated by these repairs.
 
-For the events file, the rules are in `scripts/lib/events-merge.mjs`:
+## Retention and expiry
 
-- A result only counts as fresh when it reports `ok: true` with a list of items.
-- Anything else falls back to that source's previous records.
-- Source IDs must be known and unique, or the merge stops with an error before anything is written.
+- City/Chamber legacy events retain their existing backfill and six-hour-after-start expiry rules. Hand-curated `anchor-` records are retained. This means a removed/cancelled legacy listing may persist until expiry; no new deletion policy is assumed.
+- LISD calendar occurrences retain the reviewed end-time, cancellation and occurrence-identity rules. A failed parse keeps last-good history; disabled feeds are not fetched.
+- Civic meetings use the existing six-hour grace on **all** merged records, including failed/paused fallback records.
+- Jobs close after the existing one-day closing-date grace. The existing ISD 150-day age limit now also applies to retained postings with a known `postedAt`. No age policy is invented for other employers or undated postings; those remain a freshness limitation while their sources are paused.
+- Businesses retain the existing suspicious-result threshold (at least 500 upstream rows), deduplication, manual listings and featured flags. A failed pull leaves the last-good file intact.
+- A Chamber event-detail failure rejects the incomplete source result and retains last-good data; optional flyer-image failure does not invalidate valid event details.
+- News signals stay in the private review queue. Editorial `local-` news and paid flags remain manual.
 
-### If a bad run was published
+## Recovery
 
-1. Find the last good commit of `src/data/` with `git log -- src/data`. The data refresh commits are named "Data refresh <date> AM" or "PM".
-2. Restore the affected file from that commit with `git checkout <sha> -- src/data/<file>.json`.
-3. Commit the restored file.
-4. Let the next scheduled run rebuild from it.
-
-Restoring, committing and deploying are owner actions, done by Chris or the parent agent.
-
-### If a source keeps failing
-
-- Check the source URL in a browser.
-- If the site changed its layout or moved, open a Linear issue in the Leander Live project with the warning text, and leave the previous data in place.
-- Do not work around blocks, logins or rate limits.
-
-## Turning a source off
-
-- **LISD calendars:** these are off unless `LEANDER_ENABLE_LISD_ICS=1` is set (`scripts/scrape-events.mjs:288`). To turn them off, unset the variable in the scheduler.
-- **Every other source:** there is no switch today. Turning one off needs a small code change. Until then, keep its previous data and record the decision in Linear.
-
-## Staleness and expiry rules
-
-| Data | Rule | Where |
-|---|---|---|
-| City calendar and Chamber events | Dropped once the event started more than six hours ago | `scripts/lib/events-merge.mjs:28` |
-| LISD calendar events | Dropped only after the end time; all-day ends are exclusive; cancelled occurrences are not published | `scripts/lib/events-merge.mjs` |
-| City and ISD board meetings | Dropped once the meeting started more than six hours ago | `scripts/scrape-civic.mjs:164`, `:239` |
-| Leander ISD jobs | Only postings within 150 days, at most 60 | `scripts/scrape-jobs.mjs:26-27` |
-| Google News signals | Only headlines from the last five days | `scripts/scrape-signals.mjs:292` |
-| Business listings | Replaced in full each run, unless the API returns fewer than 500 rows | `scripts/scrape-businesses.mjs:202` |
-
-## Moderation checks before anything is published
-
-- **Signals are never published.** They go to Chris as alerts. A signal becomes a published item only when someone adds it by hand, with an `id` starting `local-`. Those items are preserved across refreshes (`scripts/scrape-civic.mjs:299-305`).
-- **Featured placements are set by hand** and carried forward by ID. Paid placements must never be created by a scraper.
-- **New sources:** before a new source is published (including the LISD calendars), check that:
-  - its permission basis in `docs/data-sources.md` is no longer "pending";
-  - a dry run shows sensible counts (`node scripts/events-dry-run.mjs`, which makes no network calls and writes no files);
-  - all-day events display correctly on the site (CHR-2011).
-- **Duplicates:** LISD events are deduped against `civic.json` only when both are board meetings with the same start time, building and named room. Never remove board meetings by title or by building alone.
-- **Parse errors:** if the log shows `WARN: lisd-... source failed: N parse error(s)`, that feed kept its previous records for the run. Check the first error named in the log line.
-
-## Open permission decisions
-
-These need an owner decision. None of them is assumed to be settled.
-
-1. **LISD calendar feeds:** confirm the district's reuse terms, and decide how to treat Google Calendar's robots.txt for a published subscription URL. This must be settled before `LEANDER_ENABLE_LISD_ICS` is enabled.
-2. **governmentjobs.com:** its robots.txt disallows general user agents. The source is already in production.
-3. **Google News RSS:** its robots.txt does not allow `/rss` for general user agents. The source is already used for alerts.
-4. **City of Leander site:** its robots.txt could not be read (HTTP 403).
-5. **Firecrawl:** an outside paid service used for two existing sources. Its cost and credentials are owned outside this repo.
-6. **Terms of use** were not reviewed for any source.
+Inspect `git log -- src/data` and the exact faulty diff. Restore only affected reviewed files from a known good commit, including status if appropriate, then validate/build and obtain the normal publication review. Do not reset unrelated work or activate a restricted source to mask missing content. Two consecutive failures, a sharp unexplained count drop, or an old last-success timestamp require follow-up.

@@ -10,10 +10,10 @@
  * Output: src/data/jobs.json (array of Job), newest first by postedAt.
  *
  * Robustness: idempotent; a failed source logs WARN: to stderr, keeps the
- * previous records for that source, and the script still exits 0.
+ * previous records for that source, and the script exits nonzero for an enabled-source failure.
  */
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
-import { recordStatus, runGated } from "./lib/source-status-file.mjs";
+import { recordStatus, recordPendingStatus, runGated } from "./lib/source-status-file.mjs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { execFile } from "node:child_process";
@@ -313,7 +313,8 @@ async function main() {
       () => scrapeGovJobs("Williamson County", "Williamson County", true), prevByCompany.get("Williamson County") || []),
     await runGated("lisd-applitrack-jobs", () => scrapeAppliTrack(), prevByCompany.get("Leander ISD") || []),
   ];
-  recordStatus(gated.map((g) => g.row));
+  recordPendingStatus(gated.map((g) => g.row));
+  if (gated.some((g) => g.row.state === "failed")) process.exitCode = 1;
   const [leander, williamson, isd] = gated.map((g) => g.items);
 
   // First-seen tracking: carry each posting's firstSeenAt forward by id.
@@ -341,6 +342,8 @@ async function main() {
     if (seen.has(j.id)) continue;
     seen.add(j.id);
     if (j.closesAt && j.closesAt < now - 24 * 3600 * 1000) continue;
+    // Apply the existing ISD age policy to retained history as well as fresh pulls.
+    if (j.company === "Leander ISD" && Number.isFinite(j.postedAt) && j.postedAt < now - ISD_MAX_AGE_DAYS * 24 * 3600 * 1000) continue;
     if (!j.payRange) delete j.payRange;
     j.title = decodeEntities(j.title || "").replace(/\s+/g, " ").trim();
     if (j.description) j.description = cleanDescription(j.description);
@@ -350,7 +353,8 @@ async function main() {
   }
   all.sort((a, b) => (b.postedAt || 0) - (a.postedAt || 0));
   writeFileSync(OUT, JSON.stringify(all, null, 2) + "\n");
+  recordStatus(gated.map((g) => g.row));
   console.log(`jobs.json: ${all.length} jobs (${leander.length} City of Leander, ${williamson.length} Williamson County, ${isd.length} Leander ISD)`);
 }
 
-main().catch((e) => { console.error(`WARN: fatal: ${e.message}`); process.exit(0); });
+main().catch((e) => { console.error(`WARN: fatal: ${e.message}`); process.exitCode = 1; });
