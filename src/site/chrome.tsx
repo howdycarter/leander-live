@@ -301,7 +301,7 @@ const ROUTE_META: Record<string, { title: string; description: string }> = {
   "/advertise": {
     title: "Advertise — Leander Live",
     description:
-      "Ask about proposed featured placements for Leander businesses. Pricing and availability require written confirmation; no online checkout.",
+      "Ask about featured placements for Leander businesses. Availability requires written confirmation; no online checkout.",
   },
   "/privacy": {
     title: "Privacy Policy — Leander Live",

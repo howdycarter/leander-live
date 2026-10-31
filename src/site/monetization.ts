@@ -1,7 +1,9 @@
 /**
- * Proposed advertising options only. These rates have not been approved.
- * No payment links, reserved placements, or lead-delivery service are active.
- * Keep payment URLs empty until separately approved and verified.
+ * Advertising options at the charter rates approved by Chris Carter on
+ * 2026-10-31 (Featured Listing $29/mo, Sponsored Event $19, Featured Job $59).
+ * No payment links or lead-delivery service are active yet: Stripe is not
+ * connected. Keep payment URLs empty until Stripe is connected and the
+ * links are created and verified.
  */
 export interface AdPackage {
   id: string;
@@ -10,7 +12,7 @@ export interface AdPackage {
   cadence: string;
   tagline: string;
   features: string[];
-  /** Empty while this is an inquiry-only proposal. */
+  /** Empty until Stripe is connected and the payment link is verified. */
   stripeUrl: string;
   cta: string;
   unavailable?: boolean;
@@ -20,12 +22,12 @@ export const AD_PACKAGES: AdPackage[] = [
   {
     id: "featured-listing",
     name: "Featured Listing",
-    price: 49,
+    price: 29,
     cadence: "/month",
-    tagline: "A proposed way to help your business get noticed.",
+    tagline: "Help your business get noticed across Leander.",
     features: [
-      "Proposed placement in the business directory",
-      "Featured badge under consideration",
+      "Featured placement in the business directory",
+      "Featured badge on your listing",
       "Share your photo, hours, and contact links",
       "Scope and availability confirmed by email",
     ],
@@ -35,11 +37,11 @@ export const AD_PACKAGES: AdPackage[] = [
   {
     id: "sponsored-event",
     name: "Sponsored Event",
-    price: 29,
+    price: 19,
     cadence: "/event",
-    tagline: "Explore a proposed promotion for your local event.",
+    tagline: "Promote your local event to the whole town.",
     features: [
-      "Proposed placement on Events + homepage",
+      "Featured placement on Events + homepage",
       "Sponsored label for paid placement",
       "Dates and placement agreed before payment",
       "Subject to review and availability",
@@ -50,12 +52,12 @@ export const AD_PACKAGES: AdPackage[] = [
   {
     id: "featured-job",
     name: "Featured Job",
-    price: 99,
+    price: 59,
     cadence: "/30 days",
-    tagline: "Explore a proposed way to highlight a local opening.",
+    tagline: "Highlight a local opening for 30 days.",
     features: [
-      "Proposed placement on the Jobs board",
-      "Proposed 30-day featured period",
+      "Featured placement on the Jobs board",
+      "30-day featured period",
       "Link to your own application page",
       "Scope and availability confirmed by email",
     ],
@@ -92,10 +94,10 @@ export const SERVICE_LEAD_STEPS = [
   },
   {
     title: "Confirm the details first",
-    body: "Ask about availability, final pricing, and terms before committing. An inquiry reserves nothing.",
+    body: "Confirm the placement details and terms by email before committing. An inquiry reserves nothing.",
   },
 ] as const;
 
 export function formatPrice(pkg: AdPackage): string {
-  return pkg.unavailable ? "Unavailable" : `Proposed $${pkg.price}${pkg.cadence}`;
+  return pkg.unavailable ? "Unavailable" : `$${pkg.price}${pkg.cadence}`;
 }

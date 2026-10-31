@@ -424,8 +424,8 @@ export function BusinessCtaBand() {
               Put your business in front of the whole town.
             </h2>
             <p className="max-w-xl text-[15px] text-white/80">
-              Ask about proposed featured listings, sponsored events, and job
-              placements. Rates and availability need confirmation.
+              Ask about featured listings, sponsored events, and job
+              placements. Availability is confirmed by email.
             </p>
             <div className="flex flex-wrap gap-3">
               <Button

@@ -1522,7 +1522,7 @@ export function BusinessForm({ packageName }: { packageName?: string }) {
         <CardTitle className="flex items-center gap-2">
           <Building2 className="h-5 w-5 text-secondary" /> Tell us about your business
         </CardTitle>
-        <CardDescription>Prepare an inquiry about proposed placements. Nothing is sent or purchased here.</CardDescription>
+        <CardDescription>Prepare an inquiry about a placement. Nothing is sent or purchased here.</CardDescription>
       </CardHeader>
       <CardContent>
       {preparedDraft && preparedDraft.packageName === packageName && preparedDraft.inputKey === currentDraftKey ? (

@@ -131,14 +131,14 @@ test('required-field guard rejects blank or whitespace-only input without persis
   assert.equal(hasRequiredDraftFields([' A title ', 'Corrected text']), true);
 });
 
-test('three proposed rates remain explicit; service leads are unavailable; payment URLs stay empty', () => {
+test('three approved charter rates remain explicit; service leads are unavailable; payment URLs stay empty', () => {
   assert.deepEqual(AD_PACKAGES.filter(p => !p.unavailable).map(p => [p.id, p.price, p.cadence]), [
-    ['featured-listing', 49, '/month'], ['sponsored-event', 29, '/event'], ['featured-job', 99, '/30 days'],
+    ['featured-listing', 29, '/month'], ['sponsored-event', 19, '/event'], ['featured-job', 59, '/30 days'],
   ]);
   for (const pkg of AD_PACKAGES) {
     assert.equal(pkg.stripeUrl, '');
     assert.equal(pkg.exclusivity, undefined);
-    assert.equal(formatPrice(pkg), pkg.unavailable ? 'Unavailable' : `Proposed $${pkg.price}${pkg.cadence}`);
+    assert.equal(formatPrice(pkg), pkg.unavailable ? 'Unavailable' : `$${pkg.price}${pkg.cadence}`);
   }
   assert.equal(AD_PACKAGES.find(p => p.id === 'service-leads').unavailable, true);
   const copy = JSON.stringify([AD_PACKAGES, SERVICE_LEAD_STEPS]);
@@ -175,7 +175,8 @@ test('advertising actions remain inquiry-only without unsupported checkout, excl
   const pages = readFileSync(new URL('../../src/site/pages.tsx', import.meta.url), 'utf8');
   const concept = readFileSync(new URL('../../src/site/conceptA.tsx', import.meta.url), 'utf8');
   assert.match(pages, /Inquiry only\. No payment or reservation/);
-  assert.match(pages, /\$\{pkg.cadence\} · proposed/);
+  assert.match(pages, /\$\{pkg.cadence\}/);
+  assert.doesNotMatch(pages, /· proposed/);
   assert.match(pages, /grid gap-6 md:grid-cols-2/);
   assert.match(pages, /Service leads are not available/);
   assert.doesNotMatch(pages + concept, /stripe_checkout_started|window\.open\(pkg|Checkout opens soon|reserve your spot|AI-qualified|we route the qualified lead|own your trade exclusively|refreshed twice a day/i);

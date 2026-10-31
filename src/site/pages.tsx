@@ -202,7 +202,7 @@ export function CommunityPage() {
       <PageHero
         eyebrow="For local businesses"
         title="Put your business in front of Leander"
-        subtitle="Ask about proposed featured listings, sponsored events, and job placements on Leander’s community board."
+        subtitle="Ask about featured listings, sponsored events, and job placements on Leander’s community board."
       />
       <main className="mx-auto max-w-6xl px-4 py-10">
         <div className="grid max-w-4xl gap-6">
@@ -389,7 +389,7 @@ function PackageCard({ pkg, onInterested }: { pkg: AdPackage; onInterested: (pkg
         </div>
         <p className="font-display text-4xl font-black tracking-tight text-navy">
           {pkg.unavailable ? "Unavailable" : `$${pkg.price}`}
-          <span className="text-base font-semibold text-muted-foreground">{pkg.unavailable ? "" : `${pkg.cadence} · proposed`}</span>
+          <span className="text-base font-semibold text-muted-foreground">{pkg.unavailable ? "" : `${pkg.cadence}`}</span>
         </p>
         <ul className="flex flex-col gap-2 text-sm">
           {pkg.features.map((f) => (
@@ -432,7 +432,7 @@ export function AdvertisePage() {
       <PageHero
         eyebrow="For Leander businesses"
         title="Get found by the whole town."
-        subtitle="Explore proposed local advertising options. Rates and availability need confirmation; no payment is collected here."
+        subtitle="Local advertising at charter rates. Availability is confirmed by email; no payment is collected here."
       >
         <div className="mt-6 flex flex-wrap gap-3">
           <Badge className="bg-white/15 text-white hover:bg-white/25">
@@ -462,7 +462,7 @@ export function AdvertisePage() {
           </h2>
           <p className="mt-2 max-w-2xl text-muted-foreground">
             No lead qualification, delivery, or exclusive categories are offered.
-            You can use the email form to ask about proposed advertising placements;
+            You can use the email form to ask about advertising placements;
             preparing an inquiry does not send it.
           </p>
           <div className="mt-6 grid gap-4 md:grid-cols-3">
