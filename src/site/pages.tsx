@@ -73,7 +73,7 @@ export function EventsPage() {
     return ALL_EVENTS.filter((e) => {
       if (savedOnly && !saved.has(e.id)) return false;
       if (category !== "All" && (e.category ?? "") !== category) return false;
-      if (dateFilter === "Today" || dateFilter === "This Month") {
+      if (dateFilter === "Today" || dateFilter === "This Weekend" || dateFilter === "This Month") {
         if (!overlapsDateFilter(e, dateFilter, now.getTime())) return false;
       } else if (!inRange(e.startsAt, dateFilter, now)) return false;
       if (q && !`${e.title} ${e.venue} ${e.description}`.toLowerCase().includes(q)) return false;

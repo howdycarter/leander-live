@@ -71,10 +71,15 @@ function isCancelled(e: LiveEvent): boolean {
   );
 }
 
-export const ALL_EVENTS: LiveEvent[] = (eventsRaw as LiveEvent[])
-  .filter((e) => isStillListed(e, Date.now()))
-  .filter((e) => !isCancelled(e) && !e.cancelled)
-  .sort((a, b) => a.startsAt - b.startsAt);
+/** Listing pipeline behind ALL_EVENTS: still listed at `now`, not cancelled, by start. */
+export function selectListedEvents(raw: LiveEvent[], now: number): LiveEvent[] {
+  return raw
+    .filter((e) => isStillListed(e, now))
+    .filter((e) => !isCancelled(e) && !e.cancelled)
+    .sort((a, b) => a.startsAt - b.startsAt);
+}
+
+export const ALL_EVENTS: LiveEvent[] = selectListedEvents(eventsRaw as LiveEvent[], Date.now());
 
 export const ALL_JOBS: Job[] = (jobsRaw as Job[]).slice();
 
