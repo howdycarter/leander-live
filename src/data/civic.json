@@ -16,20 +16,12 @@
     "sourceUrl": "https://leandertx.portal.civicclerk.com/event/865"
   },
   {
-    "id": "civic-952",
-    "body": "Tax Increment Reinvestment Zone (TIRZ) No. 1",
-    "title": "Tax Increment Reinvestment Zone (TIRZ) No. 1",
-    "startsAt": 1794234600000,
-    "location": "Pat Bryson Municipal Hall, Council Chambers, 201 N. Brushy Street, Leander Texas, 78641",
-    "sourceUrl": "https://leandertx.portal.civicclerk.com/event/952"
-  },
-  {
-    "id": "civic-953",
-    "body": "Development Authority Board",
-    "title": "Development Authority Board",
-    "startsAt": 1794234600000,
-    "location": "Pat Bryson Municipal Hall, Council Chambers, 201 N. Brushy Street, Leander Texas, 78641",
-    "sourceUrl": "https://leandertx.portal.civicclerk.com/event/953"
+    "id": "civic-959",
+    "body": "Charter Review Commission",
+    "title": "Charter Review Commission",
+    "startsAt": 1794267000000,
+    "location": "Development Services, San Gabriel Conference Room, 201 N. Brushy Street, Leander Texas, 78641",
+    "sourceUrl": "https://leandertx.portal.civicclerk.com/event/959"
   },
   {
     "id": "civic-956",
@@ -46,6 +38,22 @@
     "startsAt": 1794528000000,
     "location": "Pat Bryson Municipal Hall, Council Chambers, 201 N. Brushy Street, Leander TX, 78641",
     "sourceUrl": "https://leandertx.portal.civicclerk.com/event/880"
+  },
+  {
+    "id": "civic-952",
+    "body": "Tax Increment Reinvestment Zone (TIRZ) No. 1",
+    "title": "Tax Increment Reinvestment Zone (TIRZ) No. 1",
+    "startsAt": 1794839400000,
+    "location": "Pat Bryson Municipal Hall, Council Chambers, 201 N. Brushy Street, Leander Texas, 78641",
+    "sourceUrl": "https://leandertx.portal.civicclerk.com/event/952"
+  },
+  {
+    "id": "civic-953",
+    "body": "Development Authority Board",
+    "title": "Development Authority Board",
+    "startsAt": 1794839400000,
+    "location": "Pat Bryson Municipal Hall, Council Chambers, 201 N. Brushy Street, Leander Texas, 78641",
+    "sourceUrl": "https://leandertx.portal.civicclerk.com/event/953"
   },
   {
     "id": "civic-958",
