@@ -36,45 +36,6 @@
     "blurb": "Trick-or-treating, costumes, and family fun hosted by Leander Parks & Recreation and the Leander Police Department."
   },
   {
-    "id": "citycal-3270",
-    "title": "Halloween Craft-and-Treat",
-    "startsAt": 1793462400000,
-    "endsAt": 1793469600000,
-    "venue": "Wear your costume and stop by for some Halloween fun! Kids can trick‑or‑treat through the library and make Halloween crafts.",
-    "address": "Leander TX, 78641",
-    "description": "Halloween Craft-and-Treat — see the City of Leander calendar for details.",
-    "url": "https://www.leandertx.gov/Calendar.aspx?EID=3270",
-    "sourceUrl": "https://www.leandertx.gov/Calendar.aspx?EID=3270",
-    "category": "Family",
-    "source": "city-calendar"
-  },
-  {
-    "id": "citycal-3284",
-    "title": "Dungeons and Dragons (ages 11-17)",
-    "startsAt": 1793469600000,
-    "endsAt": 1793484000000,
-    "venue": "Library Annex Studio",
-    "address": "1011 S. Bagdad Rd., Leander TX, 78641",
-    "description": "Dungeons and Dragons (ages 11-17) — see the City of Leander calendar for details.",
-    "url": "https://www.leandertx.gov/Calendar.aspx?EID=3284",
-    "sourceUrl": "https://www.leandertx.gov/Calendar.aspx?EID=3284",
-    "category": "Learn",
-    "source": "city-calendar"
-  },
-  {
-    "id": "citycal-3288",
-    "title": "Movie Matinee: Beetlejuice Beetlejuice - CANCELLED",
-    "startsAt": 1793476800000,
-    "endsAt": 1793484000000,
-    "venue": "Library Annex Conference Room",
-    "address": "1011 S. Bagdad Rd., Leander TX, 78641",
-    "description": "Movie Matinee: Beetlejuice Beetlejuice - CANCELLED — see the City of Leander calendar for details.",
-    "url": "https://www.leandertx.gov/Calendar.aspx?EID=3288",
-    "sourceUrl": "https://www.leandertx.gov/Calendar.aspx?EID=3288",
-    "category": "Learn",
-    "source": "city-calendar"
-  },
-  {
     "id": "chamber-168745",
     "title": "Watercolor Fellowship",
     "description": "See the Leander Chamber of Commerce calendar for details.",
