@@ -1,6 +1,28 @@
 <!doctype html>
 <html lang="en">
   <head>
+    <!-- Consent Mode defaults: analytics storage starts DENIED and is
+         only granted when the visitor accepts in the consent banner
+         (choice persisted in localStorage; see src/site/consent.ts).
+         Ad categories stay denied — this site runs no ad tags. This
+         script must run before the GTM snippet below. -->
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        window.dataLayer.push(arguments);
+      }
+      gtag("consent", "default", {
+        analytics_storage: "denied",
+        ad_storage: "denied",
+        ad_user_data: "denied",
+        ad_personalization: "denied",
+      });
+      try {
+        if (window.localStorage.getItem("ll-analytics-consent") === "granted") {
+          gtag("consent", "update", { analytics_storage: "granted" });
+        }
+      } catch (e) {}
+    </script>
     <!-- Google Tag Manager -->
     <script>
       (function (w, d, s, l, i) {

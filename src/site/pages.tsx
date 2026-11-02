@@ -39,7 +39,7 @@ import { useSavedEvents } from "./state";
 
 export function HomePage() {
   return (
-    <main>
+    <main id="main-content" tabIndex={-1}>
       <HomeHero />
       <IconTrio overlap />
       <WeekendSpotlight />
@@ -112,7 +112,7 @@ export function EventsPage() {
             : "Every festival, market, concert, and Friday-night light — all in one place."
         }
       />
-      <main className="mx-auto max-w-6xl px-4 py-6 @container">
+      <main id="main-content" tabIndex={-1} className="mx-auto max-w-6xl px-4 py-6 @container">
       <SourceStatusBanner kind="events" />
       <div className="mb-4 flex items-end justify-between gap-4">
         <h2 className="font-display text-2xl font-extrabold tracking-tight text-navy">
@@ -179,7 +179,7 @@ export function JobsPage() {
         title="Jobs in Leander"
         subtitle="Collected local job listings — confirm current openings with the employer."
       />
-      <main className="mx-auto max-w-6xl px-4 py-6">
+      <main id="main-content" tabIndex={-1} className="mx-auto max-w-6xl px-4 py-6">
         <JobsBoard />
       </main>
     </>
@@ -196,7 +196,7 @@ export function BusinessesPage() {
         title="Businesses in Leander"
         subtitle="Explore local storefronts, kitchens, salons, and services from Texas permit records. Confirm current details with each business."
       />
-      <main className="mx-auto max-w-6xl px-4 py-6">
+      <main id="main-content" tabIndex={-1} className="mx-auto max-w-6xl px-4 py-6">
         <BusinessesBoard />
       </main>
     </>
@@ -213,7 +213,7 @@ export function CommunityPage() {
         title="Put your business in front of Leander"
         subtitle="Ask about featured listings, sponsored events, and job placements on Leander’s community board."
       />
-      <main className="mx-auto max-w-6xl px-4 py-10">
+      <main id="main-content" tabIndex={-1} className="mx-auto max-w-6xl px-4 py-10">
         <div className="grid max-w-4xl gap-6">
           <BusinessForm />
           <CrossPromoCard />
@@ -232,7 +232,7 @@ export function RemindersPage() {
         title="Never miss what's happening"
         subtitle="Add any event straight to your calendar — no sign-up, no spam, just the .ics file."
       />
-      <main className="mx-auto max-w-6xl px-4 py-10">
+      <main id="main-content" tabIndex={-1} className="mx-auto max-w-6xl px-4 py-10">
         <div className="max-w-2xl">
           <RemindersContent />
         </div>
@@ -250,7 +250,7 @@ export function AboutPage() {
         title="What is Leander Live?"
         subtitle="People • Places • Opportunities — the community hub for Leander, Texas."
       />
-      <main className="mx-auto max-w-6xl px-4 py-10">
+      <main id="main-content" tabIndex={-1} className="mx-auto max-w-6xl px-4 py-10">
         <div className="max-w-3xl">
           <About />
         </div>
@@ -263,19 +263,30 @@ export function AboutPage() {
 
 export function PrivacyPage() {
   return (
-    <main className="mx-auto w-full max-w-3xl flex-1 px-4 pb-16 pt-10">
-      <p className="text-xs font-extrabold uppercase tracking-[0.25em] text-primary">Leander Live</p>
+    <main
+      id="main-content"
+      tabIndex={-1}
+      className="mx-auto w-full max-w-3xl flex-1 px-4 pb-16 pt-10"
+    >
+      <p className="text-xs font-extrabold uppercase tracking-[0.25em] text-primary">
+        Leander Live
+      </p>
       <h1 className="font-display mt-2 text-4xl font-extrabold tracking-tight text-navy">
         Privacy Policy
       </h1>
-      <p className="mt-2 text-sm text-muted-foreground">Effective September 27, 2026</p>
+      <p className="mt-2 text-sm text-muted-foreground">
+        Effective November 2, 2026
+      </p>
 
       <div className="prose-cream mt-8 space-y-6 text-[15px] leading-relaxed">
         <p>
-          Leander Live is a community events board for Leander, Texas. This policy
-          explains what information we collect and how we use it. In short: there
-          are no accounts, no sign-in, and no tracking of who you are — the site
-          is a static page that reads public event listings.
+          Leander Live is a community events, jobs, and business board for
+          Leander, Texas, operated by Newton &amp; Carter LLC
+          (&ldquo;we,&rdquo; &ldquo;us&rdquo;). This policy explains what
+          information we collect and how we use it. In short: there are no
+          accounts and no sign-in; the site&rsquo;s forms never send
+          anything by themselves — they prepare an email draft in your own
+          email app; and analytics cookies stay off unless you accept them.
         </p>
 
         <section>
@@ -284,72 +295,153 @@ export function PrivacyPage() {
           </h2>
           <ul className="mt-2 list-disc space-y-2 pl-5">
             <li>
-              <strong>Saved events.</strong> Events you heart are stored only in
-              your own browser&apos;s local storage. They never leave your device,
-              and clearing your browser data removes them.
+              <strong>Submissions and inquiries you email us.</strong> The
+              forms on this site (submit an event, post a job, ask about a
+              business listing or a paid placement) compose a draft in your
+              email app. Nothing reaches us until you send that email. When
+              you do, we receive what you put in it — typically your name,
+              email address, phone number if you add one, and the listing
+              details — so we can review it, publish the listing, and reply.
             </li>
             <li>
-              <strong>Event, job &amp; business submissions.</strong> When you email
-              us a submission through the site&apos;s forms, we receive whatever
-              details you put in that email so we can review and publish your
-              listing.
+              <strong>Saved events.</strong> Events you heart are stored
+              only in your own browser&rsquo;s local storage. They never
+              leave your device, and clearing your browser data removes
+              them.
             </li>
             <li>
-              <strong>Analytics.</strong> We use Google Analytics to see aggregate
-              page views (which pages are popular). It does not identify you
-              personally.
+              <strong>Analytics, only with your consent.</strong> We use
+              Google Analytics (loaded through Google Tag Manager) to see
+              aggregate page views — which pages are popular. Analytics
+              storage starts off and is enabled only if you accept in the
+              consent banner; your choice is stored on your device and you
+              can change it any time from the &ldquo;Privacy
+              choices&rdquo; link in the footer. When enabled, we also use
+              PostHog for aggregate product analytics: it is configured to
+              run anonymously — no accounts, no names or email addresses,
+              no automatic click or form tracking, no session recording,
+              and page addresses are reported without their query strings.
+              If your browser sends a Do Not Track signal, PostHog is not
+              loaded at all.
+            </li>
+            <li>
+              <strong>Hosting logs.</strong> Our hosting provider (Vercel)
+              processes standard technical logs — IP address, browser type,
+              and pages requested — to serve and secure the site.
             </li>
           </ul>
         </section>
 
         <section>
           <h2 className="font-display text-xl font-extrabold text-navy">
-            How we use it
+            Cookies and local storage
+          </h2>
+          <ul className="mt-2 list-disc space-y-2 pl-5">
+            <li>
+              <strong>Essential (always, on your device only):</strong>{" "}
+              your saved events and your analytics consent choice, stored
+              in local storage. These never leave your device.
+            </li>
+            <li>
+              <strong>Analytics (only after you accept):</strong> Google
+              Analytics cookies (such as <em>_ga</em>) that distinguish
+              visits in aggregate, and PostHog&rsquo;s anonymous identifier
+              stored in local storage when PostHog is enabled. We run no
+              advertising cookies and no cross-site ad tracking.
+            </li>
+          </ul>
+        </section>
+
+        <section>
+          <h2 className="font-display text-xl font-extrabold text-navy">
+            How we use it, and who receives it
           </h2>
           <p>
-            We use submissions to keep the board fresh and accurate. We do not
-            sell your personal information, and we do not share it with third
-            parties for their own marketing.
+            We use submissions and inquiries to review and publish
+            listings, arrange paid placements, and answer you. Analytics
+            tell us, in aggregate, which parts of the board are useful. We
+            do not sell your personal information, and we do not share it
+            for anyone else&rsquo;s marketing. The service providers that
+            process data for us are Google (analytics and tag management),
+            PostHog (product analytics, when enabled), and Vercel
+            (hosting). We may disclose information if required by law or to
+            protect the site and its users.
+          </p>
+          <p>
+            Details you submit for publication — a business&rsquo;s name,
+            address, hours, and contact links, an event&rsquo;s organizer
+            details, a job posting — are published on the public board, as
+            the submission forms explain. Do not submit private personal
+            information (such as a home address or a personal phone number)
+            that you do not want published.
           </p>
         </section>
 
         <section>
           <h2 className="font-display text-xl font-extrabold text-navy">
-            Your choices
+            How long we keep it
+          </h2>
+          <p>
+            Emails you send us are kept while the listing or placement is
+            active and for a reasonable period afterward for our records,
+            then deleted. Analytics data is retained in aggregate by our
+            providers under their standard retention settings.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="font-display text-xl font-extrabold text-navy">
+            Your choices and rights
           </h2>
           <ul className="mt-2 list-disc space-y-2 pl-5">
             <li>Unsave events any time by tapping the heart again.</li>
             <li>
-              Ask us to remove a submission by emailing{" "}
+              Change your analytics choice any time via &ldquo;Privacy
+              choices&rdquo; in the footer.
+            </li>
+            <li>
+              Ask us to correct or remove a listing or submission, or to
+              delete personal information you emailed us, by writing to{" "}
               <a
-                href="mailto:chris@howdycarter.com"
+                href="mailto:chris@newtonandcarter.com"
                 className="font-semibold text-primary hover:underline"
               >
-                chris@howdycarter.com
+                chris@newtonandcarter.com
               </a>
-              .
+              . We respond to requests within 30 days.
             </li>
           </ul>
+          <p>
+            If you are in the European Economic Area or the UK, you also
+            have the rights to access, correct, delete, and restrict or
+            object to our processing of your personal data, and to data
+            portability. Our lawful basis for analytics is your consent
+            (which you may withdraw at any time, as above); for handling
+            submissions and placements it is our legitimate interest in
+            operating the board and performing the arrangement you asked
+            for. Data is processed in the United States. You may also
+            complain to your local data protection authority.
+          </p>
+          <p>
+            This board is a general-audience community service and is not
+            directed to children under 13.
+          </p>
         </section>
 
         <section>
-          <h2 className="font-display text-xl font-extrabold text-navy">Contact</h2>
+          <h2 className="font-display text-xl font-extrabold text-navy">
+            Changes and contact
+          </h2>
           <p>
-            Leander Live was designed and built by{" "}
+            If we change this policy, we will post the updated version here
+            with a new effective date. Leander Live is operated by Newton
+            &amp; Carter LLC. Questions about this policy, or reports of a
+            listing that should not be public, go to{" "}
             <a
-              href="https://howdycarter.com"
-              target="_blank"
-              rel="noopener noreferrer"
+              href="mailto:chris@newtonandcarter.com"
               className="font-semibold text-primary hover:underline"
             >
-              Howdy Carter
-            </a>
-            . Questions about this policy? Email{" "}
-            <a
-              href="mailto:chris@howdycarter.com"
-              className="font-semibold text-primary hover:underline"
-            >
-              chris@howdycarter.com
+              chris@newtonandcarter.com
             </a>
             .
           </p>
@@ -363,7 +455,7 @@ export function PrivacyPage() {
 
 export function NotFoundPage() {
   return (
-    <main className="mx-auto max-w-6xl px-4 pt-16">
+    <main id="main-content" tabIndex={-1} className="mx-auto max-w-6xl px-4 pt-16">
       <Card className="mx-auto max-w-md text-center">
         <CardContent className="flex flex-col items-center gap-4 pt-8">
           <h1 className="font-display text-5xl font-black tracking-tight text-navy">404</h1>
@@ -454,7 +546,7 @@ export function AdvertisePage() {
         </div>
       </PageHero>
 
-      <main className="mx-auto max-w-6xl px-4 py-12">
+      <main id="main-content" tabIndex={-1} className="mx-auto max-w-6xl px-4 py-12">
         <h2 className="sr-only">Advertising packages</h2>
         <div className="grid gap-6 md:grid-cols-2">
           {AD_PACKAGES.map((pkg) => (

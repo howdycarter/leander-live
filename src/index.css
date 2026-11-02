@@ -80,6 +80,12 @@
     /* Clear the sticky header (~64px) so anchor jumps don't hide headings. */
     scroll-margin-top: 88px;
   }
+  /* The skip link moves focus to <main id="main-content" tabindex="-1">;
+     the focus ring on the whole region would be noise, the skip link
+     itself is the visible affordance. */
+  #main-content:focus {
+    outline: none;
+  }
 }
 
 /*
