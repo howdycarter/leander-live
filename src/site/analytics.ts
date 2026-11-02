@@ -19,7 +19,21 @@
  * particular an explicitly empty VITE_GTM_ID (build env or an overriding
  * env file) must never emit a broken `gtm.js?id=` loader (Codex P2, PR #7).
  *   VITE_GTM_ID=GTM-XXXXXXX npm run build
+ *
+ * PostHog (DRAFT — project 700301, org "Newton & Carter") is wired
+ * alongside GTM, not through it: initAnalytics() also initializes
+ * PostHog (src/site/posthog.ts) and every trackEvent/trackPageView call
+ * is mirrored there. PostHog is a complete no-op unless VITE_POSTHOG_KEY
+ * is set at build time, sends anonymous events only (no autocapture, no
+ * session recording, no identified profiles), and sanitizes properties
+ * before capture. See docs/POSTHOG-PRIVACY-NOTE-DRAFT.md.
  */
+
+import {
+  capturePostHogEvent,
+  capturePostHogPageView,
+  initPostHog,
+} from "./posthog";
 
 declare global {
   interface Window {
@@ -50,6 +64,8 @@ let initialized = false;
 export function initAnalytics(): void {
   if (initialized) return;
   initialized = true;
+  // PostHog initializes independently of GTM and no-ops without a key.
+  initPostHog();
   try {
     ensureDataLayer();
     if (!document.querySelector('script[src*="googletagmanager.com/gtm.js"]')) {
@@ -72,7 +88,7 @@ export function initAnalytics(): void {
  * (GA4 events etc.) subscribe with Custom Event triggers on `name`.
  * Fire-and-forget: pushes are queued even before the container loads.
  */
-export function trackEvent(
+function pushToDataLayer(
   name: string,
   params?: Record<string, string | number | boolean>,
 ): void {
@@ -84,11 +100,24 @@ export function trackEvent(
   }
 }
 
+export function trackEvent(
+  name: string,
+  params?: Record<string, string | number | boolean>,
+): void {
+  pushToDataLayer(name, params);
+  // Mirror explicit events to PostHog (sanitized there; no-op w/o a key).
+  capturePostHogEvent(name, params);
+}
+
 /** Manual page_view for SPA route changes (GTM forwards it to GA4). */
 export function trackPageView(path: string): void {
-  trackEvent("page_view", {
+  pushToDataLayer("page_view", {
     page_path: path,
     page_location: window.location.href,
     page_title: document.title,
   });
+  // PostHog gets a single $pageview with the pathname only — the GTM push
+  // above carries the full URL for GA4; PostHog never receives query
+  // strings (see posthog.ts sanitize rules).
+  capturePostHogPageView(path);
 }
