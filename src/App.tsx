@@ -3,6 +3,7 @@ import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import { Canonical, RouteMeta, ScrollToTop, SiteLayout } from "./site/chrome";
 import { SavedEventsProvider, SiteActionsProvider } from "./site/state";
 import { initAnalytics, trackPageView } from "./site/analytics";
+import { AccessibilityPage, TermsPage } from "./site/legal";
 import {
   AboutPage,
   AdvertisePage,
@@ -52,6 +53,8 @@ export default function App() {
               <Route path="about" element={<AboutPage />} />
               <Route path="advertise" element={<AdvertisePage />} />
               <Route path="privacy" element={<PrivacyPage />} />
+              <Route path="terms" element={<TermsPage />} />
+              <Route path="accessibility" element={<AccessibilityPage />} />
               <Route path="*" element={<NotFoundPage />} />
             </Route>
           </Routes>

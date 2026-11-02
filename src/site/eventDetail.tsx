@@ -171,7 +171,7 @@ export function EventDetailPage() {
   }, [event?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <main className="mx-auto max-w-6xl px-4 py-8 md:py-10 @container">
+    <main id="main-content" tabIndex={-1} className="mx-auto max-w-6xl px-4 py-8 md:py-10 @container">
       <Button asChild variant="ghost" className="-ml-2 mb-5 rounded-full">
         <Link to="/events">
           <ArrowLeft className="h-4 w-4" /> All events

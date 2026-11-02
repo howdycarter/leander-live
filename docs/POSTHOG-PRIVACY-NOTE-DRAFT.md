@@ -1,9 +1,19 @@
-# PostHog privacy note — DRAFT (Chris must approve before anything ships)
+# PostHog privacy note — APPROVED Nov 2, 2026 (incorporated)
 
-Status: **DRAFT — not live, not merged.** This is the proposed addition to
-the Leander Live Privacy Policy (`/privacy`, `PrivacyPage` in
-`src/site/pages.tsx`) if/when the PostHog wiring in `src/site/posthog.ts`
-is approved, merged, and deployed with a real `VITE_POSTHOG_KEY`.
+Status: **Approved by Chris Carter Nov 2, 2026** under his "approve for
+all" legal/compliance directive. The wording below was incorporated
+into the live Privacy Policy (`/privacy`) on Nov 2, 2026, with one
+truthfulness adjustment: the policy frames PostHog as active "when
+enabled on this site," because the wiring ships keyless (no
+`VITE_POSTHOG_KEY` in the build yet) and is additionally gated on the
+visitor's analytics consent (see `src/site/consent.ts`). The wiring
+itself (PR #24) was merged to the production line the same day.
+Still outstanding (owner steps, unchanged): (1) Chris provides the
+project key as `VITE_POSTHOG_KEY` in the Vercel project env;
+(2) Chris's PostHog billing-limit decision. Until the key is set,
+PostHog collects nothing.
+
+Original draft text follows, kept for the record.
 
 ## Proposed policy text (for the "Information we collect" list)
 

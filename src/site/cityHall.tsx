@@ -124,7 +124,7 @@ export function CityHallPage() {
         title="City Hall"
         subtitle="Council and board meetings, agenda packets, and city news — what your local government is up to, in plain sight."
       />
-      <main className="mx-auto max-w-6xl px-4 py-6">
+      <main id="main-content" tabIndex={-1} className="mx-auto max-w-6xl px-4 py-6">
         <SourceStatusBanner kind="civic" />
         {/* Upcoming meetings */}
         <section aria-label="Upcoming meetings">

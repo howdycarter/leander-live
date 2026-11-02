@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -14,6 +14,12 @@ import {
 import { cn } from "@/lib/utils";
 import { useSiteActions } from "./state";
 import { trackEvent } from "./analytics";
+import {
+  OPEN_CONSENT_EVENT,
+  getAnalyticsConsent,
+  openConsentBanner,
+  setAnalyticsConsent,
+} from "./consent";
 import { ALL_EVENTS } from "./content";
 
 /* ---------------- brand ---------------- */
@@ -60,7 +66,7 @@ function Header() {
                   "py-2",
                   isActive
                     ? "text-navy underline decoration-gold decoration-[3px] underline-offset-8"
-                    : "text-foreground/60 hover:text-navy",
+                    : "text-foreground/75 hover:text-navy",
                 )
               }
             >
@@ -158,6 +164,17 @@ function Footer() {
           <FooterHeading>Legal</FooterHeading>
           <ul className="flex flex-row gap-5 font-medium lg:flex-col lg:gap-1">
             <FooterLink to="/privacy">Privacy</FooterLink>
+            <FooterLink to="/terms">Terms</FooterLink>
+            <FooterLink to="/accessibility">Accessibility</FooterLink>
+            <li>
+              <button
+                type="button"
+                onClick={openConsentBanner}
+                className="inline-block py-1 text-left text-[15px] text-white/80 hover:text-white"
+              >
+                Privacy choices
+              </button>
+            </li>
           </ul>
         </nav>
       </div>
@@ -306,7 +323,17 @@ const ROUTE_META: Record<string, { title: string; description: string }> = {
   "/privacy": {
     title: "Privacy Policy — Leander Live",
     description:
-      "How Leander Live handles your information: no accounts, no sign-in, and saved events that never leave your browser.",
+      "How Leander Live handles your information: no accounts, no sign-in, consent-gated analytics, and saved events that never leave your browser.",
+  },
+  "/terms": {
+    title: "Terms of Use — Leander Live",
+    description:
+      "The terms for using Leander Live: submissions, paid placements arranged by email, and refunds for placements that do not run as agreed.",
+  },
+  "/accessibility": {
+    title: "Accessibility Statement — Leander Live",
+    description:
+      "Leander Live's accessibility standard (WCAG 2.2 Level AA), the measures in place, known limitations, and how to report a barrier.",
   },
 };
 
@@ -355,10 +382,81 @@ export function Canonical() {
 export function SiteLayout() {
   return (
     <div className="min-h-screen bg-background pb-20 text-foreground md:pb-0" id="top">
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[70] focus:rounded-full focus:bg-navy focus:px-4 focus:py-2 focus:font-semibold focus:text-white"
+      >
+        Skip to main content
+      </a>
       <Header />
       <Outlet />
       <Footer />
       <TabBar />
+      <CookieConsent />
     </div>
+  );
+}
+
+/* ---------------- analytics consent banner ---------------- */
+
+/**
+ * Consent banner for analytics cookies (see consent.ts). Analytics
+ * storage is denied by default in index.html; this banner is the only
+ * way it turns on. Shows when no choice is stored, and re-opens from
+ * the footer's "Privacy choices" button. Not a modal: the page stays
+ * fully usable while it is visible, and either choice dismisses it.
+ */
+function CookieConsent() {
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    setVisible(getAnalyticsConsent() === null);
+    const reopen = () => setVisible(true);
+    window.addEventListener(OPEN_CONSENT_EVENT, reopen);
+    return () => window.removeEventListener(OPEN_CONSENT_EVENT, reopen);
+  }, []);
+
+  if (!visible) return null;
+
+  const choose = (choice: "granted" | "denied") => {
+    setAnalyticsConsent(choice);
+    setVisible(false);
+  };
+
+  return (
+    <section
+      aria-label="Analytics cookie consent"
+      className="fixed inset-x-0 bottom-20 z-50 md:bottom-0"
+    >
+      <div className="mx-auto flex max-w-6xl flex-col gap-3 border-t border-border bg-white px-4 py-4 shadow-[0_-4px_16px_rgba(22,50,79,0.12)] sm:flex-row sm:items-center">
+        <p className="text-sm leading-relaxed text-foreground">
+          <strong>Analytics cookies are off.</strong> We use Google
+          Analytics and PostHog to see, in aggregate, which pages are
+          useful — only if you accept. No ads, no selling data. Details in
+          our{" "}
+          <Link to="/privacy" className="font-semibold text-primary hover:underline">
+            Privacy Policy
+          </Link>
+          .
+        </p>
+        <div className="flex shrink-0 gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            className="rounded-full"
+            onClick={() => choose("denied")}
+          >
+            Decline
+          </Button>
+          <Button
+            type="button"
+            className="rounded-full"
+            onClick={() => choose("granted")}
+          >
+            Accept analytics
+          </Button>
+        </div>
+      </div>
+    </section>
   );
 }

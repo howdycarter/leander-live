@@ -1,5 +1,9 @@
 /**
- * PostHog analytics for Leander Live — DRAFT wiring (not yet approved to ship).
+ * PostHog analytics for Leander Live — wiring approved by Chris Carter
+ * Nov 2, 2026 (PR #24 disposition) and merged keyless: this module stays
+ * a no-op until VITE_POSTHOG_KEY is set in the build environment AND
+ * the visitor has granted analytics consent (analytics.ts gates the
+ * initPostHog() call on src/site/consent.ts).
  *
  * Org: "Newton & Carter" · Project: 700301.
  *
