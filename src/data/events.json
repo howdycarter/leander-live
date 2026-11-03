@@ -804,6 +804,20 @@
     "source": "city-calendar"
   },
   {
+    "id": "chamber-168992",
+    "title": "Ribbon Cutting; ARA",
+    "description": "ARA is a leader in diagnostic imaging. Our focus is to compassionately serve patients and physicians of Central Texas by providing the best possible healthcare outcomes for the patients we diagnose and treat. We operate 18 outpatient imaging centers stretching from Georgetown to San Marcos. You might also see our physicians when you visit a local hospital. We read and diagnose imaging exams from 22 hospitals across Central Texas.",
+    "startsAt": 1796234400000,
+    "venue": "ARA 10861 183A Frontage Road Building 100",
+    "address": "ARA 10861 183A Frontage Road Building 100, Leander TX 78641",
+    "image": "https://leander.chamberspace.net/virDirEditorAssets/LeanderTX/chamberAccess/CalendarImages/ARA(1).png",
+    "url": "https://leander.chamberspace.net/event/ribbon-cutting-ara/168992",
+    "sourceUrl": "https://leander.chamberspace.net/event/ribbon-cutting-ara/168992",
+    "category": "Community",
+    "source": "chamber",
+    "blurb": "ARA is a leader in diagnostic imaging. Our focus is to compassionately serve patients and physicians of Central Texas by providing the best…"
+  },
+  {
     "id": "citycal-2596",
     "title": "City Council Regular Meeting",
     "startsAt": 1796342400000,
@@ -853,6 +867,20 @@
     "blurb": "First Saturday of December in Historic Old Town: parade, 40-foot tree lighting, Rudolph Run 5K, pictures with Santa, holiday hayrides, yule…"
   },
   {
+    "id": "chamber-168993",
+    "title": "Ribbon Cutting; Hermosa Village",
+    "description": "Join us as we celebrate Hermosa Village's Ribbon Cutting with the Leander Chamber of Commerce! We&rsquo;re excited to celebrate our growing connection with the Leander community! Hermosa Village offers beautiful one-, two-, and three-bedroom apartment homes, with select homes featuring attached garages. Come meet our team, explore our community, and help us celebrate this exciting milestone! We look forward to building lasting relationships, supporting local businesses, and continuing to make Hermosa Village a place residents are proud to call home!",
+    "startsAt": 1796749200000,
+    "venue": "Hermosa Village 11680 Hero Way West",
+    "address": "Hermosa Village 11680 Hero Way West, Leander TX 78641",
+    "image": "https://leander.chamberspace.net/virDirEditorAssets/LeanderTX/chamberAccess/CalendarImages/hermosa%20village.png",
+    "url": "https://leander.chamberspace.net/event/ribbon-cutting-hermosa-village/168993",
+    "sourceUrl": "https://leander.chamberspace.net/event/ribbon-cutting-hermosa-village/168993",
+    "category": "Community",
+    "source": "chamber",
+    "blurb": "Join us as we celebrate Hermosa Village's Ribbon Cutting with the Leander Chamber of Commerce!"
+  },
+  {
     "id": "chamber-168940",
     "title": "After Hours Mixer at Twin Lakes Family YMCA",
     "description": "Join us for an after hours mixer with the Leander Chambers of Commerce at the Twin Lakes Family YMCA! This is a great opportunity to grow your network, and enjoy an evening of conversation and holiday cheer.",
@@ -866,6 +894,20 @@
     "category": "Family",
     "source": "chamber",
     "blurb": "Join us for an after hours mixer with the Leander Chambers of Commerce at the Twin Lakes Family YMCA!"
+  },
+  {
+    "id": "chamber-168994",
+    "title": "Coffee with the President with our Members",
+    "description": "Start your morning with coffee and conversation at this networking event with the Chamber President, Bridget Brandt. Learn about upcoming Chamber initiatives, ask questions, and&nbsp;meet with fellow members while turning coffee into connections.",
+    "startsAt": 1796830200000,
+    "venue": "Leander Chamber of Commerce 103 N. West Dr.",
+    "address": "Leander Chamber of Commerce 103 N. West Dr., Leander TX 78641",
+    "image": "https://leander.chamberspace.net/virDirEditorAssets/LeanderTX/chamberAccess/CalendarImages/Coffee%20with%20the%20President.png",
+    "url": "https://leander.chamberspace.net/event/coffee-with-the-president-with-our-members/168994",
+    "sourceUrl": "https://leander.chamberspace.net/event/coffee-with-the-president-with-our-members/168994",
+    "category": "Learn",
+    "source": "chamber",
+    "blurb": "Start your morning with coffee and conversation at this networking event with the Chamber President, Bridget Brandt."
   },
   {
     "id": "chamber-168649",
