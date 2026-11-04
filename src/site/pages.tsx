@@ -36,6 +36,7 @@ import { EventDetailPage } from "./eventDetail";
 import { OpeningsPage, OpeningsPreview } from "./openings";
 import { useSavedEvents } from "./state";
 import { EmptyState } from "@/components/arc/empty-state/empty-state";
+import { ServiceRequestPage, WeeklyEmailForm } from "./serviceRequest";
 
 /* ---------------- home — Concept A: Bright & Bold ---------------- */
 
@@ -60,7 +61,7 @@ export function HomePage() {
   );
 }
 
-export { EventDetailPage, CityHallPage, OpeningsPage };
+export { EventDetailPage, CityHallPage, OpeningsPage, ServiceRequestPage };
 export { WeekendRoundupPage, NewNearYouPage } from "./shareablePages";
 
 /* ---------------- events ---------------- */
@@ -224,8 +225,9 @@ export function RemindersPage() {
         subtitle="Add any event straight to your calendar — no sign-up, no spam, just the .ics file."
       />
       <main id="main-content" tabIndex={-1} className="mx-auto max-w-6xl px-4 py-10">
-        <div className="max-w-2xl">
+        <div className="grid max-w-2xl gap-6">
           <RemindersContent />
+          <WeeklyEmailForm />
         </div>
       </main>
     </>
@@ -575,8 +577,13 @@ export function AdvertisePage() {
           </h2>
           <p className="mt-2 max-w-2xl text-muted-foreground">
             No lead qualification, delivery, or exclusive categories are offered.
-            You can use the email form to ask about advertising placements;
-            preparing an inquiry does not send it.
+            Neighbors can{" "}
+            <Link to="/request" className="font-semibold text-primary underline">
+              request a local pro
+            </Link>{" "}
+            for human review. We do not qualify, route, or invoice until privacy
+            language is approved and a category buyer is signed. Advertising
+            inquiries still use the form below; preparing an inquiry does not send it.
           </p>
           <div className="mt-6 grid gap-4 md:grid-cols-3">
             {SERVICE_LEAD_STEPS.map((s, i) => (
