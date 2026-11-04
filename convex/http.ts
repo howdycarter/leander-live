@@ -2,6 +2,7 @@ import { httpRouter } from "convex/server";
 import { httpAction } from "./_generated/server";
 import { registerStaticRoutes } from "@convex-dev/static-hosting";
 import { components, internal } from "./_generated/api";
+import { timingSafeEqual, verifySvix } from "./svix";
 
 const http = httpRouter();
 
@@ -22,65 +23,10 @@ const http = httpRouter();
  *   3. npx convex env set AGENTMAIL_WEBHOOK_SECRET <whsec_...>
  *
  * Docs: https://docs.agentmail.to/webhooks/webhooks-overview
+ *
+ * Inbox creation itself is a Chris/credentials step (CHR-1474) and is not
+ * performed by this change. The signature check is the agent-doable part.
  */
-
-function timingSafeEqual(a: string, b: string): boolean {
-  if (a.length !== b.length) return false;
-  let diff = 0;
-  for (let i = 0; i < a.length; i++) {
-    diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
-  }
-  return diff === 0;
-}
-
-/** Verify AgentMail's Svix signature against the exact raw request body. */
-async function verifySvix(
-  rawBody: string,
-  headers: Headers,
-  secret: string,
-): Promise<boolean> {
-  const svixId = headers.get("svix-id");
-  const svixTimestamp = headers.get("svix-timestamp");
-  const svixSignature = headers.get("svix-signature");
-  if (!svixId || !svixTimestamp || !svixSignature) return false;
-
-  // Reject stale deliveries (5-minute tolerance).
-  const ts = parseInt(svixTimestamp, 10);
-  if (Number.isNaN(ts)) return false;
-  if (Math.abs(Math.floor(Date.now() / 1000) - ts) > 300) return false;
-
-  const b64 = secret.startsWith("whsec_") ? secret.slice("whsec_".length) : secret;
-  const keyBytes = new Uint8Array(b64.length);
-  try {
-    const bin = atob(b64);
-    for (let i = 0; i < bin.length; i++) keyBytes[i] = bin.charCodeAt(i);
-  } catch {
-    return false;
-  }
-  const key = await crypto.subtle.importKey(
-    "raw",
-    keyBytes,
-    { name: "HMAC", hash: "SHA-256" },
-    false,
-    ["sign"],
-  );
-  const mac = await crypto.subtle.sign(
-    "HMAC",
-    key,
-    new TextEncoder().encode(`${svixId}.${svixTimestamp}.${rawBody}`),
-  );
-  const macBytes = new Uint8Array(mac);
-  let computed = "";
-  for (let i = 0; i < macBytes.length; i++) {
-    computed += String.fromCharCode(macBytes[i]);
-  }
-  computed = btoa(computed);
-
-  return svixSignature
-    .split(" ")
-    .map((part) => (part.startsWith("v1,") ? part.slice(3) : part))
-    .some((sig) => timingSafeEqual(sig, computed));
-}
 
 function json(status: number, body: unknown): Response {
   return new Response(JSON.stringify(body), {

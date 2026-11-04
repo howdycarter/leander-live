@@ -35,7 +35,8 @@
     "deploy:static": "npx @convex-dev/static-hosting upload --build --prod",
     "dev": "vite",
     "preview": "vite preview",
-    "prebuild": "convex codegen"
+    "prebuild": "convex codegen",
+    "test": "node --experimental-strip-types --test tests/*.test.ts"
   },
   "type": "module",
   "version": "0.1.0"
