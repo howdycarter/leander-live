@@ -43,6 +43,16 @@ test('jobs and civic notices scope their affected source names', () => {
   assert.doesNotMatch(civic,/Google News|job postings/);
 });
 
+test('openings notice names permit and chamber sources without job boards', () => {
+  const html=renderToStaticMarkup(h(status.SourceStatusBanner,{kind:'openings'}));
+  const $=load(html);
+  const note=$('[aria-label="Listing freshness"]');
+  assert.equal(note.attr('role'),'note');
+  assert.match($.text(),/Texas sales-tax business directory/);
+  assert.match($.text(),/Leander Chamber events/);
+  assert.doesNotMatch($.text(),/job postings|Google News/);
+});
+
 test('failed active sources and paused sources both remain visible without fake timestamps', () => {
   const notice=status.sourceNotice('events',[
     {id:'chamber',state:'failed',lastSuccessAt:'2026-10-29T21:00:00Z'},

@@ -7,6 +7,8 @@
  *   signals/queue.json         — every signal ever found (deduped by id)
  *   signals/last-run.json      — only the signals from the latest run
  *                                (the refresh cron alerts Chris from this)
+ *   src/data/openings.json     — published "Coming soon" radar (permit
+ *                                listings with honest status labels)
  * State lives in signals/state-*.json (gitignored, never committed).
  *
  * Sources:
@@ -32,6 +34,7 @@
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
 import { signalGateRows, sourceEnabled } from "./lib/source-gates.mjs";
 import { readStatus, recordStatus } from "./lib/source-status-file.mjs";
+import { buildOpeningsFeed } from "./lib/openings-radar.mjs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { execFile } from "node:child_process";
@@ -96,6 +99,41 @@ function readJson(path, fallback) {
 
 function writeJson(path, data) {
   writeFileSync(path, JSON.stringify(data, null, 2) + "\n");
+}
+
+const OPENINGS_OUT = join(ROOT, "src/data/openings.json");
+
+/**
+ * Publish the Coming-soon radar from the permit feed already on disk
+ * (businesses.json) plus Chamber ribbon cuttings in events.json.
+ * A failed or unreadable feed never throws: keep the previous file, or
+ * write [] so the static build still has a valid JSON array.
+ */
+function publishOpeningsFeed(signals, stats, warnings) {
+  const prev = existsSync(OPENINGS_OUT) ? readJson(OPENINGS_OUT, []) : [];
+  try {
+    const businesses = readJson(join(ROOT, "src/data/businesses.json"), null);
+    if (!Array.isArray(businesses)) {
+      if (!existsSync(OPENINGS_OUT)) writeJson(OPENINGS_OUT, []);
+      else warnings.push("openings: businesses.json unreadable; kept previous openings.json");
+      return;
+    }
+    const events = readJson(join(ROOT, "src/data/events.json"), []);
+    const openings = buildOpeningsFeed({
+      businesses,
+      events: Array.isArray(events) ? events : [],
+      signals: Array.isArray(signals) ? signals : [],
+      now: Date.now(),
+    });
+    writeJson(OPENINGS_OUT, openings);
+    stats.openingsPublished = openings.length;
+  } catch (e) {
+    warnings.push(`openings radar publish failed: ${e.message}`);
+    if (!existsSync(OPENINGS_OUT)) {
+      try { writeJson(OPENINGS_OUT, Array.isArray(prev) ? prev : []); }
+      catch { /* build still needs a file; the orchestrator will see the warning */ }
+    }
+  }
 }
 
 function hash(s) {
@@ -431,6 +469,7 @@ async function main() {
     .sort((a, b) => a.firstSeenAt - b.firstSeenAt)
     .slice(-400);
   writeJson(QUEUE_OUT, merged);
+  publishOpeningsFeed(merged, stats, warnings);
   // Status is recorded after the queue is final, so recordsKept counts the
   // signals from each gated source that the published queue still holds.
   recordStatus(signalGateRows(gates, merged, { now, prevStatus }));
@@ -447,7 +486,8 @@ async function main() {
   for (const s of freshSignals) byPrio[s.priority] = (byPrio[s.priority] || 0) + 1;
   console.log(
     `signals: ${freshSignals.length} new (${byPrio.high || 0} high, ${byPrio.medium || 0} medium, ${byPrio.low || 0} low), ` +
-    `queue total ${merged.length}${warnings.length ? `, ${warnings.length} warning(s)` : ""}`,
+    `queue total ${merged.length}, openings ${stats.openingsPublished ?? 0}` +
+    `${warnings.length ? `, ${warnings.length} warning(s)` : ""}`,
   );
 }
 

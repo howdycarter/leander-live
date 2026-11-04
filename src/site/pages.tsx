@@ -33,6 +33,7 @@ import {
 } from "./conceptA";
 import { CityHallPage } from "./cityHall";
 import { EventDetailPage } from "./eventDetail";
+import { OpeningsPage, OpeningsPreview } from "./openings";
 import { useSavedEvents } from "./state";
 
 /* ---------------- home — Concept A: Bright & Bold ---------------- */
@@ -49,6 +50,7 @@ export function HomePage() {
         withRail
       />
       <JobsPreview />
+      <OpeningsPreview />
       <HowItWorks />
       <BusinessCtaBand />
       <NavyCtaBand />
@@ -56,7 +58,7 @@ export function HomePage() {
   );
 }
 
-export { EventDetailPage, CityHallPage };
+export { EventDetailPage, CityHallPage, OpeningsPage };
 
 /* ---------------- events ---------------- */
 

@@ -45,11 +45,12 @@ export function ListingStatus({ item, compact = false }: { item: ListingSource; 
   const status = sourceStatusFor(item);
   return <span className="mt-1 block text-xs font-normal leading-snug text-muted-foreground" title={statusText(status)}>{compact && status?.state === "paused" ? (status.historical ? "Source paused · Historical listing" : "Source updates paused") : statusText(status)}</span>;
 }
-type NoticeKind = "jobs" | "events" | "civic";
+type NoticeKind = "jobs" | "events" | "civic" | "openings";
 const NOTICE_SOURCES: Record<NoticeKind, string[]> = {
   events: ['leandertx-city-calendar', 'chamber'],
   jobs: ['governmentjobs-city-of-leander', 'governmentjobs-williamson-county', 'lisd-applitrack-jobs'],
   civic: ['civicclerk-meetings', 'lisd-board-agendas', 'leandertx-city-news'],
+  openings: ['tx-sales-tax-businesses', 'chamber'],
 };
 export function sourceNotice(kind: NoticeKind, statusRows: SourceStatusRow[] = rows) {
   const relevant = statusRows.filter(row => NOTICE_SOURCES[kind].includes(row.id));
