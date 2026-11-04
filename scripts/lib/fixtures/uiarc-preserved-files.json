@@ -55,7 +55,7 @@
     "scripts/scrape-jobs.mjs": "3a729a6b9c2f2994821ad5f039ae3a5005748c438ea4bc021156f0dd2ed3956d",
     "scripts/scrape-signals.mjs": "509480d141da4b945a681c7a425e89f7037fdc6ede0185046b4a54133b5a5470",
     "scripts/validate-listings.mjs": "d5ab9666927d1c56c5ae1d19d009f89d168d06a715d4e0e065beb5f4ed9a9ac9",
-    "src/App.tsx": "137690e54590556424a5bddd02622a446fd6180852cca6b1090e71c0a402e02c",
+    "src/App.tsx": "e663af5cff5ba915f11018d888df585bbd0544ebad5d78811d2f76001eea160e",
     "src/data/businesses-manual.json": "88fc5c8d0cd24a8f49c84043e4c392e3153111b1a342eaf49fc0ce9937ef2f5e",
     "src/data/businesses.json": "4017a7dcf44078719953ef54fef52b0f48ae94955da177db3b2e4b7279bd9ce2",
     "src/data/civic.json": "bb4142d9160665c608f074f13692abf24def739e11520a92323a665606bf8f80",
