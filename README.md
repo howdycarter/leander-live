@@ -64,3 +64,8 @@ The hackathon-era backend is gone: the `convex/` directory, auth, chat widget,
 SMS reminders, voice bridge, and all related setup docs
 (`PHONE_BOT_SETUP.md`, `BUDGET_SETUP.md`, `SUBMISSION_CHECKLIST.md`,
 `hackathon.md`) describe a retired architecture and are kept for history only.
+
+There is no code-generation step: `npm run build` works from a fresh clone
+with no Convex login or deployment access. The stale `convex/_generated`
+bindings left over from the retired backend — and their `.gitignore` entry —
+were removed in Nov 2026 (CHR-1756); nothing in the app imports them.

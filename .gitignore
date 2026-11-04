@@ -3,4 +3,3 @@ dist
 signals/
 .env
 .env.local
-convex/_generated
