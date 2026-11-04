@@ -17,6 +17,7 @@ import {
   NotFoundPage,
   PrivacyPage,
   RemindersPage,
+  ServiceRequestPage,
 } from "./site/pages";
 
 /** Initializes analytics (GTM dataLayer) once and reports SPA page views on every route change. */
@@ -50,6 +51,7 @@ export default function App() {
               <Route path="city-hall" element={<CityHallPage />} />
               <Route path="community" element={<CommunityPage />} />
               <Route path="reminders" element={<RemindersPage />} />
+              <Route path="request" element={<ServiceRequestPage />} />
               <Route path="about" element={<AboutPage />} />
               <Route path="advertise" element={<AdvertisePage />} />
               <Route path="privacy" element={<PrivacyPage />} />

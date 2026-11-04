@@ -148,6 +148,7 @@ function Footer() {
             <FooterLink to="/about">About</FooterLink>
             <FooterLink to="/reminders">Get reminders</FooterLink>
             <FooterLink to="/advertise">Advertise</FooterLink>
+            <FooterLink to="/request">Request help</FooterLink>
             <li>
               <Button
                 type="button"
@@ -319,6 +320,11 @@ const ROUTE_META: Record<string, { title: string; description: string }> = {
     title: "Advertise — Leander Live",
     description:
       "Ask about featured placements for Leander businesses. Availability requires written confirmation; no online checkout.",
+  },
+  "/request": {
+    title: "Request a local pro — Leander Live",
+    description:
+      "Ask Leander Live to review a plumbing, HVAC, lawn, cleaning, or electrical job. Preparing the draft does not send it or route it to a business.",
   },
   "/privacy": {
     title: "Privacy Policy — Leander Live",
