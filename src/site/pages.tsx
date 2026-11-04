@@ -57,6 +57,7 @@ export function HomePage() {
 }
 
 export { EventDetailPage, CityHallPage };
+export { WeekendRoundupPage, NewNearYouPage } from "./shareablePages";
 
 /* ---------------- events ---------------- */
 

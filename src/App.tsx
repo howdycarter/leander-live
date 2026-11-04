@@ -17,6 +17,8 @@ import {
   NotFoundPage,
   PrivacyPage,
   RemindersPage,
+  NewNearYouPage,
+  WeekendRoundupPage,
 } from "./site/pages";
 
 /** Initializes analytics (GTM dataLayer) once and reports SPA page views on every route change. */
@@ -50,6 +52,8 @@ export default function App() {
               <Route path="city-hall" element={<CityHallPage />} />
               <Route path="community" element={<CommunityPage />} />
               <Route path="reminders" element={<RemindersPage />} />
+              <Route path="weekend" element={<WeekendRoundupPage />} />
+              <Route path="new-near-you" element={<NewNearYouPage />} />
               <Route path="about" element={<AboutPage />} />
               <Route path="advertise" element={<AdvertisePage />} />
               <Route path="privacy" element={<PrivacyPage />} />

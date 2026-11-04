@@ -140,6 +140,8 @@ function Footer() {
             <FooterLink to="/businesses">Businesses</FooterLink>
             <FooterLink to="/city-hall">City Hall</FooterLink>
             <FooterLink to="/community">Community</FooterLink>
+            <FooterLink to="/weekend">This weekend</FooterLink>
+            <FooterLink to="/new-near-you">New near you</FooterLink>
           </ul>
         </nav>
         <nav aria-label="Company">
@@ -309,6 +311,16 @@ const ROUTE_META: Record<string, { title: string; description: string }> = {
     title: "Event Reminders — Leander Live",
     description:
       "Add Leander events straight to your calendar — no sign-up, no spam, just the event file.",
+  },
+  "/weekend": {
+    title: "This weekend in Leander — Leander Live",
+    description:
+      "A text-first weekend roundup from the Leander events feed, ready to copy. This page does not post or send it.",
+  },
+  "/new-near-you": {
+    title: "New on your street — Leander Live",
+    description:
+      "Recent Texas sales-tax permits in Leander ZIP codes. A permit is not a confirmed opening.",
   },
   "/about": {
     title: "About — Leander Live",
