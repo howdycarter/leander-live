@@ -15,6 +15,10 @@
  */
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { recordStatus, recordPendingStatus, runGated, runTracked } from "./lib/source-status-file.mjs";
+import {
+  boardbookMinutesUrl,
+  minutesUrlFromCivicClerkEvent,
+} from "./lib/civic-minutes.mjs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { execFile } from "node:child_process";
@@ -175,6 +179,8 @@ async function scrapeMeetings() {
     };
     if (!m.location) delete m.location;
     if (agendaUrl) m.agendaUrl = agendaUrl;
+    const minutesUrl = minutesUrlFromCivicClerkEvent(API, e);
+    if (minutesUrl) m.minutesUrl = minutesUrl;
     meetings.push(m);
     await sleep(SLEEP_MS);
   }
@@ -254,6 +260,8 @@ async function scrapeLisdBoard() {
     };
     if (loc) rec.location = `${loc[1].trim()}, ${loc[2].replace(/\s+/g, " ").trim()}`;
     if (agenda) rec.agendaUrl = agenda[1];
+    const minutes = boardbookMinutesUrl(seg);
+    if (minutes) rec.minutesUrl = minutes;
     out.push(rec);
   }
   out.sort((a, b) => a.startsAt - b.startsAt);
