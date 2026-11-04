@@ -17,7 +17,7 @@ function render(Component,url='/'){return renderToStaticMarkup(h(router.MemoryRo
 test('original assets, routes, data and protections remain unchanged outside documented refresh corrections',async()=>{
  const {sha256,presentationExceptions,refreshExceptions}=JSON.parse(await fs.readFile(new URL('../scripts/lib/fixtures/uiarc-preserved-files.json',import.meta.url),'utf8'));
  assert.deepEqual(Object.keys(presentationExceptions).sort(),['src/site/chrome.tsx','src/site/pages.tsx']);
- assert.deepEqual(Object.keys(refreshExceptions).sort(),['scripts/lib/source-compliance.test.mjs','scripts/lib/source-status-file.mjs','scripts/run-refresh.mjs','scripts/scrape-businesses.mjs','scripts/scrape-civic.mjs','scripts/scrape-events.mjs','scripts/scrape-jobs.mjs','scripts/scrape-signals.mjs']);
+ assert.deepEqual(Object.keys(refreshExceptions).sort(),['scripts/lib/source-compliance.test.mjs','scripts/lib/source-gates.mjs','scripts/lib/source-status-file.mjs','scripts/run-refresh.mjs','scripts/scrape-businesses.mjs','scripts/scrape-civic.mjs','scripts/scrape-events.mjs','scripts/scrape-jobs.mjs','scripts/scrape-signals.mjs']);
  for(const [name,expected] of Object.entries(sha256).filter(([name])=>!presentationExceptions[name]&&!refreshExceptions[name]))assert.equal(createHash('sha256').update(await fs.readFile(new URL('../'+name,import.meta.url))).digest('hex'),expected,name);
 });
 test('home preserves original hero identity, headline, tagline and imagery',()=>{

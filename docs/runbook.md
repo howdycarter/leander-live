@@ -8,7 +8,7 @@ The AM/PM schedule lives outside this repository in Muse. Repository code does n
 
 After pulling the intended branch, install the committed lockfile with `npm ci --no-audit --no-fund` before running scrapers. Stop if installation fails. The Oct 30 AM observation recorded a missing `ical.js` import after a pull; installing dependencies alone does not establish a successful scrape or publication.
 
-Keep `LEANDER_ENABLE_NEOGOV`, `LEANDER_ENABLE_GOOGLE_NEWS`, `LEANDER_ENABLE_FIRECRAWL`, `LEANDER_ENABLE_LEANDERTX` and `LEANDER_ENABLE_LISD_ICS` unset unless that exact source has separately cleared its permission/service review. See `source-compliance-runbook.md`. Do not work around blocks, logins or rate limits.
+Keep `LEANDER_ENABLE_NEOGOV`, `LEANDER_ENABLE_GOOGLE_NEWS`, `LEANDER_ENABLE_FIRECRAWL`, `LEANDER_ENABLE_LEANDERTX` and `LEANDER_ENABLE_LISD_ICS` unset unless that exact source has separately cleared its permission/service review. See `source-compliance-runbook.md`. Leander ISD AppliTrack jobs are not behind those flags: they read the official public noscript listing. Do not work around blocks, logins or rate limits.
 
 ## Interpret the report
 

@@ -56,7 +56,7 @@ export async function runGated(id, fetcher, previous, { env = process.env, now =
 
 // Only these existing automatic sources may use the ungated wrapper. Restricted
 // sources must go through runGated, even when the caller omits an environment.
-const UNGATED_SOURCES = new Set(['chamber', 'civicclerk-meetings', 'tx-sales-tax-businesses']);
+const UNGATED_SOURCES = new Set(['chamber', 'civicclerk-meetings', 'lisd-applitrack-jobs', 'tx-sales-tax-businesses']);
 export async function runTracked(id, fetcher, previous, { now = new Date().toISOString(), log = console.error, statusPath = STATUS_PATH } = {}) {
   if (!UNGATED_SOURCES.has(id)) throw new Error(`${id} is not an ungated source`);
   const prev = readStatus(statusPath).find((r) => r.id === id) ?? {};

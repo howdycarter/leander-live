@@ -185,8 +185,46 @@ test('jobs: paused ISD postings follow the same 150-day age limit as fresh pulls
     {id:'applitrack-current',company:'Leander ISD',postedAt:Date.now()-2*86400000},
     {id:'govjobs-open',company:'City of Leander',postedAt:Date.now()-200*86400000},
   ]);
-  assert.equal(f.run('jobs').status,0);
+  const run=f.run('jobs');
+  assert.equal(run.status,1,run.stderr);
   assert.deepEqual(f.read('jobs').map(r=>r.id),['applitrack-current','govjobs-open']);
+  const row=f.read('source-status').find(r=>r.id==='lisd-applitrack-jobs');
+  assert.equal(row.state,'failed');
+});
+
+test('jobs: an AppliTrack embed fixture reaches published JSON with verified success provenance', (t) => {
+  const f=fixture(t);
+  const html=readFileSync(join(f.root,'scripts/lib/fixtures/applitrack-embed.html'),'utf8');
+  f.network(`globalThis.fetch=async (url)=>{
+    url=String(url);
+    if(url.includes('applitrack.com/leander') && url.includes('embed=1')) return new Response(${JSON.stringify(html)});
+    throw new Error('unexpected URL '+url);
+  };`);
+  const run=f.run('jobs');
+  assert.equal(run.status,0,run.stderr);
+  const jobs=f.read('jobs').filter(j=>j.company==='Leander ISD');
+  assert.equal(jobs.length,3);
+  assert.ok(jobs.some(j=>j.id==='applitrack-10873' && j.title.includes('Chief of Police')));
+  const row=f.read('source-status').find(r=>r.id==='lisd-applitrack-jobs');
+  assert.equal(row.state,'ok');
+  assert.ok(Number.isFinite(Date.parse(row.lastSuccessAt)));
+  assert.doesNotMatch(run.stderr,/firecrawl/i);
+});
+
+test('jobs: JS-rendered AppliTrack shell fails loudly and keeps last-good ISD jobs', (t) => {
+  const f=fixture(t);
+  f.write('jobs',[{id:'applitrack-kept',company:'Leander ISD',title:'Kept posting',postedAt:Date.now()-2*86400000}]);
+  f.network(`globalThis.fetch=async (url)=>{
+    if(String(url).includes('applitrack.com')) return new Response('<html><body><script>var targetURL="Output.asp"</script><noscript><a href="view.asp?embed=1">Click here</a></noscript></body></html>');
+    throw new Error('unexpected URL '+url);
+  };`);
+  const run=f.run('jobs');
+  assert.equal(run.status,1,run.stderr);
+  assert.match(run.stderr,/no JobID|empty/i);
+  assert.deepEqual(f.read('jobs').map(r=>r.id),['applitrack-kept']);
+  const row=f.read('source-status').find(r=>r.id==='lisd-applitrack-jobs');
+  assert.equal(row.state,'failed');
+  assert.equal(row.lastSuccessAt,null);
 });
 
 for (const name of ['events','jobs','civic','businesses','signals']) {
