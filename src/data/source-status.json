@@ -4,9 +4,9 @@
     "state": "ok",
     "reason": null,
     "basis": null,
-    "lastSuccessAt": "2026-11-04T22:08:20.218Z",
-    "checkedAt": "2026-11-04T22:08:20.218Z",
-    "recordsKept": 26,
+    "lastSuccessAt": "2026-11-05T12:08:16.209Z",
+    "checkedAt": "2026-11-05T12:08:16.209Z",
+    "recordsKept": 24,
     "historical": false
   },
   {
@@ -14,9 +14,9 @@
     "state": "ok",
     "reason": null,
     "basis": null,
-    "lastSuccessAt": "2026-11-04T22:09:01.676Z",
-    "checkedAt": "2026-11-04T22:09:01.676Z",
-    "recordsKept": 22,
+    "lastSuccessAt": "2026-11-05T12:08:47.801Z",
+    "checkedAt": "2026-11-05T12:08:47.801Z",
+    "recordsKept": 20,
     "historical": false
   },
   {
@@ -25,7 +25,7 @@
     "reason": "paused: rights pending",
     "basis": "Google News terms section 2 and the Google News feed terms (non-commercial use only).",
     "lastSuccessAt": null,
-    "checkedAt": "2026-11-04T22:09:15.845Z",
+    "checkedAt": "2026-11-05T12:09:00.952Z",
     "recordsKept": 5,
     "historical": true
   },
@@ -35,7 +35,7 @@
     "reason": "paused: rights pending",
     "basis": "NEOGOV Terms of Use sections 4 and 6 (personal, non-commercial use only; no page-scrape, robot or spider access).",
     "lastSuccessAt": null,
-    "checkedAt": "2026-11-04T22:09:01.548Z",
+    "checkedAt": "2026-11-05T12:08:47.664Z",
     "recordsKept": 8,
     "historical": true
   },
@@ -45,7 +45,7 @@
     "reason": "paused: rights pending",
     "basis": "NEOGOV Terms of Use sections 4 and 6 (personal, non-commercial use only; no page-scrape, robot or spider access).",
     "lastSuccessAt": null,
-    "checkedAt": "2026-11-04T22:09:01.554Z",
+    "checkedAt": "2026-11-05T12:08:47.669Z",
     "recordsKept": 9,
     "historical": true
   },
@@ -55,7 +55,7 @@
     "reason": "paused: rights pending, site blocked",
     "basis": "www.leandertx.gov returns HTTP 403, so its terms could not be read.",
     "lastSuccessAt": null,
-    "checkedAt": "2026-11-04T22:08:20.201Z",
+    "checkedAt": "2026-11-05T12:08:16.196Z",
     "recordsKept": 42,
     "historical": true
   },
@@ -65,7 +65,7 @@
     "reason": "paused: rights pending, site blocked",
     "basis": "www.leandertx.gov returns HTTP 403, so its terms could not be read.",
     "lastSuccessAt": null,
-    "checkedAt": "2026-11-04T22:09:11.558Z",
+    "checkedAt": "2026-11-05T12:08:56.430Z",
     "recordsKept": 3,
     "historical": true
   },
@@ -75,7 +75,7 @@
     "reason": "paused: rights pending, paid service",
     "basis": "Fetched through Firecrawl, a paid service. No LISD site terms found that permit commercial reuse.",
     "lastSuccessAt": null,
-    "checkedAt": "2026-11-04T22:09:15.845Z",
+    "checkedAt": "2026-11-05T12:09:00.952Z",
     "recordsKept": 1,
     "historical": true
   },
@@ -85,7 +85,7 @@
     "reason": "paused: rights pending, paid service",
     "basis": "Fetched through Firecrawl, a paid service. AppliTrack reuse terms not reviewed.",
     "lastSuccessAt": null,
-    "checkedAt": "2026-11-04T22:09:01.554Z",
+    "checkedAt": "2026-11-05T12:08:47.669Z",
     "recordsKept": 60,
     "historical": true
   },
@@ -95,7 +95,7 @@
     "reason": "paused: rights pending, paid service",
     "basis": "Fetched through Firecrawl, a paid service. No LISD site terms found that permit commercial reuse.",
     "lastSuccessAt": null,
-    "checkedAt": "2026-11-04T22:09:11.557Z",
+    "checkedAt": "2026-11-05T12:08:56.429Z",
     "recordsKept": 0,
     "historical": false
   },
@@ -104,8 +104,8 @@
     "state": "ok",
     "reason": null,
     "basis": null,
-    "lastSuccessAt": "2026-11-04T22:09:11.679Z",
-    "checkedAt": "2026-11-04T22:09:11.679Z",
+    "lastSuccessAt": "2026-11-05T12:08:56.541Z",
+    "checkedAt": "2026-11-05T12:08:56.541Z",
     "recordsKept": 821,
     "historical": false
   }
