@@ -36,21 +36,6 @@
     "blurb": "Trick-or-treating, costumes, and family fun hosted by Leander Parks & Recreation and the Leander Police Department."
   },
   {
-    "id": "chamber-168679",
-    "title": "Chamber Workshop with ActionCoach; Community-Based Growth Strategies",
-    "description": "Using partnerships, local ecosystems, and community influence to grow without heavy ad spend.",
-    "startsAt": 1793892600000,
-    "endsAt": 1793898000000,
-    "venue": "ActionCOACH CTX 190 N Bagdad Rd. Ste. 100B",
-    "address": "ActionCOACH CTX 190 N Bagdad Rd. Ste. 100B, Leander TX 78641",
-    "image": "https://leander.chamberspace.net/virDirEditorAssets/LeanderTX/chamberAccess/CalendarImages/nov%205.png",
-    "url": "https://leander.chamberspace.net/event/chamber-workshop-with-actioncoach-community-based-growth-strategies/168679",
-    "sourceUrl": "https://leander.chamberspace.net/event/chamber-workshop-with-actioncoach-community-based-growth-strategies/168679",
-    "category": "Learn",
-    "source": "chamber",
-    "blurb": "Using partnerships, local ecosystems, and community influence to grow without heavy ad spend."
-  },
-  {
     "id": "citycal-3375",
     "title": "Storytime (Ages 18m-4yr)",
     "startsAt": 1793896200000,
@@ -306,6 +291,19 @@
     "source": "city-calendar"
   },
   {
+    "id": "chamber-168995",
+    "title": "Year End Contract Renewals & Expansion Revenue",
+    "description": "Are your client renewals stuck on autopilot?",
+    "startsAt": 1794511800000,
+    "endsAt": 1794514500000,
+    "venue": "Virtual / Online",
+    "address": "Virtual / Online , Leander TX 78641",
+    "url": "https://leander.chamberspace.net/event/year-end-contract-renewals-expansion-revenue/168995",
+    "sourceUrl": "https://leander.chamberspace.net/event/year-end-contract-renewals-expansion-revenue/168995",
+    "category": "Community",
+    "source": "chamber"
+  },
+  {
     "id": "citycal-2608",
     "title": "P&Z Commission Regular Meeting",
     "startsAt": 1794528000000,
@@ -342,6 +340,19 @@
     "sourceUrl": "https://www.leandertx.gov/Calendar.aspx?EID=3385",
     "category": "Learn",
     "source": "city-calendar"
+  },
+  {
+    "id": "chamber-168996",
+    "title": "American Legion Post 911; TurkeyShoot",
+    "description": "See the Leander Chamber of Commerce calendar for details.",
+    "startsAt": 1794672000000,
+    "venue": "STACCATO RANCH 1275 County Road 233",
+    "address": "STACCATO RANCH 1275 County Road 233, Florence TX 78527",
+    "image": "https://leander.chamberspace.net/virDirEditorAssets/LeanderTX/chamberAccess/CalendarImages/TurkeyShootFlyer.png",
+    "url": "https://leander.chamberspace.net/event/american-legion-post-911-turkeyshoot/168996",
+    "sourceUrl": "https://leander.chamberspace.net/event/american-legion-post-911-turkeyshoot/168996",
+    "category": "Community",
+    "source": "chamber"
   },
   {
     "id": "citycal-3397",
@@ -828,6 +839,20 @@
     "sourceUrl": "https://www.leandertx.gov/Calendar.aspx?EID=2585",
     "category": "Community",
     "source": "city-calendar"
+  },
+  {
+    "id": "chamber-168997",
+    "title": "Free Photos with Santa",
+    "description": "FREE PHOTOS WITH SANTA AT HYUNDAI OF LEANDER!&nbsp;",
+    "startsAt": 1797712200000,
+    "endsAt": 1797719400000,
+    "venue": "Hyundai of Leander 9550 183A Toll Road",
+    "address": "Hyundai of Leander 9550 183A Toll Road, Building #2, Leander TX 78641",
+    "image": "https://leander.chamberspace.net/virDirEditorAssets/LeanderTX/chamberAccess/CalendarImages/HYOL%202025%20Free%20Photos%20with%20Santa%20Social.png",
+    "url": "https://leander.chamberspace.net/event/free-photos-with-santa/168997",
+    "sourceUrl": "https://leander.chamberspace.net/event/free-photos-with-santa/168997",
+    "category": "Family",
+    "source": "chamber"
   },
   {
     "id": "citycal-2962",
