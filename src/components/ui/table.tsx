@@ -1,3 +1,7 @@
+/**
+ * shadcn gap: UIARC has no table primitive (only a heavier sortable-data-table).
+ * Unused in application routes today; kept so a table can ship without inventing one.
+ */
 import * as React from "react";
 import { cn } from "@/lib/utils";
 
