@@ -21,6 +21,7 @@ import {
   CategoryBadge,
   EventCard,
   FeaturedEventBadge,
+  SafeImg,
   SaveButton,
   formatTime,
   inRange,
@@ -196,8 +197,9 @@ export function EventDetailPage() {
           <article>
             {/* banner */}
             <div className="relative overflow-hidden rounded-2xl shadow-sm">
-              <img
+              <SafeImg
                 src={eventImage(event)}
+                fallback="/images/event-night-market.jpg"
                 alt=""
                 className="h-60 w-full object-cover sm:h-80 md:h-96"
               />
@@ -230,7 +232,7 @@ export function EventDetailPage() {
                         <CalendarDays className="h-4.5 w-4.5" />
                       </span>
                       <span className="min-w-0">
-                        <span className="block text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                        <span className="block text-caption font-bold uppercase tracking-wider text-muted-foreground">
                           Date
                         </span>
                         <span className="font-semibold">{eventDateLabel(event, { withYear: true })}</span>
@@ -241,7 +243,7 @@ export function EventDetailPage() {
                         <Clock className="h-4.5 w-4.5" />
                       </span>
                       <span className="min-w-0">
-                        <span className="block text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                        <span className="block text-caption font-bold uppercase tracking-wider text-muted-foreground">
                           Time
                         </span>
                         <span className="font-semibold">
@@ -256,7 +258,7 @@ export function EventDetailPage() {
                         <MapPin className="h-4.5 w-4.5" />
                       </span>
                       <span className="min-w-0 flex-1 overflow-hidden">
-                        <span className="block text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                        <span className="block text-caption font-bold uppercase tracking-wider text-muted-foreground">
                           Venue
                         </span>
                         <span className="block font-semibold">{event.venue}</span>

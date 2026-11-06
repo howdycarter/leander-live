@@ -56,7 +56,7 @@ function Header() {
         {/* Nav appears at md (768px), not lg: the bottom TabBar is md:hidden,
             so gating the header nav to lg left 768–1023px viewports
             (unfolded foldables, small tablets) with no navigation at all. */}
-        <nav className="hidden items-center gap-3 text-sm font-semibold md:flex lg:gap-6 lg:text-[15px]" aria-label="Primary">
+        <nav className="hidden items-center gap-3 text-sm font-semibold md:flex lg:gap-6 lg:text-body" aria-label="Primary">
           {NAV_LINKS.map(({ to, label }) => (
             <NavLink
               key={to}
@@ -99,7 +99,7 @@ function FooterLink({ to, children }: { to: string; children: React.ReactNode })
     <li>
       <Link
         to={to}
-        className="inline-block py-1 text-[15px] text-white/80 hover:text-white"
+        className="inline-block py-1 text-body text-white/80 hover:text-white"
       >
         {children}
       </Link>
@@ -124,11 +124,11 @@ function Footer() {
           <span className="inline-flex rounded-xl bg-white px-2.5 py-1.5">
             <BrandLockup className="h-9" />
           </span>
-          <p className="mt-3 max-w-xs text-[15px] leading-relaxed text-white/75">
+          <p className="mt-3 max-w-xs text-body leading-relaxed text-white/75">
             Real events, local people, a stronger Leander — one community board for
             the whole town.
           </p>
-          <p className="mt-3 hidden text-xs font-semibold tracking-[0.22em] text-white/50 lg:block">
+          <p className="mt-3 text-xs font-semibold tracking-[0.22em] text-white/50">
             SMALL TOWN SPIRIT. A BRIGHTER TOMORROW.
           </p>
         </div>
@@ -153,7 +153,7 @@ function Footer() {
                 type="button"
                 variant="link"
                 onClick={openSubmit}
-                className="h-auto justify-start rounded-none px-0 py-1 text-left text-[15px] text-white/80 hover:text-white"
+                className="h-auto justify-start rounded-none px-0 py-1 text-left text-body text-white/80 hover:text-white"
               >
                 Submit an event
               </Button>
@@ -170,7 +170,7 @@ function Footer() {
               <button
                 type="button"
                 onClick={openConsentBanner}
-                className="inline-block py-1 text-left text-[15px] text-white/80 hover:text-white"
+                className="inline-block py-1 text-left text-body text-white/80 hover:text-white"
               >
                 Privacy choices
               </button>
@@ -179,7 +179,7 @@ function Footer() {
         </nav>
       </div>
       <Separator className="bg-white/15" />
-      <div className="mx-auto max-w-6xl px-4 py-3.5 text-center text-[13px] text-white/60">
+      <div className="mx-auto max-w-6xl px-4 py-3.5 text-center text-small text-white/60">
         <p>
           © 2026 Leander Live · Built by{" "}
           <a
@@ -240,7 +240,7 @@ function TabBar() {
               to={to}
               aria-current={active ? "page" : undefined}
               className={cn(
-                "relative flex flex-col items-center gap-0.5 py-2 text-[11px] font-semibold",
+                "relative flex flex-col items-center gap-0.5 py-2 text-caption font-semibold",
                 active ? "text-navy" : "text-foreground/45",
               )}
             >

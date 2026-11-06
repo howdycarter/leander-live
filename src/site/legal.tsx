@@ -38,7 +38,7 @@ function LegalShell({
       <p className="mt-2 text-sm text-muted-foreground">
         Effective {LEGAL_EFFECTIVE_DATE}
       </p>
-      <div className="prose-cream mt-8 space-y-6 text-[15px] leading-relaxed">
+      <div className="prose-cream mt-8 space-y-6 text-body leading-relaxed">
         {children}
       </div>
     </main>

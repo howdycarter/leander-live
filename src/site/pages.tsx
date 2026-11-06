@@ -10,7 +10,6 @@ import {
   ALL_EVENTS,
   ALL_JOBS,
   BusinessForm,
-  BusinessesBoard,
   CATEGORIES,
   CrossPromoCard,
   EventCard,
@@ -186,23 +185,6 @@ export function JobsPage() {
   );
 }
 
-/* ---------------- business directory ---------------- */
-
-export function BusinessesPage() {
-  return (
-    <>
-      <PageHero
-        eyebrow="Local directory"
-        title="Businesses in Leander"
-        subtitle="Explore local storefronts, kitchens, salons, and services from Texas permit records. Confirm current details with each business."
-      />
-      <main id="main-content" tabIndex={-1} className="mx-auto max-w-6xl px-4 py-6">
-        <BusinessesBoard />
-      </main>
-    </>
-  );
-}
-
 /* ---------------- community (businesses) ---------------- */
 
 export function CommunityPage() {
@@ -278,7 +260,7 @@ export function PrivacyPage() {
         Effective November 2, 2026
       </p>
 
-      <div className="prose-cream mt-8 space-y-6 text-[15px] leading-relaxed">
+      <div className="prose-cream mt-8 space-y-6 text-body leading-relaxed">
         <p>
           Leander Live is a community events, jobs, and business board for
           Leander, Texas, operated by Newton &amp; Carter LLC

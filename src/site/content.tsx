@@ -1,5 +1,5 @@
-import { useMemo, useState, type ButtonHTMLAttributes, type FormEvent } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { useEffect, useMemo, useState, type ButtonHTMLAttributes, type FormEvent, type ImgHTMLAttributes } from "react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -15,10 +15,9 @@ import { UpliftSearch } from "./upliftSearch";
 import { ListingStatus, SourceStatusBanner } from "./sourceStatus";
 import { downloadEventIcs } from "./ics";
 import { eventDateLabel, eventTimeLabel, isStillListed } from "./eventTime";
-import type { Business, Job, LiveEvent } from "../data/types";
+import type { Job, LiveEvent } from "../data/types";
 import eventsRaw from "../data/events.json";
 import jobsRaw from "../data/jobs.json";
-import businessesRaw from "../data/businesses.json";
 import {
   Dialog,
   DialogContent,
@@ -50,7 +49,6 @@ import {
   MapPin,
   Music,
   Plus,
-  Search,
   Send,
   Star,
   TreePine,
@@ -82,18 +80,6 @@ export function selectListedEvents(raw: LiveEvent[], now: number): LiveEvent[] {
 export const ALL_EVENTS: LiveEvent[] = selectListedEvents(eventsRaw as LiveEvent[], Date.now());
 
 export const ALL_JOBS: Job[] = (jobsRaw as Job[]).slice();
-
-/** Business directory (Texas sales-tax permit records, NAICS-gated to
-    storefront/service businesses — see scripts/scrape-businesses.mjs).
-    Featured placements first, then A–Z. */
-export const ALL_BUSINESSES: Business[] = (businessesRaw as Business[])
-  .slice()
-  .sort(
-    (a, b) =>
-      Number(b.featured) - Number(a.featured) || a.name.localeCompare(b.name),
-  );
-
-export type BusinessItem = Business;
 
 export type EventItem = LiveEvent;
 export type JobItem = Job;
@@ -143,6 +129,27 @@ const CATEGORY_IMAGE: Record<string, string> = {
   Learn: "/images/event-resume-workshop.jpg",
   Community: "/images/event-night-market.jpg",
 };
+
+/** Event photos are partly hotlinked from source sites (Chamber, LISD) and
+    those hosts drop or move images without notice. On any load error, swap
+    to the local fallback photo so a card never renders a broken-image hole. */
+export function SafeImg({
+  src,
+  fallback,
+  ...props
+}: { src: string; fallback: string } & ImgHTMLAttributes<HTMLImageElement>) {
+  const [current, setCurrent] = useState(src);
+  useEffect(() => setCurrent(src), [src]);
+  return (
+    <img
+      {...props}
+      src={current}
+      onError={() => {
+        if (current !== fallback) setCurrent(fallback);
+      }}
+    />
+  );
+}
 
 /* ---------------- helpers ---------------- */
 
@@ -309,7 +316,7 @@ export function CompanyMark({ name, className }: { name: string; className?: str
     <span
       aria-hidden="true"
       className={cn(
-        "flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-[13px] font-extrabold tracking-wide",
+        "flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-small font-extrabold tracking-wide",
         className,
       )}
       style={{ backgroundColor: palette.bg, color: palette.fg }}
@@ -486,7 +493,7 @@ function ThumbDateChip({ startsAt }: { startsAt: number }) {
       className="absolute bottom-1.5 left-1.5 flex flex-col items-center rounded-md bg-navy/90 px-1.5 py-0.5 leading-none text-white backdrop-blur-sm sm:hidden"
     >
       <span className="text-[9px] font-bold tracking-[0.14em] text-gold">{month}</span>
-      <span className="text-[15px] font-extrabold">{day}</span>
+      <span className="text-body font-extrabold">{day}</span>
     </span>
   );
 }
@@ -560,8 +567,9 @@ export function EventCard({
           className="relative block h-[92px] w-[92px] overflow-hidden rounded-xl sm:aspect-[16/10] sm:h-auto sm:w-full sm:rounded-none"
           aria-label={`${event.title} — view details`}
         >
-          <img
+          <SafeImg
             src={img}
+            fallback={CATEGORY_IMAGE[event.category ?? ""] ?? CATEGORY_IMAGE.Community}
             alt=""
             loading="lazy"
             className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
@@ -573,18 +581,18 @@ export function EventCard({
       <div className="flex min-w-0 flex-1 flex-col sm:p-4 sm:pt-9">
         <div className="flex items-center gap-2">
           <span
-            className="text-[11px] font-extrabold uppercase tracking-[0.12em]"
+            className="text-caption font-extrabold uppercase tracking-[0.12em]"
             style={{ color: style.color }}
           >
             {style.label}
           </span>
           {relative && (
-            <span className="rounded bg-gold/20 px-1.5 py-px text-[11px] font-bold text-[#8a5a12]">
+            <span className="rounded bg-gold/20 px-1.5 py-px text-caption font-bold text-[#8a5a12]">
               {relative}
             </span>
           )}
           {featured && (
-            <span className="inline-flex items-center gap-1 rounded bg-gold px-1.5 py-px text-[11px] font-bold text-navy">
+            <span className="inline-flex items-center gap-1 rounded bg-gold px-1.5 py-px text-caption font-bold text-navy">
               <Star className="h-3 w-3 fill-current" aria-hidden="true" /> Sponsored
             </span>
           )}
@@ -594,21 +602,21 @@ export function EventCard({
             className="-mr-1.5 -mt-1.5 ml-auto h-8 w-8 [&_svg]:size-[18px]"
           />
         </div>
-        <h3 className="mt-0.5 line-clamp-2 text-[15px] font-bold leading-snug text-navy sm:text-[17px]">
+        <h3 className="mt-0.5 line-clamp-2 text-body font-bold leading-snug text-navy sm:text-lede">
           <Link to={detailUrl} className="transition-colors hover:text-primary">
             {event.title.trim()}
           </Link>
         </h3>
-        <p className="mt-1 flex items-center gap-1.5 text-[13px] font-medium text-foreground/80">
+        <p className="mt-1 flex items-center gap-1.5 text-small font-medium text-foreground/80">
           <Clock className="h-3.5 w-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
           {eventDateLabel(event)} · {eventTimeLabel(event)}
         </p>
-        <p className="flex items-center gap-1.5 text-[13px] text-muted-foreground">
+        <p className="flex items-center gap-1.5 text-small text-muted-foreground">
           <MapPin className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
           <span className="truncate">{event.venue}</span>
         </p>
         {blurb && (
-          <p className="mt-0.5 line-clamp-1 text-[13px] text-muted-foreground sm:mt-1 sm:line-clamp-2">
+          <p className="mt-0.5 line-clamp-1 text-small text-muted-foreground sm:mt-1 sm:line-clamp-2">
             {blurb}
           </p>
         )}
@@ -869,7 +877,7 @@ function JobTypeTag({ type, className }: { type: string; className?: string }) {
   );
 }
 
-function FeaturedJobBadge() {
+export function FeaturedJobBadge() {
   return (
     <Badge className="gap-1 rounded-md bg-accent px-2 py-0.5 font-bold text-accent-foreground">
       <Star className="h-3 w-3 fill-current" aria-hidden="true" />
@@ -915,17 +923,17 @@ export function JobRow({
       <CompanyMark name={job.company} />
       <span className="min-w-0 flex-1">
         <span className="flex items-start gap-1.5">
-          <span className="line-clamp-2 text-[15px] font-bold leading-snug text-navy">
+          <span className="line-clamp-2 text-body font-bold leading-snug text-navy">
             {job.title.trim()}
           </span>
           {job.featured && (
             <Star className="h-3.5 w-3.5 shrink-0 fill-gold text-gold" aria-label="Featured job" />
           )}
         </span>
-        <span className="mt-0.5 block truncate text-[13px] text-muted-foreground">
+        <span className="mt-0.5 block truncate text-small text-muted-foreground">
           {job.company} · {job.location}
         </span>
-        <span className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[13px] text-foreground/75">
+        <span className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-small text-foreground/75">
           {job.payRange && (
             <span className="font-extrabold text-navy">{plainText(job.payRange)}</span>
           )}
@@ -1248,227 +1256,6 @@ export function JobsBoard() {
   );
 }
 
-/* ---------------- business directory (static JSON) ---------------- */
-
-/** "Opening soon" = the permit's first-sales date is still ahead.
-    "New" = permit issued within the last 90 days. Both derive from the
-    permit record itself — no editorializing. */
-function businessFreshness(b: BusinessItem, now: number): "opening" | "new" | null {
-  if (b.firstSalesAt && b.firstSalesAt > now) return "opening";
-  if (b.permitIssuedAt && now - b.permitIssuedAt < 90 * 24 * 3600 * 1000) return "new";
-  return null;
-}
-
-export function BusinessRow({
-  business,
-  onSelect,
-}: {
-  business: BusinessItem;
-  onSelect?: () => void;
-}) {
-  const fresh = businessFreshness(business, Date.now());
-  const inner = (
-    <>
-      <CompanyMark name={business.name} />
-      <span className="min-w-0 flex-1">
-        <span className="flex items-start gap-1.5">
-          <span className="line-clamp-2 text-[15px] font-bold leading-snug text-navy">
-            {business.name}
-          </span>
-          {business.featured && (
-            <Star className="h-3.5 w-3.5 shrink-0 fill-gold text-gold" aria-label="Featured business" />
-          )}
-        </span>
-        <span className="mt-0.5 block truncate text-[13px] text-muted-foreground">
-          {business.category} · {business.address}
-        </span>
-        {(fresh || business.featured) && (
-          <span className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[13px]">
-            {fresh === "opening" && (
-              <span className="font-bold text-[#bc4519]">Opening soon</span>
-            )}
-            {fresh === "new" && <span className="font-bold text-[#60712f]">New in town</span>}
-            {business.featured && <FeaturedJobBadge />}
-          </span>
-        )}
-      </span>
-      <ChevronRight className="h-4 w-4 shrink-0 text-foreground/30" aria-hidden="true" />
-    </>
-  );
-  const rowClass =
-    "flex w-full items-center gap-3 px-3.5 py-3 text-left transition-colors hover:bg-muted/70 sm:px-4 @min-[42rem]:rounded-2xl @min-[42rem]:border @min-[42rem]:border-border @min-[42rem]:bg-card @min-[42rem]:shadow-[0_1px_2px_rgba(22,50,79,0.07)]";
-  if (!onSelect) {
-    return <div className={rowClass}>{inner}</div>;
-  }
-  return (
-    <Button asChild variant="ghost" className={cn(rowClass, "h-auto justify-start whitespace-normal rounded-none font-normal hover:text-foreground")}>
-      <button type="button" onClick={onSelect} aria-label={`${business.name} — view details`}>
-        {inner}
-      </button>
-    </Button>
-  );
-}
-
-function BusinessDetailContent({ business }: { business: BusinessItem }) {
-  const fresh = businessFreshness(business, Date.now());
-  const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-    `${business.name} ${business.address} Leander TX ${business.zip}`,
-  )}`;
-  return (
-    <DialogContent className="max-h-[85vh] overflow-y-auto">
-      <DialogHeader>
-        <DialogTitle className="text-[22px] font-extrabold leading-tight tracking-tight text-navy">
-          {business.name}
-        </DialogTitle>
-        <DialogDescription asChild>
-          <div className="flex flex-col gap-1 pt-0.5 text-sm">
-            <span className="flex items-center gap-1.5 font-semibold text-foreground">
-              <Building2 className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
-              {business.category}
-            </span>
-            <span className="flex items-center gap-1.5">
-              <MapPin className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
-              {business.address}, Leander, TX {business.zip}
-            </span>
-          </div>
-        </DialogDescription>
-      </DialogHeader>
-      {(fresh || business.permitIssuedAt) && (
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 rounded-xl bg-muted px-4 py-3 text-sm">
-          {fresh === "opening" && business.firstSalesAt && (
-            <span className="font-bold text-[#bc4519]">
-              Opening soon — first sales {formatDate(business.firstSalesAt)}
-            </span>
-          )}
-          {fresh === "new" && <span className="font-bold text-[#60712f]">New in town</span>}
-          {business.permitIssuedAt && (
-            <span className="text-muted-foreground">
-              Permit issued {formatDate(business.permitIssuedAt)}
-            </span>
-          )}
-          {business.featured && <FeaturedJobBadge />}
-        </div>
-      )}
-      <p className="text-sm leading-relaxed text-foreground/90">
-        {business.name} is listed in the Texas sales-tax permit records for
-        Leander{business.firstSalesAt ? `, with first sales recorded ${formatDate(business.firstSalesAt)}` : ""}.
-        A permit shows a business is registered to open — hours and opening
-        status can change, so check before you go.
-      </p>
-      <Button asChild className="w-full rounded-full" size="lg">
-        <a href={mapsUrl} target="_blank" rel="noopener noreferrer">
-          Directions <ArrowUpRight className="h-4 w-4" />
-        </a>
-      </Button>
-      <p className="-mt-2 text-center text-xs text-muted-foreground">
-        Directory data: Texas Comptroller sales-tax permit records. Confirm current details with the business.
-      </p>
-    </DialogContent>
-  );
-}
-
-export function BusinessesBoard() {
-  const [searchParams] = useSearchParams();
-  const [query, setQuery] = useState("");
-  // Hero quick chips land here with ?cat= — honor a real category name
-  // (e.g. "Restaurants & Food") as the initial filter, ignore the rest.
-  const [category, setCategory] = useState<string>(() => {
-    const cat = searchParams.get("cat");
-    return cat && ALL_BUSINESSES.some((b) => b.category === cat) ? cat : "All";
-  });
-  const [selected, setSelected] = useState<BusinessItem | null>(null);
-
-  const categories = useMemo(() => {
-    const counts = new Map<string, number>();
-    for (const b of ALL_BUSINESSES) counts.set(b.category, (counts.get(b.category) ?? 0) + 1);
-    return [...counts.entries()]
-      .sort((a, b) => b[1] - a[1])
-      .map(([c]) => c);
-  }, []);
-
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    return ALL_BUSINESSES.filter((b) => {
-      if (category !== "All" && b.category !== category) return false;
-      if (q && !`${b.name} ${b.category} ${b.address}`.toLowerCase().includes(q)) return false;
-      return true;
-    });
-  }, [query, category]);
-
-  return (
-    <div className="@container">
-      <div className="mb-4 flex items-center justify-between gap-3">
-        <p className="text-sm font-semibold text-foreground/70">
-          {filtered.length === 1 ? "1 business" : `${filtered.length} businesses`}
-          {category !== "All" || query.trim() ? " · filtered" : " in Leander"}
-        </p>
-      </div>
-
-      <div className="relative mb-4">
-        <Search
-          className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
-          aria-hidden="true"
-        />
-        <Input
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search restaurants, salons, repair…"
-          className="rounded-full bg-white pl-10"
-          aria-label="Search businesses"
-        />
-      </div>
-
-      <div
-        className="-mx-4 mb-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:px-0"
-        role="group"
-        aria-label="Filter by category"
-      >
-        {["All", ...categories].map((c) => (
-          <FilterPill
-            key={c}
-            active={category === c}
-            onClick={() => setCategory(c)}
-            className="shrink-0"
-          >
-            {c === "All" ? "All categories" : c}
-          </FilterPill>
-        ))}
-      </div>
-
-      {filtered.length === 0 ? (
-        <Card>
-          <CardContent className="pt-6">
-            <h3 className="font-semibold">No businesses match that</h3>
-            <p className="text-sm text-muted-foreground">
-              Try a different search or category — the directory covers every
-              storefront and service business with an active Leander sales-tax permit.
-            </p>
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card shadow-[0_1px_2px_rgba(22,50,79,0.07)] @min-[42rem]:grid @min-[42rem]:grid-cols-2 @min-[42rem]:gap-3 @min-[42rem]:divide-y-0 @min-[42rem]:overflow-visible @min-[42rem]:rounded-none @min-[42rem]:border-0 @min-[42rem]:bg-transparent @min-[42rem]:shadow-none @min-[64rem]:grid-cols-3">
-          {filtered.map((business) => (
-            <BusinessRow
-              key={business.id}
-              business={business}
-              onSelect={() => setSelected(business)}
-            />
-          ))}
-        </div>
-      )}
-
-      <Dialog
-        open={selected !== null}
-        onOpenChange={(open) => {
-          if (!open) setSelected(null);
-        }}
-      >
-        {selected && <BusinessDetailContent business={selected} />}
-      </Dialog>
-    </div>
-  );
-}
-
 /* ---------------- reminders → add-to-calendar (.ics downloads, no backend) ---------------- */
 
 export function RemindersContent() {
@@ -1662,7 +1449,7 @@ export function About() {
       <CardHeader>
         <CardTitle className="font-display text-2xl">About Leander</CardTitle>
       </CardHeader>
-      <CardContent className="flex flex-col gap-4 text-[15px] leading-relaxed">
+      <CardContent className="flex flex-col gap-4 text-body leading-relaxed">
         <p>
           <strong>Lee-AN-der</strong>, Texas was founded in <strong>1882</strong> when the
           Austin and Northwestern Railroad built through — named for railroad official

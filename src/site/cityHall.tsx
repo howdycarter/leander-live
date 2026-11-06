@@ -132,7 +132,7 @@ export function CityHallPage() {
             <h2 className="font-display text-2xl font-bold text-navy">
               Upcoming meetings
             </h2>
-            <p className="mt-1 text-[15px] text-stone-600">
+            <p className="mt-1 text-body text-stone-600">
               City Council, Planning &amp; Zoning, and other boards — with agenda
               packets when they&apos;re published.
             </p>
@@ -180,7 +180,7 @@ export function CityHallPage() {
               <h2 className="font-display text-2xl font-bold">
                 The rules of the town, in full.
               </h2>
-              <p className="max-w-2xl text-[15px] text-white/80">
+              <p className="max-w-2xl text-body text-white/80">
                 Zoning, permits, noise, signage, short-term rentals — the complete
                 Code of Ordinances lives on the city&apos;s Document Center, free for
                 anyone to read.
@@ -206,7 +206,7 @@ export function CityHallPage() {
           <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
             <div>
               <h2 className="font-display text-2xl font-bold text-navy">City news</h2>
-              <p className="mt-1 text-[15px] text-stone-600">
+              <p className="mt-1 text-body text-stone-600">
                 Collected from leandertx.gov — check the source for current announcements and public notices.
               </p>
             </div>

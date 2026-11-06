@@ -58,9 +58,9 @@ export function PageHero({
         <div className="absolute inset-0 bg-gradient-to-r from-[#16324f]/90 via-[#16324f]/70 to-[#16324f]/50" />
       </div>
       <div className="relative mx-auto max-w-6xl px-4 py-5 md:py-10">
-        <p className="text-[11px] font-extrabold uppercase tracking-[0.25em] text-gold">{eyebrow}</p>
+        <p className="text-caption font-extrabold uppercase tracking-[0.25em] text-gold">{eyebrow}</p>
         <h1 className="font-display mt-1.5 text-[28px] font-black leading-[1.08] tracking-tight text-white md:text-[44px]">{title}</h1>
-        {subtitle && <div className="mt-2 max-w-2xl text-[15px] text-white/80">{subtitle}</div>}
+        {subtitle && <div className="mt-2 max-w-2xl text-body text-white/80">{subtitle}</div>}
         {children}
       </div>
     </div>
@@ -102,6 +102,9 @@ export function HomeHero() {
         <h1 className="font-display max-w-3xl text-4xl font-black leading-[1.05] tracking-tight sm:text-5xl md:text-6xl">
           What&apos;s happening in Leander this week?
         </h1>
+        <p className="font-script -mt-1 rotate-[-1.5deg] text-3xl font-semibold text-gold md:text-4xl">
+          Same Town. More Together.
+        </p>
         <p className="max-w-xl text-lg text-white/85">
           People <span className="text-gold">•</span> Places{" "}
           <span className="text-gold">•</span> Opportunities — your front porch for
@@ -135,7 +138,7 @@ export function HomeHero() {
             <Link
               key={chip.label}
               to={chip.to}
-              className="rounded-full border border-white/25 bg-navy/45 px-3.5 py-1.5 text-[13px] font-semibold text-white backdrop-blur-sm transition-colors hover:bg-navy/70"
+              className="rounded-full border border-white/25 bg-navy/45 px-3.5 py-1.5 text-small font-semibold text-white backdrop-blur-sm transition-colors hover:bg-navy/70"
             >
               {chip.label}
             </Link>
@@ -307,7 +310,7 @@ export function JobsPreview() {
           <h2 className="font-display mt-1 text-3xl font-bold text-navy">
             Jobs in Leander
           </h2>
-          <p className="mt-1.5 text-[15px] text-stone-600">
+          <p className="mt-1.5 text-body text-stone-600">
             Collected local job listings — confirm current openings with the employer.
           </p>
         </div>
@@ -340,14 +343,14 @@ export function JobsPreview() {
             >
               <CompanyMark name={job.company} />
               <span className="min-w-0 flex-1">
-                <span className="line-clamp-2 text-[15px] font-bold leading-snug text-navy">
+                <span className="line-clamp-2 text-body font-bold leading-snug text-navy">
                   {job.title.trim()}
                 </span>
-                <span className="mt-0.5 block truncate text-[13px] text-muted-foreground">
+                <span className="mt-0.5 block truncate text-small text-muted-foreground">
                   {job.company} · {job.location}
                 </span>
                 {job.payRange && (
-                  <span className="mt-0.5 block text-[13px] font-extrabold text-navy">
+                  <span className="mt-0.5 block text-small font-extrabold text-navy">
                     {plainText(job.payRange)}
                   </span>
                 )}
@@ -450,7 +453,7 @@ export function BusinessCtaBand() {
             <h2 className="font-display max-w-xl text-3xl font-bold leading-tight">
               Put your business in front of the whole town.
             </h2>
-            <p className="max-w-xl text-[15px] text-white/80">
+            <p className="max-w-xl text-body text-white/80">
               Ask about featured listings, sponsored events, and job
               placements. Availability is confirmed by email.
             </p>
@@ -561,7 +564,7 @@ export function FeaturedEvents({
       <div className="mb-2 flex flex-wrap items-end justify-between gap-3">
         <div>
           <h2 className="font-display text-3xl font-bold text-navy">{title}</h2>
-          {subtitle && <p className="mt-1.5 text-[15px] text-stone-600">{subtitle}</p>}
+          {subtitle && <p className="mt-1.5 text-body text-stone-600">{subtitle}</p>}
         </div>
         <Button asChild variant="link" className="h-auto px-0 font-semibold text-primary">
           <Link to="/events">
