@@ -121,3 +121,24 @@ test('explicit live-region attributes and caller roles remain caller-controlled'
     if (props['aria-atomic']) assert.equal(alert.attr('aria-atomic'), 'true');
   }
 });
+
+test('leftover ui files re-export genuine Arc primitives', async () => {
+  const avatar = await server.ssrLoadModule('/src/components/ui/avatar.tsx');
+  const avatarHtml = renderToStaticMarkup(h(avatar.Avatar, { name: 'Leander Live' }));
+  assert.match(avatarHtml, /_avatar_/);
+  assert.match(avatarHtml, /LL/);
+  const skeleton = await server.ssrLoadModule('/src/components/ui/skeleton.tsx');
+  const skeletonHtml = renderToStaticMarkup(h(skeleton.Skeleton, { label: 'Loading board' }));
+  assert.match(skeletonHtml, /role="status"/);
+  const tabs = await server.ssrLoadModule('/src/components/ui/tabs.tsx');
+  const tabsHtml = renderToStaticMarkup(h(tabs.Tabs, { defaultValue: 'events' },
+    h(tabs.TabsList, null, h(tabs.TabsTrigger, { value: 'events' }, 'Events')),
+    h(tabs.TabsContent, { value: 'events' }, 'Board')));
+  assert.match(tabsHtml, /role="tablist"/);
+  const menu = await server.ssrLoadModule('/src/components/ui/dropdown-menu.tsx');
+  const menuHtml = renderToStaticMarkup(h(menu.DropdownMenu, { label: 'Actions', items: [{ label: 'Share' }] }));
+  assert.match(menuHtml, /_trigger_|Actions/);
+  const sheet = await server.ssrLoadModule('/src/components/ui/sheet.tsx');
+  assert.equal(typeof sheet.Sheet, 'function');
+  assert.equal(typeof sheet.SheetContent, 'function');
+});

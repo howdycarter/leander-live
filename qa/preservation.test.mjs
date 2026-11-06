@@ -82,7 +82,37 @@ test('saved events keep original empty state and browser-local model',()=>{
 });
 test('original brand tokens and Archivo remain in product theme',async()=>{
  const css=await fs.readFile(new URL('../src/index.css',import.meta.url),'utf8');
- for(const s of ['--color-background: #f6f4f0','--color-primary: #bc4519','--color-navy: #16324f','--color-gold: #d98a1f','--font-sans: "Archivo"','--font-body: "Archivo"'])assert.ok(css.includes(s),s);
+ for(const s of ['--color-background: #f6f4f0','--color-primary: #002454','--color-navy: #16324f','--color-gold: #d98a1f','--font-sans: "Archivo"','--font-body: "Archivo"'])assert.ok(css.includes(s),s);
+ assert.equal(css.includes('#'+'bc4519'),false);
+});
+
+test('company marks and category chips use UIARC Avatar and Badge',()=>{
+ const mark=render(()=>h(content.CompanyMark,{name:'City of Leander'}));
+ assert.match(mark,/_avatar_/);
+ const event=content.ALL_EVENTS[0];
+ const badge=render(()=>h(content.CategoryBadge,{event}));
+ assert.match(badge,/_badge_/);
+});
+
+test('burnt orange primary hex remains only as a CHR-2355 follow-up in businesses.tsx',async()=>{
+ const needle='#'+'bc4519';
+ const hits=[];
+ async function walk(dir){
+  for(const ent of await fs.readdir(dir,{withFileTypes:true})){
+   if(ent.name==='node_modules'||ent.name==='dist')continue;
+   const p=`${dir}/${ent.name}`;
+   if(ent.isDirectory())await walk(p);
+   else if(/\.(tsx|ts|css|mjs|md)$/.test(ent.name)){
+    const text=await fs.readFile(p,'utf8');
+    if(text.includes(needle))hits.push(p);
+   }
+  }
+ }
+ await walk(new URL('../src',import.meta.url).pathname);
+ await walk(new URL('../qa',import.meta.url).pathname);
+ await walk(new URL('../docs',import.meta.url).pathname);
+ assert.equal(hits.length,1,hits.join('\n'));
+ assert.match(hits[0],/src\/site\/businesses\.tsx$/);
 });
 
 test('compiled cascade preserves the original Tailwind heading scale against Arc token collisions',async()=>{
