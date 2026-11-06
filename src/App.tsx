@@ -15,6 +15,7 @@ import {
   BusinessesPage,
   JobsPage,
   NotFoundPage,
+  OpeningsPage,
   PrivacyPage,
   RemindersPage,
 } from "./site/pages";
@@ -47,6 +48,7 @@ export default function App() {
               <Route path="events/:id" element={<EventDetailPage />} />
               <Route path="jobs" element={<JobsPage />} />
               <Route path="businesses" element={<BusinessesPage />} />
+              <Route path="openings" element={<OpeningsPage />} />
               <Route path="city-hall" element={<CityHallPage />} />
               <Route path="community" element={<CommunityPage />} />
               <Route path="reminders" element={<RemindersPage />} />

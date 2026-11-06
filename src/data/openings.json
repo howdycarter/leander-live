@@ -1,0 +1,1754 @@
+[
+  {
+    "id": "biz-32099596952-1",
+    "name": "Valvoline Express Care",
+    "address": "2101 S Highway 183",
+    "zip": "78641",
+    "category": "Auto Repair",
+    "naics": "811191",
+    "permitIssuedAt": 1793336400000,
+    "firstSalesAt": 1794722400000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1793336400000
+      }
+    ]
+  },
+  {
+    "id": "biz-32051862962-4",
+    "name": "Fast Break #17",
+    "address": "16061 Ronald W Reagan Blvd",
+    "zip": "78641",
+    "category": "Gas & Convenience",
+    "naics": "447110",
+    "permitIssuedAt": 1793163600000,
+    "firstSalesAt": 1794808800000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1793163600000
+      }
+    ]
+  },
+  {
+    "id": "biz-32092028441-4",
+    "name": "Austin Chicks Management, LLC",
+    "address": "1060 Hero Way",
+    "zip": "78641",
+    "category": "Restaurants & Food",
+    "naics": "722513",
+    "permitIssuedAt": 1792818000000,
+    "firstSalesAt": 1793685600000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1792818000000
+      }
+    ]
+  },
+  {
+    "id": "biz-32090420327-2",
+    "name": "Chiki Chulo Leander",
+    "address": "124 San Gabriel Parkway",
+    "zip": "78641",
+    "category": "Restaurants & Food",
+    "naics": "722513",
+    "permitIssuedAt": 1792818000000,
+    "firstSalesAt": 1792386000000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1792818000000
+      }
+    ]
+  },
+  {
+    "id": "biz-32106877544-1",
+    "name": "Sodam Korean Restaurant",
+    "address": "109 Parryi Cove",
+    "zip": "78641",
+    "category": "Restaurants & Food",
+    "naics": "722511",
+    "permitIssuedAt": 1792731600000,
+    "firstSalesAt": 1793509200000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1792731600000
+      }
+    ]
+  },
+  {
+    "id": "biz-32065782560-4",
+    "name": "The Lady Company Enterprises",
+    "address": "1101 Halsey Drive Apt 2611",
+    "zip": "78641",
+    "category": "Gifts & Novelties",
+    "naics": "453220",
+    "permitIssuedAt": 1792558800000,
+    "firstSalesAt": 1792472400000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1792558800000
+      }
+    ]
+  },
+  {
+    "id": "biz-32089502770-1",
+    "name": "J And A Blades",
+    "address": "4602 Valley View Road",
+    "zip": "78641",
+    "category": "Sports, Hobby & Music",
+    "naics": "451110",
+    "permitIssuedAt": 1792472400000,
+    "firstSalesAt": 1699682400000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1792472400000
+      }
+    ]
+  },
+  {
+    "id": "biz-32098430021-1",
+    "name": "Leos Funzone LLC",
+    "address": "1213 Frances Peyton Court",
+    "zip": "78641",
+    "category": "Sports, Hobby & Music",
+    "naics": "451120",
+    "permitIssuedAt": 1792386000000,
+    "firstSalesAt": 1767247200000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1792386000000
+      }
+    ]
+  },
+  {
+    "id": "biz-32105310505-1",
+    "name": "Lighthouse Liquors",
+    "address": "1633 Highway 183 Ste 104",
+    "zip": "78641",
+    "category": "Liquor Stores",
+    "naics": "445310",
+    "permitIssuedAt": 1792213200000,
+    "firstSalesAt": 1792040400000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1792213200000
+      }
+    ]
+  },
+  {
+    "id": "biz-32108406540-1",
+    "name": "Oak & Steel Barbershop LLC",
+    "address": "2036 Highway 183 Ste 300",
+    "zip": "78641",
+    "category": "Salons, Barbers & Nails",
+    "naics": "812111",
+    "permitIssuedAt": 1792213200000,
+    "firstSalesAt": 1782190800000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1792213200000
+      }
+    ]
+  },
+  {
+    "id": "biz-32068724874-4",
+    "name": "Breathe N Bloom LLC",
+    "address": "651 N Highway 183 Ste 335 Pmb 4186",
+    "zip": "78641",
+    "category": "Salons, Barbers & Nails",
+    "naics": "812199",
+    "permitIssuedAt": 1792126800000,
+    "firstSalesAt": 1792040400000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1792126800000
+      }
+    ]
+  },
+  {
+    "id": "biz-32100407736-1",
+    "name": "Holiday Spirit",
+    "address": "341 Empress Tree Drive",
+    "zip": "78641",
+    "category": "General Merchandise",
+    "naics": "452319",
+    "permitIssuedAt": 1792126800000,
+    "firstSalesAt": 1754024400000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1792126800000
+      }
+    ]
+  },
+  {
+    "id": "biz-32082821755-1",
+    "name": "Vedosa Hair Prooducts Inc",
+    "address": "3000 N Lakeline Blvd Apt 238",
+    "zip": "78641",
+    "category": "Health & Beauty",
+    "naics": "446120",
+    "permitIssuedAt": 1792040400000,
+    "firstSalesAt": 1696136400000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1792040400000
+      }
+    ]
+  },
+  {
+    "id": "biz-32103509603-1",
+    "name": "Wingstop",
+    "address": "1060 Hero Way",
+    "zip": "78641",
+    "category": "Restaurants & Food",
+    "naics": "722513",
+    "permitIssuedAt": 1791954000000,
+    "firstSalesAt": 1791867600000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1791954000000
+      }
+    ]
+  },
+  {
+    "id": "biz-32092554891-2",
+    "name": "Ojas Natural Foods",
+    "address": "15241 Ronald W Reagan Blvd Ste 102",
+    "zip": "78641",
+    "category": "Grocery & Markets",
+    "naics": "445110",
+    "permitIssuedAt": 1791781200000,
+    "firstSalesAt": 1789966800000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1791781200000
+      }
+    ]
+  },
+  {
+    "id": "biz-32107802392-1",
+    "name": "Malangos",
+    "address": "23202 Windy Valley Road",
+    "zip": "78641",
+    "category": "Food Trucks",
+    "naics": "722330",
+    "permitIssuedAt": 1791608400000,
+    "firstSalesAt": 1792386000000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1791608400000
+      }
+    ]
+  },
+  {
+    "id": "biz-32078232371-1",
+    "name": "West Coast World Martial Arts",
+    "address": "1908 S Bagdad Road Ste B1",
+    "zip": "78641",
+    "category": "Sports & Recreation Instruction",
+    "naics": "611620",
+    "permitIssuedAt": 1791435600000,
+    "firstSalesAt": 1625115600000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1791435600000
+      }
+    ]
+  },
+  {
+    "id": "biz-32055913654-1",
+    "name": "Hand And Stone",
+    "address": "651 N Highway 183 Ste 135",
+    "zip": "78641",
+    "category": "Salons, Barbers & Nails",
+    "naics": "812199",
+    "permitIssuedAt": 1791349200000,
+    "firstSalesAt": 1441083600000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1791349200000
+      }
+    ]
+  },
+  {
+    "id": "biz-32106507653-1",
+    "name": "Star Mart 23",
+    "address": "1540 W San Gabriel Parkway",
+    "zip": "78641",
+    "category": "Gas & Convenience",
+    "naics": "447110",
+    "permitIssuedAt": 1791262800000,
+    "firstSalesAt": 1798783200000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1791262800000
+      }
+    ]
+  },
+  {
+    "id": "biz-32077095993-2",
+    "name": "Dough And Wonder",
+    "address": "3600 Good Night Trail",
+    "zip": "78641",
+    "category": "Gifts & Novelties",
+    "naics": "453220",
+    "permitIssuedAt": 1791262800000,
+    "firstSalesAt": 1792904400000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1791262800000
+      }
+    ]
+  },
+  {
+    "id": "biz-32108226336-1",
+    "name": "Sweet Memories Boutique Bakery",
+    "address": "261 S Brook Drive Apt 634",
+    "zip": "78641",
+    "category": "Catering & Food Services",
+    "naics": "722320",
+    "permitIssuedAt": 1791262800000,
+    "firstSalesAt": 1791608400000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1791262800000
+      }
+    ]
+  },
+  {
+    "id": "biz-32025686182-7",
+    "name": "Hotshot Power Equipment",
+    "address": "701 Riverway Lane",
+    "zip": "78641",
+    "category": "Repair Services",
+    "naics": "811411",
+    "permitIssuedAt": 1791262800000,
+    "firstSalesAt": 1588309200000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1791262800000
+      }
+    ]
+  },
+  {
+    "id": "biz-32103941210-1",
+    "name": "Certified Appliance Repair",
+    "address": "1933 Mariann Drive",
+    "zip": "78641",
+    "category": "Repair Services",
+    "naics": "811412",
+    "permitIssuedAt": 1791176400000,
+    "firstSalesAt": 1772344800000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1791176400000
+      }
+    ]
+  },
+  {
+    "id": "biz-32089449535-1",
+    "name": "Nik Truck & Auto Repair",
+    "address": "1351 Highway 183 Ste 5",
+    "zip": "78641",
+    "category": "Auto Repair",
+    "naics": "811111",
+    "permitIssuedAt": 1790917200000,
+    "firstSalesAt": 1682917200000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1790917200000
+      }
+    ]
+  },
+  {
+    "id": "biz-32108311146-1",
+    "name": "Priority Detailing",
+    "address": "260 S Brook Drive Apt 1226",
+    "zip": "78641",
+    "category": "Auto Repair",
+    "naics": "811192",
+    "permitIssuedAt": 1790830800000,
+    "firstSalesAt": 1788584400000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1790830800000
+      }
+    ]
+  },
+  {
+    "id": "biz-32108059505-1",
+    "name": "Terra Maya Trading Co",
+    "address": "3211 Lambrusco Lane",
+    "zip": "78641",
+    "category": "Clothing & Accessories",
+    "naics": "448190",
+    "permitIssuedAt": 1790744400000,
+    "firstSalesAt": 1794722400000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1790744400000
+      }
+    ]
+  },
+  {
+    "id": "biz-32108306898-1",
+    "name": "Joy And Grace Necklaces",
+    "address": "933 Inge Lane",
+    "zip": "78641",
+    "category": "Jewelry & Accessories",
+    "naics": "448310",
+    "permitIssuedAt": 1790744400000,
+    "firstSalesAt": 1791090000000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1790744400000
+      }
+    ]
+  },
+  {
+    "id": "biz-32049473005-57",
+    "name": "Sprouts Farmers Market",
+    "address": "460 E San Gabriel Parkway",
+    "zip": "78641",
+    "category": "Grocery & Markets",
+    "naics": "445110",
+    "permitIssuedAt": 1790744400000,
+    "firstSalesAt": 1789448400000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1790744400000
+      }
+    ]
+  },
+  {
+    "id": "biz-32105260551-1",
+    "name": "Lemberg Roastery & Bakery LLC",
+    "address": "1717 Stinnett Drive",
+    "zip": "78641",
+    "category": "Restaurants & Food",
+    "naics": "722514",
+    "permitIssuedAt": 1790658000000,
+    "firstSalesAt": 1790830800000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1790658000000
+      }
+    ]
+  },
+  {
+    "id": "biz-32108269682-1",
+    "name": "Star Auto Works LLC",
+    "address": "2501 Niles Drive Apt 1415",
+    "zip": "78641",
+    "category": "Auto Repair",
+    "naics": "811198",
+    "permitIssuedAt": 1790398800000,
+    "firstSalesAt": 1790312400000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1790398800000
+      }
+    ]
+  },
+  {
+    "id": "biz-32108095533-1",
+    "name": "Lumera Investments LLC",
+    "address": "2336 Base Burner Path",
+    "zip": "78641",
+    "category": "Jewelry & Accessories",
+    "naics": "448310",
+    "permitIssuedAt": 1790312400000,
+    "firstSalesAt": 1768024800000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1790312400000
+      }
+    ]
+  },
+  {
+    "id": "biz-32107968367-1",
+    "name": "Hey Lovely",
+    "address": "3405 Prairie Heights Drive",
+    "zip": "78641",
+    "category": "Clothing & Accessories",
+    "naics": "448120",
+    "permitIssuedAt": 1790226000000,
+    "firstSalesAt": 1790053200000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1790226000000
+      }
+    ]
+  },
+  {
+    "id": "biz-32100131682-1",
+    "name": "The Taco Spot",
+    "address": "15181 Ronald W Reagan Blvd Ste 308",
+    "zip": "78641",
+    "category": "Restaurants & Food",
+    "naics": "722513",
+    "permitIssuedAt": 1790139600000,
+    "firstSalesAt": 1765778400000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1790139600000
+      }
+    ]
+  },
+  {
+    "id": "biz-32108095814-1",
+    "name": "Help Your Shelf Books",
+    "address": "245 Trellis Blvd",
+    "zip": "78641",
+    "category": "Sports, Hobby & Music",
+    "naics": "451211",
+    "permitIssuedAt": 1789966800000,
+    "firstSalesAt": 1790053200000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1789966800000
+      }
+    ]
+  },
+  {
+    "id": "biz-32087515576-1",
+    "name": "Gildwithlili LLC",
+    "address": "303 N Highway 183 Rm 3",
+    "zip": "78641",
+    "category": "Salons, Barbers & Nails",
+    "naics": "812113",
+    "permitIssuedAt": 1789707600000,
+    "firstSalesAt": 1789621200000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1789707600000
+      }
+    ]
+  },
+  {
+    "id": "biz-32077757170-1",
+    "name": "American Fleet Solutions, LLC",
+    "address": "16405 Spotted Eagle Drive",
+    "zip": "78641",
+    "category": "Auto Repair",
+    "naics": "811111",
+    "permitIssuedAt": 1789707600000,
+    "firstSalesAt": 1767247200000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1789707600000
+      }
+    ]
+  },
+  {
+    "id": "biz-32107442181-1",
+    "name": "Hobby Federation LLC",
+    "address": "1309 Leander Drive Ste 102",
+    "zip": "78641",
+    "category": "Sports, Hobby & Music",
+    "naics": "451120",
+    "permitIssuedAt": 1789534800000,
+    "firstSalesAt": 1790830800000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1789534800000
+      }
+    ]
+  },
+  {
+    "id": "biz-32104962496-2",
+    "name": "Nesso Specialty Bevs LLC",
+    "address": "1009 Coulee Drive",
+    "zip": "78641",
+    "category": "Food Trucks",
+    "naics": "722330",
+    "permitIssuedAt": 1789448400000,
+    "firstSalesAt": 1789794000000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1789448400000
+      }
+    ]
+  },
+  {
+    "id": "biz-32088622041-3",
+    "name": "Tim Horton'S #921592",
+    "address": "1561 Hero Way Ste 100",
+    "zip": "78641",
+    "category": "Restaurants & Food",
+    "naics": "722513",
+    "permitIssuedAt": 1789362000000,
+    "firstSalesAt": 1790744400000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1789362000000
+      }
+    ]
+  },
+  {
+    "id": "biz-32108004691-1",
+    "name": "Skanda Foods LLC",
+    "address": "2404 Orchard Way",
+    "zip": "78641",
+    "category": "Grocery & Markets",
+    "naics": "445110",
+    "permitIssuedAt": 1789189200000,
+    "firstSalesAt": 1790830800000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1789189200000
+      }
+    ]
+  },
+  {
+    "id": "biz-32108011134-1",
+    "name": "Copper Tanuki Vintage",
+    "address": "149 S Bagdad Road Apt 17205",
+    "zip": "78641",
+    "category": "Clothing & Accessories",
+    "naics": "448190",
+    "permitIssuedAt": 1789189200000,
+    "firstSalesAt": 1789275600000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1789189200000
+      }
+    ]
+  },
+  {
+    "id": "biz-32105412244-1",
+    "name": "French Florist Leander",
+    "address": "18145 Ronald W Reagan Blvd Ste 140",
+    "zip": "78641",
+    "category": "Florists",
+    "naics": "453110",
+    "permitIssuedAt": 1789016400000,
+    "firstSalesAt": 1796104800000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1789016400000
+      }
+    ]
+  },
+  {
+    "id": "biz-32068359572-3",
+    "name": "Jack'S Modern Artesian Deli",
+    "address": "2403 S Highway 183",
+    "zip": "78641",
+    "category": "Restaurants & Food",
+    "naics": "722513",
+    "permitIssuedAt": 1788930000000,
+    "firstSalesAt": 1785560400000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1788930000000
+      }
+    ]
+  },
+  {
+    "id": "biz-32096566305-1",
+    "name": "Hecho Por Penelope",
+    "address": "1141 Pleasant Hill Road Apt 8210",
+    "zip": "78641",
+    "category": "Food Trucks",
+    "naics": "722330",
+    "permitIssuedAt": 1788843600000,
+    "firstSalesAt": 1725771600000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1788843600000
+      }
+    ]
+  },
+  {
+    "id": "biz-32073460324-54",
+    "name": "Black Rock Store Operations LLC",
+    "address": "1060 Hero Way Bldg 1",
+    "zip": "78641",
+    "category": "Restaurants & Food",
+    "naics": "722515",
+    "permitIssuedAt": 1788498000000,
+    "firstSalesAt": 1788238800000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1788498000000
+      }
+    ]
+  },
+  {
+    "id": "biz-32107101803-1",
+    "name": "Liberty Bells",
+    "address": "401 Chitalpa Street Ste 720",
+    "zip": "78641",
+    "category": "Fitness Centers",
+    "naics": "713940",
+    "permitIssuedAt": 1788498000000,
+    "firstSalesAt": 1788238800000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1788498000000
+      }
+    ]
+  },
+  {
+    "id": "biz-32055887668-51",
+    "name": "Eyemart Express",
+    "address": "8481 W State Highway 29 Ste 130",
+    "zip": "78641",
+    "category": "Health & Beauty",
+    "naics": "446130",
+    "permitIssuedAt": 1788411600000,
+    "firstSalesAt": 1791176400000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1788411600000
+      },
+      {
+        "kind": "chamber-ribbon",
+        "label": "Leander Chamber ribbon cutting",
+        "url": "https://leander.chamberspace.net/event/ribbon-cutting-eyemart-express/168971",
+        "date": 1794420000000
+      }
+    ]
+  },
+  {
+    "id": "biz-32107837216-1",
+    "name": "Hard 8 Rodeo",
+    "address": "312 Akumal Street",
+    "zip": "78641",
+    "category": "Sports Teams & Venues",
+    "naics": "711219",
+    "permitIssuedAt": 1788411600000,
+    "firstSalesAt": 1790830800000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1788411600000
+      }
+    ]
+  },
+  {
+    "id": "biz-32107821798-1",
+    "name": "Grand Donuts",
+    "address": "1395 S Highway 183 Ste 150",
+    "zip": "78641",
+    "category": "Restaurants & Food",
+    "naics": "722515",
+    "permitIssuedAt": 1788411600000,
+    "firstSalesAt": 1788325200000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1788411600000
+      }
+    ]
+  },
+  {
+    "id": "biz-32106649968-1",
+    "name": "Booza Frozen Yogurt And Ice Cream",
+    "address": "305 Sonny Drive Ste 110",
+    "zip": "78641",
+    "category": "Restaurants & Food",
+    "naics": "722515",
+    "permitIssuedAt": 1788411600000,
+    "firstSalesAt": 1787806800000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1788411600000
+      }
+    ]
+  },
+  {
+    "id": "biz-32093930561-1",
+    "name": "Bigtyme Bbq",
+    "address": "661 Cinnamon Teal",
+    "zip": "78641",
+    "category": "Hotels & Lodging",
+    "naics": "721211",
+    "permitIssuedAt": 1788411600000,
+    "firstSalesAt": 1726462800000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1788411600000
+      }
+    ]
+  },
+  {
+    "id": "biz-32107361142-1",
+    "name": "Martian Dynamics LLC",
+    "address": "628 Leeward Pass",
+    "zip": "78641",
+    "category": "Thrift & Resale",
+    "naics": "453310",
+    "permitIssuedAt": 1788238800000,
+    "firstSalesAt": 1789448400000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1788238800000
+      }
+    ]
+  },
+  {
+    "id": "biz-32103782184-1",
+    "name": "Takida LLC",
+    "address": "261 S Brook Drive Apt 321",
+    "zip": "78641",
+    "category": "Repair Services",
+    "naics": "811412",
+    "permitIssuedAt": 1788238800000,
+    "firstSalesAt": 1774242000000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1788238800000
+      }
+    ]
+  },
+  {
+    "id": "biz-32107763610-1",
+    "name": "The Liquor Cabinet",
+    "address": "15301 Ronald W Reagan Blvd Ste 11110",
+    "zip": "78641",
+    "category": "Liquor Stores",
+    "naics": "445310",
+    "permitIssuedAt": 1788152400000,
+    "firstSalesAt": 1788238800000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1788152400000
+      }
+    ]
+  },
+  {
+    "id": "biz-32106002101-1",
+    "name": "Tuberose & Co. LLC",
+    "address": "2468 Millbrook Loop",
+    "zip": "78641",
+    "category": "Health & Beauty",
+    "naics": "446120",
+    "permitIssuedAt": 1787893200000,
+    "firstSalesAt": 1788238800000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1787893200000
+      }
+    ]
+  },
+  {
+    "id": "biz-32107767710-1",
+    "name": "Spec-Taco-Lar",
+    "address": "901 Peregrine Way",
+    "zip": "78641",
+    "category": "Food Trucks",
+    "naics": "722330",
+    "permitIssuedAt": 1787806800000,
+    "firstSalesAt": 1788238800000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1787806800000
+      }
+    ]
+  },
+  {
+    "id": "biz-32107210554-1",
+    "name": "Aurora Medical Spa",
+    "address": "8481 W State Highway 29 Ste 110",
+    "zip": "78641",
+    "category": "Salons, Barbers & Nails",
+    "naics": "812199",
+    "permitIssuedAt": 1787720400000,
+    "firstSalesAt": 1784523600000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1787720400000
+      }
+    ]
+  },
+  {
+    "id": "biz-32107724828-1",
+    "name": "Antgie Does Detailing",
+    "address": "3061 N Bagdad Road",
+    "zip": "78641",
+    "category": "Auto Repair",
+    "naics": "811192",
+    "permitIssuedAt": 1787634000000,
+    "firstSalesAt": 1789448400000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1787634000000
+      }
+    ]
+  },
+  {
+    "id": "biz-32084862443-1",
+    "name": "The Dance Academy LLC",
+    "address": "10960 E Crystal Falls Parkway Ste 300-600",
+    "zip": "78641",
+    "category": "Performing Arts",
+    "naics": "711120",
+    "permitIssuedAt": 1787634000000,
+    "firstSalesAt": 1782882000000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1787634000000
+      }
+    ]
+  },
+  {
+    "id": "biz-32086615252-2",
+    "name": "Jared'S Mobile Sharpening",
+    "address": "1701 Candlelight Drive",
+    "zip": "78641",
+    "category": "Repair Services",
+    "naics": "811490",
+    "permitIssuedAt": 1787374800000,
+    "firstSalesAt": 1790830800000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1787374800000
+      }
+    ]
+  },
+  {
+    "id": "biz-32107295084-1",
+    "name": "Unique Treasures By Sandee",
+    "address": "936 Myrna Bnd",
+    "zip": "78641",
+    "category": "Jewelry & Accessories",
+    "naics": "448310",
+    "permitIssuedAt": 1787288400000,
+    "firstSalesAt": 1790830800000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1787288400000
+      }
+    ]
+  },
+  {
+    "id": "biz-32106342655-1",
+    "name": "Vs Indian Treats LLC",
+    "address": "4600 Vieste Vw",
+    "zip": "78641",
+    "category": "Specialty Food",
+    "naics": "445230",
+    "permitIssuedAt": 1787288400000,
+    "firstSalesAt": 1787202000000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1787288400000
+      }
+    ]
+  },
+  {
+    "id": "biz-32107613963-1",
+    "name": "Fisher And Fischer LLC",
+    "address": "101 Housefinch Loop",
+    "zip": "78641",
+    "category": "General Merchandise",
+    "naics": "452319",
+    "permitIssuedAt": 1787202000000,
+    "firstSalesAt": 1789966800000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1787202000000
+      }
+    ]
+  },
+  {
+    "id": "biz-32107653415-1",
+    "name": "Wild Clover Hair Studio",
+    "address": "11880 Hero Way W Ste 105",
+    "zip": "78641",
+    "category": "Salons, Barbers & Nails",
+    "naics": "812112",
+    "permitIssuedAt": 1787202000000,
+    "firstSalesAt": 1788238800000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1787202000000
+      }
+    ]
+  },
+  {
+    "id": "biz-18205404041-29",
+    "name": "Westlake Dermatology, P.A.",
+    "address": "10860 E Crystal Falls Parkway Ste 2230",
+    "zip": "78641",
+    "category": "Clinics & Health Care",
+    "naics": "621111",
+    "permitIssuedAt": 1787202000000,
+    "firstSalesAt": 1786770000000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1787202000000
+      }
+    ]
+  },
+  {
+    "id": "biz-32062964112-57",
+    "name": "Ati Physical Therapy",
+    "address": "19389 Ronald W Reagan Blvd Ste 120",
+    "zip": "78641",
+    "category": "Clinics & Health Care",
+    "naics": "621340",
+    "permitIssuedAt": 1787115600000,
+    "firstSalesAt": 1778475600000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1787115600000
+      }
+    ]
+  },
+  {
+    "id": "biz-32102878520-1",
+    "name": "Piada Northline, LLC",
+    "address": "516 E San Gabriel Parkway",
+    "zip": "78641",
+    "category": "Restaurants & Food",
+    "naics": "722513",
+    "permitIssuedAt": 1787029200000,
+    "firstSalesAt": 1790830800000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1787029200000
+      }
+    ]
+  },
+  {
+    "id": "biz-32038361567-5",
+    "name": "Lifestart Training & Consulting, LLC",
+    "address": "704 Zelia Gln",
+    "zip": "78641",
+    "category": "Health & Beauty",
+    "naics": "446199",
+    "permitIssuedAt": 1787029200000,
+    "firstSalesAt": 1785560400000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1787029200000
+      }
+    ]
+  },
+  {
+    "id": "biz-32091524366-1",
+    "name": "Alicor Acquisitions LLC",
+    "address": "15609 Ronald W Reagan Blvd Bldg B160",
+    "zip": "78641",
+    "category": "Salons, Barbers & Nails",
+    "naics": "812112",
+    "permitIssuedAt": 1786942800000,
+    "firstSalesAt": 1751346000000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1786942800000
+      }
+    ]
+  },
+  {
+    "id": "biz-32107394986-1",
+    "name": "Als Management Group LLC",
+    "address": "15950 Ronald W Reagan Blvd",
+    "zip": "78641",
+    "category": "Food Trucks",
+    "naics": "722330",
+    "permitIssuedAt": 1786770000000,
+    "firstSalesAt": 1789448400000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1786770000000
+      }
+    ]
+  },
+  {
+    "id": "biz-32105185469-1",
+    "name": "Texstar 13",
+    "address": "1550 County Road 269",
+    "zip": "78641",
+    "category": "Gas & Convenience",
+    "naics": "447110",
+    "permitIssuedAt": 1786770000000,
+    "firstSalesAt": 1786770000000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1786770000000
+      }
+    ]
+  },
+  {
+    "id": "biz-32068756249-2",
+    "name": "5 Star Boost",
+    "address": "506 Olmos Drive",
+    "zip": "78641",
+    "category": "General Merchandise",
+    "naics": "452319",
+    "permitIssuedAt": 1786683600000,
+    "firstSalesAt": 1767247200000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1786683600000
+      }
+    ]
+  },
+  {
+    "id": "biz-32068756249-1",
+    "name": "S4ve",
+    "address": "801 S Highway 183 # 1001",
+    "zip": "78641",
+    "category": "Clothing & Accessories",
+    "naics": "448140",
+    "permitIssuedAt": 1786683600000,
+    "firstSalesAt": 1474866000000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1786683600000
+      }
+    ]
+  },
+  {
+    "id": "biz-32107508361-1",
+    "name": "Baruch Pet Spa LLC",
+    "address": "11680 Hero Way W Apt 13101",
+    "zip": "78641",
+    "category": "Pet Care",
+    "naics": "812910",
+    "permitIssuedAt": 1786597200000,
+    "firstSalesAt": 1789448400000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1786597200000
+      }
+    ]
+  },
+  {
+    "id": "biz-32107450952-1",
+    "name": "Suzis Creations",
+    "address": "301 Hernandos Loop",
+    "zip": "78641",
+    "category": "Gifts & Novelties",
+    "naics": "453220",
+    "permitIssuedAt": 1786424400000,
+    "firstSalesAt": 1790830800000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1786424400000
+      }
+    ]
+  },
+  {
+    "id": "biz-32033689186-2",
+    "name": "Unleashed Unlimited LLC",
+    "address": "1410 Live Oak Road",
+    "zip": "78641",
+    "category": "Pet Care",
+    "naics": "812910",
+    "permitIssuedAt": 1786424400000,
+    "firstSalesAt": 1688187600000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1786424400000
+      }
+    ]
+  },
+  {
+    "id": "biz-32101977448-2",
+    "name": "Bare Beauty Method LLC",
+    "address": "3835 County Road 175 Ste 440",
+    "zip": "78641",
+    "category": "Salons, Barbers & Nails",
+    "naics": "812112",
+    "permitIssuedAt": 1786338000000,
+    "firstSalesAt": 1784696400000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1786338000000
+      }
+    ]
+  },
+  {
+    "id": "biz-32107425582-1",
+    "name": "Gregs Resale",
+    "address": "253 Earl Keen Street",
+    "zip": "78641",
+    "category": "General Merchandise",
+    "naics": "452319",
+    "permitIssuedAt": 1786078800000,
+    "firstSalesAt": 1790571600000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1786078800000
+      }
+    ]
+  },
+  {
+    "id": "biz-32068159378-1",
+    "name": "Alexundar'S Grille And Catering, Incorporated",
+    "address": "1404 Brooks Way",
+    "zip": "78641",
+    "category": "Catering & Food Services",
+    "naics": "722320",
+    "permitIssuedAt": 1786078800000,
+    "firstSalesAt": 1785560400000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1786078800000
+      }
+    ]
+  },
+  {
+    "id": "biz-32107256151-1",
+    "name": "77 Outdoors LLC",
+    "address": "6520 Acacia Drive",
+    "zip": "78641",
+    "category": "Sports, Hobby & Music",
+    "naics": "451110",
+    "permitIssuedAt": 1785387600000,
+    "firstSalesAt": 1788238800000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1785387600000
+      }
+    ]
+  },
+  {
+    "id": "biz-32099228432-2",
+    "name": "Aloe Vera Estate Sales LLC",
+    "address": "6601 Acacia Drive",
+    "zip": "78641",
+    "category": "Thrift & Resale",
+    "naics": "453310",
+    "permitIssuedAt": 1785301200000,
+    "firstSalesAt": 1782882000000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1785301200000
+      }
+    ]
+  },
+  {
+    "id": "biz-32105673779-1",
+    "name": "Texas Big Burgers",
+    "address": "2002 Singing Hls",
+    "zip": "78641",
+    "category": "Food Trucks",
+    "naics": "722330",
+    "permitIssuedAt": 1785214800000,
+    "firstSalesAt": 1785560400000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1785214800000
+      }
+    ]
+  },
+  {
+    "id": "biz-32102136341-1",
+    "name": "Urban Egg",
+    "address": "10209 183a Tollway Frontage Road",
+    "zip": "78641",
+    "category": "Restaurants & Food",
+    "naics": "722511",
+    "permitIssuedAt": 1784782800000,
+    "firstSalesAt": 1790830800000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1784782800000
+      }
+    ]
+  },
+  {
+    "id": "biz-32006616422-2",
+    "name": "Txprairielady",
+    "address": "1809 Muhly Bush Bnd",
+    "zip": "78641",
+    "category": "Thrift & Resale",
+    "naics": "453310",
+    "permitIssuedAt": 1784610000000,
+    "firstSalesAt": 1785560400000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1784610000000
+      }
+    ]
+  },
+  {
+    "id": "biz-32094098194-2",
+    "name": "Fifty/50 Pilates",
+    "address": "133 Collective Way Ste 130",
+    "zip": "78641",
+    "category": "Fitness Centers",
+    "naics": "713940",
+    "permitIssuedAt": 1784610000000,
+    "firstSalesAt": 1784610000000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1784610000000
+      }
+    ]
+  },
+  {
+    "id": "biz-32096068781-2",
+    "name": "Executive Customs LLC",
+    "address": "1909 County Road 280 Unit A",
+    "zip": "78641",
+    "category": "Auto Repair",
+    "naics": "811121",
+    "permitIssuedAt": 1784610000000,
+    "firstSalesAt": 1782882000000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1784610000000
+      }
+    ]
+  },
+  {
+    "id": "biz-32100872335-1",
+    "name": "Shako Mako - Iraqi American Association",
+    "address": "808 Beautyberry Lane",
+    "zip": "78641",
+    "category": "Lessons & Tutoring",
+    "naics": "611699",
+    "permitIssuedAt": 1784523600000,
+    "firstSalesAt": 1784264400000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1784523600000
+      }
+    ]
+  },
+  {
+    "id": "biz-32099542519-2",
+    "name": "Toria Beads",
+    "address": "2316 Delano Drive",
+    "zip": "78641",
+    "category": "Jewelry & Accessories",
+    "naics": "448310",
+    "permitIssuedAt": 1784264400000,
+    "firstSalesAt": 1784091600000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1784264400000
+      }
+    ]
+  },
+  {
+    "id": "biz-32107076567-1",
+    "name": "Ask Seek Find LLC",
+    "address": "112 Concho Creek Loop",
+    "zip": "78641",
+    "category": "Sports, Hobby & Music",
+    "naics": "451120",
+    "permitIssuedAt": 1784264400000,
+    "firstSalesAt": 1769925600000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1784264400000
+      }
+    ]
+  },
+  {
+    "id": "biz-32106969515-1",
+    "name": "Platesfull Inc.",
+    "address": "3304 Elm Ridge Drive",
+    "zip": "78641",
+    "category": "Catering & Food Services",
+    "naics": "722320",
+    "permitIssuedAt": 1784178000000,
+    "firstSalesAt": 1788238800000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1784178000000
+      }
+    ]
+  },
+  {
+    "id": "biz-32054593473-1",
+    "name": "Incharacter Games",
+    "address": "1012 Arvada Drive",
+    "zip": "78641",
+    "category": "Sports, Hobby & Music",
+    "naics": "451120",
+    "permitIssuedAt": 1784178000000,
+    "firstSalesAt": 1785560400000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1784178000000
+      }
+    ]
+  },
+  {
+    "id": "biz-32106991519-1",
+    "name": "Crochet By Nanners",
+    "address": "406 Mesa Grande",
+    "zip": "78641",
+    "category": "Art Galleries",
+    "naics": "453920",
+    "permitIssuedAt": 1784005200000,
+    "firstSalesAt": 1791003600000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1784005200000
+      }
+    ]
+  },
+  {
+    "id": "biz-32095443795-1",
+    "name": "Rabbit Coffee Company",
+    "address": "1817 Woolsey Way",
+    "zip": "78641",
+    "category": "Food Trucks",
+    "naics": "722330",
+    "permitIssuedAt": 1783659600000,
+    "firstSalesAt": 1746248400000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1783659600000
+      }
+    ]
+  },
+  {
+    "id": "biz-17429525557-62",
+    "name": "Domino'S Store 6496",
+    "address": "651 N Highway 183 Ste 190",
+    "zip": "78641",
+    "category": "Restaurants & Food",
+    "naics": "722513",
+    "permitIssuedAt": 1783486800000,
+    "firstSalesAt": 1783314000000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1783486800000
+      }
+    ]
+  },
+  {
+    "id": "biz-17429525557-68",
+    "name": "Domino'S Store 9424",
+    "address": "18145 Ronald W Reagan Blvd",
+    "zip": "78641",
+    "category": "Restaurants & Food",
+    "naics": "722513",
+    "permitIssuedAt": 1783486800000,
+    "firstSalesAt": 1783314000000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1783486800000
+      }
+    ]
+  },
+  {
+    "id": "biz-17429525557-65",
+    "name": "Domino'S Store 8799",
+    "address": "1880 Crystal Falls Parkway",
+    "zip": "78641",
+    "category": "Restaurants & Food",
+    "naics": "722513",
+    "permitIssuedAt": 1783486800000,
+    "firstSalesAt": 1782882000000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1783486800000
+      }
+    ]
+  },
+  {
+    "id": "biz-17429525557-66",
+    "name": "Domino'S Store 9230",
+    "address": "2906 S Bagdad Road Ste 110",
+    "zip": "78641",
+    "category": "Restaurants & Food",
+    "naics": "722513",
+    "permitIssuedAt": 1783486800000,
+    "firstSalesAt": 1782882000000,
+    "sources": [
+      {
+        "kind": "permit",
+        "label": "Texas sales-tax permit",
+        "url": "https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders",
+        "date": 1783486800000
+      }
+    ]
+  }
+]

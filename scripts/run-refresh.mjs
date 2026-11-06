@@ -28,6 +28,7 @@ const DATA_FILES = {
   civic: "src/data/civic.json",
   news: "src/data/news.json",
   businesses: "src/data/businesses.json",
+  openings: "src/data/openings.json",
   sourceStatus: "src/data/source-status.json",
 };
 const SCRAPERS = ["scrape-events.mjs", "scrape-jobs.mjs", "scrape-civic.mjs", "scrape-businesses.mjs", "scrape-signals.mjs"];
