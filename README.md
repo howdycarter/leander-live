@@ -57,15 +57,25 @@ Optional, build-time only (see `.env.example`):
 
 - `VITE_GA_MEASUREMENT_ID` — Google Analytics 4 measurement ID. The site works
   fine without it.
+- `VITE_CONVEX_SITE_URL` — Convex HTTP site for `/businesses` chat
+  (`https://<deployment>.convex.site`). When unset, the page still answers from
+  the published permit JSON with an honest notice and no model call.
+
+Directory chat (CHR-2355) retrieves from the Convex `directoryBusinesses`
+table first, then asks `gpt-4o-mini` (Convex `OPENAI_API_KEY`, never in the
+browser) only to phrase those rows. Operator steps, not done in this repo
+checkout: `npx convex dev` / deploy, `npx convex env set OPENAI_API_KEY`,
+`DIRECTORY_SEED_KEY`, optional `CHAT_MODEL` / `DIRECTORY_CHAT_DAILY_USD`,
+then `CONVEX_URL=… DIRECTORY_SEED_KEY=… node scripts/seed-directory.mjs`.
 
 ## Retired
 
-The hackathon-era backend is gone: the `convex/` directory, auth, chat widget,
-SMS reminders, voice bridge, and all related setup docs
-(`PHONE_BOT_SETUP.md`, `BUDGET_SETUP.md`, `SUBMISSION_CHECKLIST.md`,
-`hackathon.md`) describe a retired architecture and are kept for history only.
+The hackathon-era auth, on-site lead chat widget, SMS reminders, and voice
+bridge are gone. Setup docs (`PHONE_BOT_SETUP.md`, `BUDGET_SETUP.md`,
+`SUBMISSION_CHECKLIST.md`, `hackathon.md`) describe that retired stack and
+are kept for history only.
 
-There is no code-generation step: `npm run build` works from a fresh clone
-with no Convex login or deployment access. The stale `convex/_generated`
-bindings left over from the retired backend — and their `.gitignore` entry —
-were removed in Nov 2026 (CHR-1756); nothing in the app imports them.
+`convex/` is back only for `/businesses` directory chat (HTTP action +
+permit-row tables). The Vite app does not import `convex/_generated`;
+`npm run build` still works from a fresh clone with no Convex login. Seed
+and OpenAI env stay on the Convex deployment, not in the static site.

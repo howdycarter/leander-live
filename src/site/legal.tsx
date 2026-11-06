@@ -260,6 +260,11 @@ export function AccessibilityPage() {
         <ul className="list-disc space-y-2 pl-5">
           <li>Semantic landmarks with one main region per page, plus a skip-to-content link.</li>
           <li>Every form field has a visible label; submission dialogs are keyboard-operable.</li>
+          <li>
+            The businesses directory chat is keyboard-operable (Enter sends,
+            Shift+Enter inserts a new line), and answers are announced in a
+            polite live region.
+          </li>
           <li>Visible focus indicators, and text contrast checked against WCAG AA ratios.</li>
           <li>Images that carry information have text alternatives; decorative images are marked as such.</li>
           <li>Reduced-motion preferences are respected, and content does not depend on color alone.</li>
