@@ -36,31 +36,6 @@
     "blurb": "Trick-or-treating, costumes, and family fun hosted by Leander Parks & Recreation and the Leander Police Department."
   },
   {
-    "id": "citycal-3375",
-    "title": "Storytime (Ages 18m-4yr)",
-    "startsAt": 1793896200000,
-    "endsAt": 1793899800000,
-    "venue": "Library Annex Conference Room",
-    "address": "1011 S. Bagdad Rd., Leander TX, 78641",
-    "description": "Storytime (Ages 18m-4yr) — see the City of Leander calendar for details.",
-    "url": "https://www.leandertx.gov/Calendar.aspx?EID=3375",
-    "sourceUrl": "https://www.leandertx.gov/Calendar.aspx?EID=3375",
-    "category": "Family",
-    "source": "city-calendar"
-  },
-  {
-    "id": "citycal-2595",
-    "title": "City Council Regular Meeting",
-    "startsAt": 1793923200000,
-    "venue": "Pat Bryson Municipal Hall - Council Chambers",
-    "address": "201 N. Brushy Street, Leander TX, 78641",
-    "description": "City Council Regular Meeting — see the City of Leander calendar for details.",
-    "url": "https://www.leandertx.gov/Calendar.aspx?EID=2595",
-    "sourceUrl": "https://www.leandertx.gov/Calendar.aspx?EID=2595",
-    "category": "Community",
-    "source": "city-calendar"
-  },
-  {
     "id": "citycal-3392",
     "title": "Teen Homeschool Hangout (Ages 12-17)",
     "startsAt": 1793991600000,
