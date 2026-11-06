@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useState, type ButtonHTMLAttributes, type FormEvent, type ImgHTMLAttributes } from "react";
+import { useEffect, useMemo, useState, type FormEvent, type ImgHTMLAttributes } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Input } from "@/components/ui/input";
@@ -318,16 +319,13 @@ export function CompanyMark({ name, className }: { name: string; className?: str
   for (let i = 0; i < name.length; i++) hash = (hash * 31 + name.charCodeAt(i)) >>> 0;
   const palette = MARK_PALETTE[hash % MARK_PALETTE.length];
   return (
-    <span
+    <Avatar
+      name={name}
+      size="md"
       aria-hidden="true"
-      className={cn(
-        "flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-small font-extrabold tracking-wide",
-        className,
-      )}
+      className={cn("rounded-lg text-small font-extrabold tracking-wide", className)}
       style={{ backgroundColor: palette.bg, color: palette.fg }}
-    >
-      {companyInitials(name)}
-    </span>
+    />
   );
 }
 
@@ -434,19 +432,16 @@ const PRIVACY_NOTE =
 export function CategoryBadge({ event, className }: { event: EventItem; className?: string }) {
   const style = CATEGORY_STYLE[event.category ?? ""] ?? DEFAULT_CATEGORY;
   return (
-    <span
+    <Badge
+      size="sm"
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full bg-white/95 px-2.5 py-1 text-xs font-bold text-navy shadow-sm",
+        "gap-1.5 rounded-full border-transparent bg-white/95 px-2.5 py-1 text-xs font-bold text-navy shadow-sm",
         className,
       )}
+      icon={<span className="h-2 w-2 rounded-full" style={{ backgroundColor: style.color }} />}
     >
-      <span
-        aria-hidden="true"
-        className="h-2 w-2 rounded-full"
-        style={{ backgroundColor: style.color }}
-      />
       {style.label}
-    </span>
+    </Badge>
   );
 }
 
@@ -592,14 +587,15 @@ export function EventCard({
             {style.label}
           </span>
           {relative && (
-            <span className="rounded bg-gold/20 px-1.5 py-px text-caption font-bold text-[#8a5a12]">
+            <Badge
+              size="sm"
+              className="rounded border-transparent bg-gold/20 px-1.5 py-px text-caption font-bold text-[#8a5a12]"
+            >
               {relative}
-            </span>
+            </Badge>
           )}
           {featured && (
-            <span className="inline-flex items-center gap-1 rounded bg-gold px-1.5 py-px text-caption font-bold text-navy">
-              <Star className="h-3 w-3 fill-current" aria-hidden="true" /> Sponsored
-            </span>
+            <FeaturedEventBadge className="rounded bg-gold px-1.5 py-px text-caption font-bold text-navy" />
           )}
           <SaveButton
             saved={saved}
@@ -629,30 +625,6 @@ export function EventCard({
       </div>
       </CardContent>
     </Card>
-  );
-}
-
-/* Filter pill built on the genuine UIARC Button primitive: the default (active) /
-   outline (inactive) variants carry the color story, with pill overrides
-   for the mockup look (rounded-full, auto height, cream-theme borders). */
-export function FilterPill({
-  active,
-  className,
-  ...props
-}: ButtonHTMLAttributes<HTMLButtonElement> & { active: boolean }) {
-  return (
-    <Button
-      type="button"
-      variant={active ? "default" : "outline"}
-      aria-pressed={active}
-      className={cn(
-        "h-auto cursor-pointer rounded-full border border-transparent px-4 py-2 text-sm font-semibold hover:bg-primary/85",
-        !active &&
-          "border-border bg-card text-foreground/75 shadow-none hover:border-primary/50 hover:bg-card hover:text-primary",
-        className,
-      )}
-      {...props}
-    />
   );
 }
 
@@ -706,34 +678,25 @@ export function FeedFilters({
         </Select>
       </div>
 
-      {/* Mobile: one scrolling strip for dates + categories (the header
-          already carries Submit — no duplicate full-width button). */}
-      <div
-        className="-mx-4 flex items-center gap-2 overflow-x-auto px-4 pb-1 md:hidden"
-        role="group"
-        aria-label="Filter events"
-      >
-        {DATE_FILTERS.map((f) => (
-          <FilterPill
-            key={f}
-            active={dateFilter === f}
-            onClick={() => setDateFilter(f)}
-            className="shrink-0"
-          >
-            {f}
-          </FilterPill>
-        ))}
-        <span aria-hidden="true" className="h-5 w-px shrink-0 bg-border" />
-        {["All", ...CATEGORIES].map((c) => (
-          <FilterPill
-            key={c}
-            active={category === c}
-            onClick={() => setCategory(c)}
-            className="shrink-0"
-          >
-            {c === "Learn" ? "Learning" : c}
-          </FilterPill>
-        ))}
+      {/* Mobile: Arc ChipGroup for dates + categories (same primitive as jobs). */}
+      <div className="flex flex-col gap-2 md:hidden">
+        <ChipGroup
+          label="Filter by date"
+          multiple={false}
+          options={DATE_FILTERS.map((f) => ({ value: f, label: f }))}
+          value={[dateFilter]}
+          onValueChange={(v) => setDateFilter((v[0] as DateFilter) ?? "All")}
+        />
+        <ChipGroup
+          label="Filter by category"
+          multiple={false}
+          options={["All", ...CATEGORIES].map((c) => ({
+            value: c,
+            label: c === "Learn" ? "Learning" : c,
+          }))}
+          value={[category]}
+          onValueChange={(v) => setCategory(v[0] ?? "All")}
+        />
       </div>
     </div>
   );
@@ -895,14 +858,13 @@ const JOB_TYPE_STYLE: Record<string, { color: string }> = {
 function JobTypeTag({ type, className }: { type: string; className?: string }) {
   const style = JOB_TYPE_STYLE[type] ?? JOB_TYPE_STYLE["full-time"];
   return (
-    <span className={cn("inline-flex items-center gap-1.5 font-semibold", className)}>
-      <span
-        aria-hidden="true"
-        className="h-1.5 w-1.5 rounded-full"
-        style={{ backgroundColor: style.color }}
-      />
+    <Badge
+      size="sm"
+      className={cn("gap-1.5 border-transparent bg-transparent px-0 font-semibold", className)}
+      icon={<span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: style.color }} />}
+    >
       {JOB_TYPE_LABEL[type] ?? type}
-    </span>
+    </Badge>
   );
 }
 
@@ -920,10 +882,12 @@ export function isEventFeatured(event: { featuredUntil?: number }): boolean {
   return (event.featuredUntil ?? 0) > Date.now();
 }
 
-export function FeaturedEventBadge() {
+export function FeaturedEventBadge({ className }: { className?: string }) {
   return (
-    <Badge className="gap-1 rounded-full bg-accent px-2.5 py-0.5 text-accent-foreground">
-      <Star className="h-3 w-3" aria-hidden="true" />
+    <Badge
+      className={cn("gap-1 rounded-full bg-accent px-2.5 py-0.5 text-accent-foreground", className)}
+      icon={<Star className="h-3 w-3" />}
+    >
       Sponsored
     </Badge>
   );

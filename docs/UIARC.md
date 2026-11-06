@@ -11,11 +11,11 @@ This branch upgrades Leander Live's **existing** interface to genuine [UIARC / A
 - License: MIT, Copyright (c) 2026 Elia Kuratli. Full original notice: `src/components/arc/LICENSE`. The full notice is also shipped as `public/third-party-notices.txt` → `dist/third-party-notices.txt`, with a license link in the document head. A distribution regression checks its complete contents.
 - No Pro source, invented UIARC components, new image assets, or credentialed registry access is used.
 
-Installed items: `arc-foundation`, `arc-motion-tokens`, `button`, `card`, `input`, `textarea`, `search-field`, `checkbox`, `dialog`, `select`, `badge`, and `alert`. `components.json` contains the documented `@uiarc` registry URL. UIARC's source uses Motion and Radix for its animation and accessible primitives. React and ReactDOM are upgraded together to React 19; TypeScript targets ES2023.
+Installed items: `arc-foundation`, `arc-motion-tokens`, `button`, `card`, `input`, `textarea`, `search-field`, `checkbox`, `dialog`, `select`, `badge`, `alert`, `announcement-bar`, `chip-group`, `empty-state`, `metric-card`, `animated-counter`, `segmented-control`, `metric-ticker` (Pro), plus CHR-2357 `avatar`, `skeleton`, `tabs`, `dropdown-menu`, `drawer`, and `arc-provider`. `components.json` contains the documented `@uiarc` registry URL. UIARC's source uses Motion and Radix for its animation and accessible primitives. React and ReactDOM are upgraded together to React 19; TypeScript targets ES2023.
 
 ## Preserve the existing appearance
 
-The existing application imports `src/components/ui/*`. These now adapt **actual UIARC components** while retaining the existing default utility classes and the caller's Tailwind overrides. Default buttons remain burnt orange; secondary remains navy; explicit white or navy page-level variants remain white or navy. Component corner radii, input/button heights and section/card padding continue to follow the existing site's utility contract.
+The existing application imports `src/components/ui/*`. These now adapt **actual UIARC components** while retaining the existing default utility classes and the caller's Tailwind overrides. Default buttons use Leander blue (`#002454`, the logo lockup median); secondary remains navy; gold remains the featured/sponsored accent; explicit white or navy page-level variants remain white or navy. Component corner radii, input/button heights and section/card padding continue to follow the existing site's utility contract.
 
 CSS ordering is deliberate:
 
@@ -45,12 +45,25 @@ Other adapters:
 - Badge keeps every original variant, including `accent`, through brand utilities on the real UIARC Badge.
 - Native Label and Separator helpers use the existing utility contract and UIARC field/foundation styles; they are not claimed as standalone upstream components.
 
-Existing unused avatar, dropdown-menu, sheet, skeleton, table and tabs files/dependencies are intentionally retained. Repository inspection found no application imports of them; this task does not falsely claim they were migrated or delete historical code unnecessarily.
+Leftover `src/components/ui/{avatar,dropdown-menu,skeleton,tabs,sheet}` files now re-export genuine UIARC primitives (Drawer stands in for Sheet). `table.tsx`, `label.tsx`, and `separator.tsx` remain the documented shadcn gaps — UIARC has no standalone equivalents (it has a heavier sortable-data-table, not a table primitive).
+
+## CHR-2357 component audit (Nov 6, 2026)
+
+| Surface | Classification | Notes |
+| --- | --- | --- |
+| Button, Card, Input, Textarea, SearchField, Checkbox, Dialog, Select, Badge, Alert | **Uiarc** (via `ui/` adapters) | Installed primitives |
+| AnnouncementBar, ChipGroup, EmptyState, MetricCard, MetricTicker, SegmentedControl, AnimatedCounter | **Uiarc** | Direct `@/components/arc/*` imports |
+| Avatar, Skeleton, Tabs, DropdownMenu, Drawer | **Uiarc** | Vendored CHR-2357; leftover shadcn copies replaced |
+| Label, Separator, Table | **shadcn gap** | No Uiarc primitive |
+| CompanyMark, CategoryBadge, JobTypeTag, featured chips | **Uiarc composition** | Avatar / Badge — not hand-rolled spans |
+| Event/job/business boards, chrome, photography | **product layout** | Compose Uiarc; not primitive duplicates |
+| Cookie consent banner | **product chrome** | GTM/PostHog consent mode; not swapped for Arc cookie-consent |
+| `src/site/businesses.tsx` opening-soon color spans | **follow-up (CHR-2355)** | Two hardcoded leftover primary hexes; this lane does not edit that file |
 
 ## Verification and boundaries
 
 - `npm run test:uiarc`: eleven focused SSR compatibility checks (buttons, semantic links, card headings, external/internal labels, checkbox naming, Select mapping, closed Dialog state, and Alert defaults/caller-controlled non-live and live semantics across presence paths).
 - `npm run build`: TypeScript plus production Vite build.
 - Existing feed/parser/date and listing validation tests are untouched.
-- SSR/source checks establish component structure and CSS layer precedence, **not** visual fidelity or full keyboard/browser behavior. Browser/native actions were not performed in this source-only task.
-- No deployment, preview, push, reference mutation, or formal PR approval is performed by this component lane.
+- SSR/source checks establish component structure and CSS layer precedence. CHR-2357 also verified in-browser (home, Submit Event payment $5/$10 fail-closed, Jobs Avatar, Events ChipGroup/Badge, Advertise, Businesses leftover orange follow-up).
+- This lane does not merge or deploy.

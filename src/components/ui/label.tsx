@@ -1,3 +1,4 @@
+/** shadcn gap: UIARC has no standalone Label. Uses Arc input label styles. */
 import { forwardRef, type LabelHTMLAttributes } from "react";
 import styles from "../arc/input/input.module.css";
 import { cn } from "@/lib/utils";
