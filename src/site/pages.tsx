@@ -314,6 +314,17 @@ export function PrivacyPage() {
               loaded at all.
             </li>
             <li>
+              <strong>Directory chat on /businesses.</strong> If you use
+              the Ask the directory box, we receive the question text, a
+              random session id stored in your browser&rsquo;s session
+              storage, and (on the server) a hash of your IP address used
+              only to enforce a roughly 20-questions-per-hour limit. When
+              AI phrasing is enabled, the question and the retrieved
+              permit rows are sent to OpenAI so it can write a short
+              answer from those rows. We do not send the full directory
+              to the model. You can skip chat and browse the list instead.
+            </li>
+            <li>
               <strong>Hosting logs.</strong> Our hosting provider (Vercel)
               processes standard technical logs — IP address, browser type,
               and pages requested — to serve and secure the site.
@@ -328,8 +339,11 @@ export function PrivacyPage() {
           <ul className="mt-2 list-disc space-y-2 pl-5">
             <li>
               <strong>Essential (always, on your device only):</strong>{" "}
-              your saved events and your analytics consent choice, stored
-              in local storage. These never leave your device.
+              your saved events, your analytics consent choice, and (if
+              you use directory chat) a random session id in session
+              storage. Saved events and consent never leave your device.
+              The chat session id is sent with questions so we can rate
+              limit that browser session.
             </li>
             <li>
               <strong>Analytics (only after you accept):</strong> Google
@@ -348,13 +362,17 @@ export function PrivacyPage() {
           <p>
             We use submissions and inquiries to review and publish
             listings, arrange paid placements, and answer you. Analytics
-            tell us, in aggregate, which parts of the board are useful. We
-            do not sell your personal information, and we do not share it
-            for anyone else&rsquo;s marketing. The service providers that
-            process data for us are Google (analytics and tag management),
-            PostHog (product analytics, when enabled), and Vercel
-            (hosting). We may disclose information if required by law or to
-            protect the site and its users.
+            tell us, in aggregate, which parts of the board are useful.
+            Directory chat is used only to look up listings in the Leander
+            permit directory and to phrase those matches. We do not sell
+            your personal information, and we do not share it for anyone
+            else&rsquo;s marketing. The service providers that process data
+            for us are Google (analytics and tag management), PostHog
+            (product analytics, when enabled), Vercel (hosting), Convex
+            (directory chat backend, when connected), and OpenAI
+            (phrasing directory answers from retrieved rows, when AI
+            phrasing is on). We may disclose information if required by
+            law or to protect the site and its users.
           </p>
           <p>
             Details you submit for publication — a business&rsquo;s name,
@@ -374,7 +392,10 @@ export function PrivacyPage() {
             Emails you send us are kept while the listing or placement is
             active and for a reasonable period afterward for our records,
             then deleted. Analytics data is retained in aggregate by our
-            providers under their standard retention settings.
+            providers under their standard retention settings. Directory
+            chat rate-limit windows and answer cache entries expire after
+            about an hour; a daily spend counter is kept for that UTC day
+            so we can pause AI phrasing if cost limits are hit.
           </p>
         </section>
 
