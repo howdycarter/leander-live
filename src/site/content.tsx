@@ -36,6 +36,8 @@ import { Separator } from "@/components/ui/separator";
 import SegmentedControl from "@/components/arc/segmented-control/segmented-control";
 import { ChipGroup } from "@/components/arc/chip-group/chip-group";
 import { EmptyState } from "@/components/arc/empty-state/empty-state";
+import { PaymentStep, tierDraftLine } from "./paymentStep";
+import { DEFAULT_TIER_ID, tierById, tierByName } from "./monetization";
 import {
   ArrowUpRight,
   Bell,
@@ -748,6 +750,8 @@ export function SubmitDialogContent() {
   const [when, setWhen] = useState(() => centralDateTimeInput(new Date(Date.now() + 7 * 86400000)));
   const [preparedDraft, setPreparedDraft] = useState<EmailDraft | null>(null);
   const [draftError, setDraftError] = useState("");
+  const [tierId, setTierId] = useState(DEFAULT_TIER_ID);
+  const [showPayment, setShowPayment] = useState(false);
   const { copyStatus, copyDraft, resetCopy } = useDraftCopy(preparedDraft, LEAD_EMAIL);
 
   function handleSubmit(e: FormEvent) {
@@ -757,9 +761,19 @@ export function SubmitDialogContent() {
       return;
     }
     setDraftError("");
+    // Paid-only model: the payment step comes before anything else.
+    setShowPayment(true);
+  }
+
+  function prepareDraft() {
     resetCopy();
-    setPreparedDraft(eventEmailDraft({ title, description, venue, category, url, when }));
-    trackEvent("event_email_draft_prepared", { category: category || "uncategorized" });
+    setPreparedDraft(
+      eventEmailDraft({
+        title, description, venue, category, url, when,
+        tierLine: tierDraftLine(tierById(tierId)),
+      }),
+    );
+    trackEvent("event_email_draft_prepared", { category: category || "uncategorized", tier: tierId });
   }
 
   return (
@@ -767,7 +781,8 @@ export function SubmitDialogContent() {
       <DialogHeader>
         <DialogTitle>Submit an event</DialogTitle>
         <DialogDescription>
-          Community submissions are reviewed before they appear on the board.
+          Postings are $5/mo — sponsored $10/mo — and go live after payment
+          is confirmed and the details are reviewed.
         </DialogDescription>
       </DialogHeader>
       {preparedDraft ? (
@@ -775,8 +790,10 @@ export function SubmitDialogContent() {
           <Alert>
             <Mail className="h-4 w-4 text-secondary" />
             <AlertDescription>
-              Email draft prepared — not sent. Open your email app and send it,
-              or copy the draft below. Publication is subject to review.
+              Email draft prepared — not sent, and not published. Postings go
+              live only after payment is confirmed; online payments
+              aren&rsquo;t enabled yet, so this draft just holds your
+              details. Nothing is live and nothing has been charged.
             </AlertDescription>
           </Alert>
           <div className="flex flex-wrap gap-2">
@@ -784,7 +801,7 @@ export function SubmitDialogContent() {
               <a href={mailtoFor(preparedDraft.subject, preparedDraft.body)}>Open email app</a>
             </Button>
             <Button variant="outline" onClick={copyDraft}>Copy draft</Button>
-            <Button variant="outline" onClick={() => { resetCopy(); setPreparedDraft(null); }}>
+            <Button variant="outline" onClick={() => { resetCopy(); setPreparedDraft(null); setShowPayment(false); }}>
               Edit details
             </Button>
           </div>
@@ -794,6 +811,13 @@ export function SubmitDialogContent() {
             <Textarea id="ev-draft" readOnly rows={5} value={emailDraftText(preparedDraft, LEAD_EMAIL)} />
           </div>
         </div>
+      ) : showPayment ? (
+        <PaymentStep
+          tier={tierById(tierId)}
+          onTierChange={setTierId}
+          onSaveDraft={prepareDraft}
+          onBack={() => setShowPayment(false)}
+        />
       ) : (
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div className="grid gap-2">
@@ -835,11 +859,12 @@ export function SubmitDialogContent() {
           </div>
           {draftError && <p role="alert" className="text-xs text-destructive">{draftError}</p>}
           <Button type="submit">
-            <Mail className="h-4 w-4" /> Prepare email draft
+            Continue to payment
           </Button>
           <p className="text-xs text-muted-foreground">
-            Nothing is sent here. Send the draft from your email app for review,
-            and confirm that you own or have permission to share the information.
+            Next you&rsquo;ll choose a posting tier and see the payment step.
+            Nothing is published until payment is confirmed. Confirm that you
+            own or have permission to share the information.
           </p>
         </form>
       )}
@@ -1034,6 +1059,8 @@ function PostJobDialogContent() {
   const [applyUrl, setApplyUrl] = useState("");
   const [preparedDraft, setPreparedDraft] = useState<EmailDraft | null>(null);
   const [draftError, setDraftError] = useState("");
+  const [tierId, setTierId] = useState(DEFAULT_TIER_ID);
+  const [showPayment, setShowPayment] = useState(false);
   const { copyStatus, copyDraft, resetCopy } = useDraftCopy(preparedDraft, LEAD_EMAIL);
 
   function handleSubmit(e: FormEvent) {
@@ -1043,9 +1070,19 @@ function PostJobDialogContent() {
       return;
     }
     setDraftError("");
+    // Paid-only model: the payment step comes before anything else.
+    setShowPayment(true);
+  }
+
+  function prepareDraft() {
     resetCopy();
-    setPreparedDraft(jobEmailDraft({ title, company, location, type: JOB_TYPE_LABEL[type] ?? type, payRange, applyUrl, description }));
-    trackEvent("job_email_draft_prepared", { type });
+    setPreparedDraft(
+      jobEmailDraft({
+        title, company, location, type: JOB_TYPE_LABEL[type] ?? type, payRange, applyUrl, description,
+        tierLine: tierDraftLine(tierById(tierId)),
+      }),
+    );
+    trackEvent("job_email_draft_prepared", { type, tier: tierId });
   }
 
   return (
@@ -1053,7 +1090,8 @@ function PostJobDialogContent() {
       <DialogHeader>
         <DialogTitle>Post a job</DialogTitle>
         <DialogDescription>
-          Job posts are reviewed before they appear on the board.
+          Job postings are $5/mo — sponsored $10/mo — and go live after
+          payment is confirmed and the details are reviewed.
         </DialogDescription>
       </DialogHeader>
       {preparedDraft ? (
@@ -1061,8 +1099,10 @@ function PostJobDialogContent() {
           <Alert>
             <Mail className="h-4 w-4 text-secondary" />
             <AlertDescription>
-              Email draft prepared — not sent. Open your email app and send it,
-              or copy the draft below. Publication is subject to review.
+              Email draft prepared — not sent, and not published. Postings go
+              live only after payment is confirmed; online payments
+              aren&rsquo;t enabled yet, so this draft just holds your
+              details. Nothing is live and nothing has been charged.
             </AlertDescription>
           </Alert>
           <div className="flex flex-wrap gap-2">
@@ -1070,7 +1110,7 @@ function PostJobDialogContent() {
               <a href={mailtoFor(preparedDraft.subject, preparedDraft.body)}>Open email app</a>
             </Button>
             <Button variant="outline" onClick={copyDraft}>Copy draft</Button>
-            <Button variant="outline" onClick={() => { resetCopy(); setPreparedDraft(null); }}>
+            <Button variant="outline" onClick={() => { resetCopy(); setPreparedDraft(null); setShowPayment(false); }}>
               Edit details
             </Button>
           </div>
@@ -1080,6 +1120,13 @@ function PostJobDialogContent() {
             <Textarea id="job-draft" readOnly rows={5} value={emailDraftText(preparedDraft, LEAD_EMAIL)} />
           </div>
         </div>
+      ) : showPayment ? (
+        <PaymentStep
+          tier={tierById(tierId)}
+          onTierChange={setTierId}
+          onSaveDraft={prepareDraft}
+          onBack={() => setShowPayment(false)}
+        />
       ) : (
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -1170,11 +1217,12 @@ function PostJobDialogContent() {
           </div>
           {draftError && <p role="alert" className="text-xs text-destructive">{draftError}</p>}
           <Button type="submit">
-            <Mail className="h-4 w-4" /> Prepare email draft
+            Continue to payment
           </Button>
           <p className="text-xs text-muted-foreground">
-            Nothing is sent here. Send the draft from your email app for review,
-            and confirm that you own or have permission to share the information.
+            Next you&rsquo;ll choose a posting tier and see the payment step.
+            Nothing is published until payment is confirmed. Confirm that you
+            own or have permission to share the information.
           </p>
         </form>
       )}
@@ -1325,8 +1373,16 @@ export function BusinessForm({ packageName }: { packageName?: string }) {
   const [preparedDraft, setPreparedDraft] = useState<(EmailDraft & { packageName?: string; inputKey: string }) | null>(null);
   const [draftError, setDraftError] = useState("");
   const [contactError, setContactError] = useState(false);
-  const currentDraftKey = businessDraftKey({ businessName, contactName, email, phone, vertical, interests, packageName });
-  const activeDraft = preparedDraft?.packageName === packageName && preparedDraft?.inputKey === currentDraftKey ? preparedDraft : null;
+  const [tierId, setTierId] = useState<string>(() => tierByName(packageName)?.id ?? DEFAULT_TIER_ID);
+  const [showPayment, setShowPayment] = useState(false);
+  useEffect(() => {
+    const t = tierByName(packageName);
+    if (t) setTierId(t.id);
+  }, [packageName]);
+  const tier = tierById(tierId);
+  const effectivePackageName = tier.name;
+  const currentDraftKey = businessDraftKey({ businessName, contactName, email, phone, vertical, interests, packageName: effectivePackageName });
+  const activeDraft = preparedDraft?.packageName === effectivePackageName && preparedDraft?.inputKey === currentDraftKey ? preparedDraft : null;
   const { copyStatus, copyDraft, resetCopy } = useDraftCopy(activeDraft, LEAD_EMAIL, currentDraftKey);
 
   function handleSubmit(e: FormEvent) {
@@ -1342,9 +1398,14 @@ export function BusinessForm({ packageName }: { packageName?: string }) {
       return;
     }
     setDraftError("");
+    // Paid-only model: the payment step comes before anything else.
+    setShowPayment(true);
+  }
+
+  function prepareDraft() {
     resetCopy();
-    setPreparedDraft({ ...businessEmailDraft({ businessName, contactName, email, phone, vertical, interests, packageName }), packageName, inputKey: currentDraftKey });
-    trackEvent("business_email_draft_prepared", { vertical, interest_count: interests.length });
+    setPreparedDraft({ ...businessEmailDraft({ businessName, contactName, email, phone, vertical, interests, packageName: effectivePackageName }), packageName: effectivePackageName, inputKey: currentDraftKey });
+    trackEvent("business_email_draft_prepared", { vertical, interest_count: interests.length, tier: tierId });
   }
 
   return (
@@ -1353,16 +1414,17 @@ export function BusinessForm({ packageName }: { packageName?: string }) {
         <CardTitle className="flex items-center gap-2">
           <Building2 className="h-5 w-5 text-secondary" /> Tell us about your business
         </CardTitle>
-        <CardDescription>Prepare an inquiry about a placement. Nothing is sent or purchased here.</CardDescription>
+        <CardDescription>Every posting is $5/mo — sponsored $10/mo — paid before publication. Prepare your details to continue to the payment step.</CardDescription>
       </CardHeader>
       <CardContent>
-      {preparedDraft && preparedDraft.packageName === packageName && preparedDraft.inputKey === currentDraftKey ? (
+      {preparedDraft && preparedDraft.packageName === effectivePackageName && preparedDraft.inputKey === currentDraftKey ? (
         <div className="flex flex-col items-start gap-4 py-2">
           <Alert>
             <Mail className="h-4 w-4 text-secondary" />
             <AlertDescription>
-              Email draft prepared — not sent. Open your email app and send it,
-              or copy the draft below. No payment or reservation has been made.
+              Email draft prepared — not sent, and not published. No payment
+              has been made; postings go live only after payment is
+              confirmed, and online payments aren&rsquo;t enabled yet.
             </AlertDescription>
           </Alert>
           <div className="flex flex-wrap gap-2">
@@ -1370,7 +1432,7 @@ export function BusinessForm({ packageName }: { packageName?: string }) {
               <a href={mailtoFor(preparedDraft.subject, preparedDraft.body)}>Open email app</a>
             </Button>
             <Button variant="outline" onClick={copyDraft}>Copy draft</Button>
-            <Button variant="outline" onClick={() => { resetCopy(); setPreparedDraft(null); }}>
+            <Button variant="outline" onClick={() => { resetCopy(); setPreparedDraft(null); setShowPayment(false); }}>
               Edit details
             </Button>
           </div>
@@ -1380,6 +1442,13 @@ export function BusinessForm({ packageName }: { packageName?: string }) {
             <Textarea id="bz-draft" readOnly rows={5} value={emailDraftText(preparedDraft, LEAD_EMAIL)} />
           </div>
         </div>
+      ) : showPayment ? (
+        <PaymentStep
+          tier={tier}
+          onTierChange={setTierId}
+          onSaveDraft={prepareDraft}
+          onBack={() => setShowPayment(false)}
+        />
       ) : (
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -1424,7 +1493,7 @@ export function BusinessForm({ packageName }: { packageName?: string }) {
             <div className="grid gap-2">
               <Label>I&apos;m interested in</Label>
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-                {["Featured listing", "Featured job", "Sponsored event"].map((i) => (
+                {["Standard posting ($5/mo)", "Sponsored posting ($10/mo)", "Just a question"].map((i) => (
                   <label key={i} className="flex cursor-pointer items-center gap-2 rounded-md border px-3 py-2 text-sm hover:bg-muted/50">
                     <Checkbox checked={interests.includes(i)} onCheckedChange={() => setInterests((prev) => toggleInList(prev, i))} />
                     {i}
@@ -1435,7 +1504,7 @@ export function BusinessForm({ packageName }: { packageName?: string }) {
             <p className="text-xs text-muted-foreground">{PRIVACY_NOTE}</p>
             {draftError && <p role="alert" className="text-xs text-destructive">{draftError}</p>}
             <Button type="submit">
-              <Mail className="h-4 w-4" /> Prepare email draft
+              Continue to payment
             </Button>
           </form>
         )}

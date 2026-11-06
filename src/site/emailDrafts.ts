@@ -15,6 +15,7 @@ export function centralDateTimeInput(date: Date): string {
 
 export function eventEmailDraft(input: {
   title: string; description: string; venue: string; category: string; url: string; when: string;
+  tierLine?: string;
 }): EmailDraft {
   return {
     subject: `Event submission: ${input.title.trim()}`,
@@ -25,8 +26,9 @@ export function eventEmailDraft(input: {
       `Venue: ${input.venue.trim()}`,
       input.category ? `Category: ${input.category}` : null,
       input.url.trim() ? `Link: ${input.url.trim()}` : null,
+      input.tierLine ?? null,
       "", "Description:", input.description.trim(), "",
-      "Submitted for review; publication is not guaranteed.",
+      "Submitted for review; publication is not guaranteed and requires payment.",
       "Please confirm that you own or have permission to share this information when sending.",
     ].filter((line) => line !== null).join("\n"),
   };
@@ -35,6 +37,7 @@ export function eventEmailDraft(input: {
 export function jobEmailDraft(input: {
   title: string; company: string; location: string; type: string;
   payRange: string; applyUrl: string; description: string;
+  tierLine?: string;
 }): EmailDraft {
   return {
     subject: `Job posting: ${input.title.trim()} at ${input.company.trim()}`,
@@ -42,8 +45,10 @@ export function jobEmailDraft(input: {
       `Job title: ${input.title.trim()}`, `Company: ${input.company.trim()}`,
       `Location: ${input.location.trim()}`, `Type: ${input.type}`,
       input.payRange.trim() ? `Pay range: ${input.payRange.trim()}` : null,
-      `Apply link: ${input.applyUrl.trim()}`, "", "Description:", input.description.trim(), "",
-      "Submitted for review; publication is not guaranteed.",
+      `Apply link: ${input.applyUrl.trim()}`,
+      input.tierLine ?? null,
+      "", "Description:", input.description.trim(), "",
+      "Submitted for review; publication is not guaranteed and requires payment.",
       "Please confirm that you own or have permission to share this information when sending.",
     ].filter((line) => line !== null).join("\n"),
   };
@@ -68,7 +73,7 @@ export function businessDraftKey(input: BusinessDraftFields): string {
 
 export function businessEmailDraft(input: BusinessDraftFields): EmailDraft {
   return {
-    subject: `Advertiser inquiry: ${input.businessName.trim()}${input.packageName ? ` (${input.packageName})` : ""}`,
+    subject: `Posting: ${input.businessName.trim()}${input.packageName ? ` (${input.packageName})` : ""}`,
     body: [
       `Business: ${input.businessName.trim()}`,
       `Contact: ${input.contactName.trim()}`,
@@ -76,8 +81,8 @@ export function businessEmailDraft(input: BusinessDraftFields): EmailDraft {
       input.phone.trim() ? `Phone: ${input.phone.trim()}` : null,
       input.vertical ? `Vertical: ${input.vertical}` : null,
       input.interests.length ? `Interested in: ${input.interests.join(", ")}` : null,
-      input.packageName ? `Package inquiry: ${input.packageName}` : null,
-      "", "Inquiry only. Rates and placements are proposals, subject to confirmation.",
+      input.packageName ? `Posting tier: ${input.packageName} — payment pending` : null,
+      "", "Postings are published only after payment is confirmed.",
       "No payment, reservation, or publication is made by preparing this email.",
       "Service leads are not available.",
     ].filter((line) => line !== null).join("\n"),

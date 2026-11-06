@@ -1,9 +1,16 @@
 /**
- * Advertising options at the charter rates approved by Chris Carter on
- * 2026-10-31 (Featured Listing $29/mo, Sponsored Event $19, Featured Job $59).
- * No payment links or lead-delivery service are active yet: Stripe is not
- * connected. Keep payment URLs empty until Stripe is connected and the
- * links are created and verified.
+ * Posting pricing — set by Chris Carter on 2026-11-06, replacing the
+ * 2026-10-31 charter tiers (Featured Listing $29/mo, Sponsored Event $19,
+ * Featured Job $59). The model is now flat: EVERY posting costs $5/month
+ * (Standard) or $10/month (Sponsored), whatever the posting type, and a
+ * posting is published only after payment is confirmed. There is no
+ * free-publish path.
+ *
+ * Stripe is not connected yet (CHR-1752 — the connect is Chris's own
+ * step). Keep every stripeUrl empty until Stripe is connected and the
+ * payment links are created and verified; while a tier's stripeUrl is
+ * empty, paymentsEnabled() is false and its payment step must fail
+ * closed with the "payments not yet enabled" state.
  */
 export interface AdPackage {
   id: string;
@@ -20,81 +27,77 @@ export interface AdPackage {
 
 export const AD_PACKAGES: AdPackage[] = [
   {
-    id: "featured-listing",
-    name: "Featured Listing",
-    price: 29,
+    id: "standard-posting",
+    name: "Standard Posting",
+    price: 5,
     cadence: "/month",
-    tagline: "Help your business get noticed across Leander.",
+    tagline: "Any posting — business, event, or job — on the board for a month.",
     features: [
-      "Featured placement in the business directory",
-      "Featured badge on your listing",
-      "Share your photo, hours, and contact links",
-      "Scope and availability confirmed by email",
+      "Any posting type: business, event, or job",
+      "Live for one month from publication",
+      "Standard placement in the listings",
+      "Reviewed before it appears",
+      "Published only after payment is confirmed",
     ],
     stripeUrl: "",
-    cta: "Ask about a listing",
+    cta: "Start a standard posting",
   },
   {
-    id: "sponsored-event",
-    name: "Sponsored Event",
-    price: 19,
-    cadence: "/event",
-    tagline: "Promote your local event to the whole town.",
+    id: "sponsored-posting",
+    name: "Sponsored Posting",
+    price: 10,
+    cadence: "/month",
+    tagline: "The same posting, promoted — featured placement with a Sponsored label.",
     features: [
-      "Featured placement on Events + homepage",
-      "Sponsored label for paid placement",
-      "Dates and placement agreed before payment",
-      "Subject to review and availability",
+      "Everything in Standard Posting",
+      "Featured placement on the board and homepage",
+      "Sponsored label on your posting",
+      "Reviewed before it appears",
+      "Published only after payment is confirmed",
     ],
     stripeUrl: "",
-    cta: "Ask about an event",
-  },
-  {
-    id: "featured-job",
-    name: "Featured Job",
-    price: 59,
-    cadence: "/30 days",
-    tagline: "Highlight a local opening for 30 days.",
-    features: [
-      "Featured placement on the Jobs board",
-      "30-day featured period",
-      "Link to your own application page",
-      "Scope and availability confirmed by email",
-    ],
-    stripeUrl: "",
-    cta: "Ask about a job",
-  },
-  {
-    id: "service-leads",
-    name: "Service Leads",
-    price: 0,
-    cadence: "",
-    unavailable: true,
-    tagline: "Not available. No lead-delivery service is operating.",
-    features: [
-      "No requests are qualified or routed",
-      "No customer details are delivered",
-      "No exclusive categories are offered",
-      "No lead payments are accepted",
-    ],
-    stripeUrl: "",
-    cta: "Ask a question",
+    cta: "Start a sponsored posting",
   },
 ];
 
-/** Existing three-step layout explains the actual email-only inquiry process. */
+/** The tier a new posting starts with. */
+export const DEFAULT_TIER_ID = "standard-posting";
+
+export function tierById(id: string): AdPackage {
+  return AD_PACKAGES.find((p) => p.id === id) ?? AD_PACKAGES[0];
+}
+
+export function tierByName(name?: string): AdPackage | undefined {
+  return name ? AD_PACKAGES.find((p) => p.name === name) : undefined;
+}
+
+/**
+ * A tier can collect payment only when its verified Stripe payment link
+ * exists. Stripe is not connected yet, so this is false for every tier
+ * today and every payment step must fail closed.
+ */
+export function paymentsEnabled(pkg: AdPackage): boolean {
+  return pkg.stripeUrl.trim().length > 0;
+}
+
+/** One-line price for a tier, e.g. "$5/month". */
+export function tierPriceLabel(pkg: AdPackage): string {
+  return `$${pkg.price}${pkg.cadence}`;
+}
+
+/** Steps for the Advertise page's questions section (service leads stay unavailable). */
 export const SERVICE_LEAD_STEPS = [
   {
     title: "Tell us about your business",
-    body: "Prepare an email with your business details and the placement you would like to discuss.",
+    body: "Prepare an email with your business details and what you would like to ask about.",
   },
   {
-    title: "Send your inquiry",
+    title: "Send your question",
     body: "Send the draft from your email app, or copy it into an email. This site does not send it for you.",
   },
   {
-    title: "Confirm the details first",
-    body: "Confirm the placement details and terms by email before committing. An inquiry reserves nothing.",
+    title: "Postings are paid",
+    body: "Questions are free; postings are not. Every posting is $5/mo (sponsored $10/mo) and goes live only after payment is confirmed — an inquiry publishes nothing.",
   },
 ] as const;
 

@@ -101,7 +101,7 @@ function TownAnnouncement() {
         },
         {
           id: "submit",
-          message: <>Hosting something? Put it on the board.</>,
+          message: <>Hosting something? Post it on the board — postings are $5/mo.</>,
           action: {
             label: "Submit an event",
             onClick: () => {

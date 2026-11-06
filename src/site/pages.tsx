@@ -499,7 +499,7 @@ function PackageCard({ pkg, onInterested }: { pkg: AdPackage; onInterested: (pkg
             {pkg.cta} <ArrowRight className="h-4 w-4" />
           </Button>
           <p className="mt-2 text-center text-xs text-muted-foreground">
-            Inquiry only. No payment or reservation.
+            Paid posting — goes live only after payment is confirmed.
           </p>
         </div>
       </CardContent>
@@ -521,7 +521,7 @@ export function AdvertisePage() {
       <PageHero
         eyebrow="For Leander businesses"
         title="Get found by the whole town."
-        subtitle="Local advertising at charter rates. Availability is confirmed by email; no payment is collected here."
+        subtitle="Flat local pricing: any posting is $5/month, sponsored placement $10/month. Every posting is paid before it goes live — there is no free posting."
       >
         <div className="mt-6 flex flex-wrap gap-3">
           <Badge className="bg-white/15 text-white hover:bg-white/25">
@@ -569,11 +569,11 @@ export function AdvertisePage() {
 
         <section ref={formRef} className="mt-16 scroll-mt-24">
           <div className="max-w-2xl">
-            <h2 className="font-display text-3xl font-bold">Ask about a placement</h2>
+            <h2 className="font-display text-3xl font-bold">Start your posting</h2>
             <p className="mt-2 text-muted-foreground">
               {selectedPkg
-                ? `Ask about ${AD_PACKAGES.find((p) => p.id === selectedPkg)?.name} — this is an inquiry, not an order or reservation.`
-                : "Tell us about your business and what you would like to discuss. Rates and availability are not yet confirmed."}
+                ? `Start a ${AD_PACKAGES.find((p) => p.id === selectedPkg)?.name} — paid before it goes live, reviewed before it appears.`
+                : "Tell us about your business to start a posting. Every posting is paid before it goes live — standard $5/mo, sponsored $10/mo."}
             </p>
             <div className="mt-6">
               <BusinessForm

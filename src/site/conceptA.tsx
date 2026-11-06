@@ -484,8 +484,8 @@ export function BusinessCtaBand() {
               Put your business in front of the whole town.
             </h2>
             <p className="max-w-xl text-body text-white/80">
-              Ask about featured listings, sponsored events, and job
-              placements. Availability is confirmed by email.
+              Post your business, event, or job for $5 a month — sponsored
+              placement is $10. Every posting is paid before it goes live.
             </p>
             <div className="flex flex-wrap gap-3">
               <Button

@@ -5,7 +5,7 @@ import {
   businessDraftKey, businessEmailDraft, centralDateTimeInput, emailDraftText, eventEmailDraft,
   hasRequiredDraftFields, jobEmailDraft,
 } from '../../src/site/emailDrafts.ts';
-import { AD_PACKAGES, SERVICE_LEAD_STEPS, formatPrice } from '../../src/site/monetization.ts';
+import { AD_PACKAGES, SERVICE_LEAD_STEPS, formatPrice, paymentsEnabled } from '../../src/site/monetization.ts';
 
 const eventInput = {
   title: '  Neighborhood market  ', description: '  Local makers & music.  ',
@@ -15,7 +15,7 @@ const eventInput = {
 const businessInput = {
   businessName: '  Main Street Bakery  ', contactName: '  Jamie  ',
   email: ' jamie@example.com ', phone: '', vertical: 'Food & drink',
-  interests: ['Featured listing'], packageName: 'Featured Listing',
+  interests: ['Standard posting ($5/mo)'], packageName: 'Standard Posting',
 };
 
 test('event drafts preserve entered Central wall time, including ambiguous DST times', () => {
@@ -70,11 +70,11 @@ test('job draft contains exact employer-provided details, not a posted claim', (
   assert.match(draft.body, /Please confirm that you own or have permission to share/);
 });
 
-test('business draft is an inquiry with no payment, reservation or delivery promise', () => {
+test('business draft records the paid tier with no payment, reservation or delivery promise', () => {
   const draft = businessEmailDraft(businessInput);
-  assert.equal(draft.subject, 'Advertiser inquiry: Main Street Bakery (Featured Listing)');
-  assert.match(draft.body, /Package inquiry: Featured Listing/);
-  assert.match(draft.body, /Rates and placements are proposals, subject to confirmation/);
+  assert.equal(draft.subject, 'Posting: Main Street Bakery (Standard Posting)');
+  assert.match(draft.body, /Posting tier: Standard Posting — payment pending/);
+  assert.match(draft.body, /Postings are published only after payment is confirmed/);
   assert.match(draft.body, /No payment, reservation, or publication is made/);
   assert.match(draft.body, /Service leads are not available/);
   assert.doesNotMatch(draft.body, /Phone:|null|undefined/);
@@ -83,7 +83,7 @@ test('business draft is an inquiry with no payment, reservation or delivery prom
 test('phone-only business inquiries and manual-copy drafts include the actual recipient', () => {
   const draft = businessEmailDraft({ ...businessInput, email: '', phone: ' 512-555-0100 ', packageName: undefined, interests: [] });
   assert.match(draft.body, /Phone: 512-555-0100/);
-  assert.doesNotMatch(draft.body, /Email:|Package inquiry:|Interested in:/);
+  assert.doesNotMatch(draft.body, /Email:|Posting tier:|Interested in:/);
   assert.equal(emailDraftText(draft, 'chris@howdycarter.com'), `To: chris@howdycarter.com\nSubject: ${draft.subject}\n\n${draft.body}`);
 });
 
@@ -99,7 +99,7 @@ test('preparing drafts never mutates the original visitor fields', () => {
 
 test('business A → B → edit → A never revives a stale prepared draft', () => {
   const savedA = { ...businessEmailDraft(businessInput), inputKey: businessDraftKey(businessInput) };
-  const selectedB = { ...businessInput, packageName: 'Featured Job' };
+  const selectedB = { ...businessInput, packageName: 'Sponsored Posting' };
   assert.notEqual(savedA.inputKey, businessDraftKey(selectedB));
   const editedB = { ...selectedB, contactName: 'New contact', email: 'new@example.com' };
   const returnedA = { ...editedB, packageName: businessInput.packageName };
@@ -108,14 +108,14 @@ test('business A → B → edit → A never revives a stale prepared draft', () 
   assert.equal(preparedAgain.inputKey, businessDraftKey(returnedA));
   assert.match(preparedAgain.body, /Contact: New contact/);
   assert.match(preparedAgain.body, /Email: new@example.com/);
-  assert.match(preparedAgain.body, /Package inquiry: Featured Listing/);
+  assert.match(preparedAgain.body, /Posting tier: Standard Posting — payment pending/);
 });
 
 test('every business field participates in snapshot matching, without mutating input', () => {
   const originalKey = businessDraftKey(businessInput);
   const changes = {
     businessName: 'Another business', contactName: 'Another contact', email: 'other@example.com',
-    phone: '512-555-0101', vertical: 'Other', interests: ['Sponsored event'], packageName: undefined,
+    phone: '512-555-0101', vertical: 'Other', interests: ['Sponsored posting ($10/mo)'], packageName: undefined,
   };
   for (const [field, value] of Object.entries(changes)) {
     assert.notEqual(businessDraftKey({ ...businessInput, [field]: value }), originalKey, field);
@@ -131,16 +131,17 @@ test('required-field guard rejects blank or whitespace-only input without persis
   assert.equal(hasRequiredDraftFields([' A title ', 'Corrected text']), true);
 });
 
-test('three approved charter rates remain explicit; service leads are unavailable; payment URLs stay empty', () => {
-  assert.deepEqual(AD_PACKAGES.filter(p => !p.unavailable).map(p => [p.id, p.price, p.cadence]), [
-    ['featured-listing', 29, '/month'], ['sponsored-event', 19, '/event'], ['featured-job', 59, '/30 days'],
+test('two flat posting tiers (Chris, 2026-11-06) replace the charter rates; payment URLs stay empty and payments fail closed', () => {
+  assert.deepEqual(AD_PACKAGES.map(p => [p.id, p.price, p.cadence]), [
+    ['standard-posting', 5, '/month'], ['sponsored-posting', 10, '/month'],
   ]);
   for (const pkg of AD_PACKAGES) {
     assert.equal(pkg.stripeUrl, '');
     assert.equal(pkg.exclusivity, undefined);
+    // Stripe is not connected (CHR-1752): no tier may report payments enabled.
+    assert.equal(paymentsEnabled(pkg), false);
     assert.equal(formatPrice(pkg), pkg.unavailable ? 'Unavailable' : `$${pkg.price}${pkg.cadence}`);
   }
-  assert.equal(AD_PACKAGES.find(p => p.id === 'service-leads').unavailable, true);
   const copy = JSON.stringify([AD_PACKAGES, SERVICE_LEAD_STEPS]);
   assert.doesNotMatch(copy, /AI-qualified|weekly reminders|performance snapshot|repost discount|we qualify every|start getting leads|no lead, no charge|\$299/i);
 });
@@ -164,17 +165,30 @@ test('all three original forms retain drafts and offer not-sent/manual fallback 
     assert.doesNotMatch(form, /window\.location|setSent|setCustomValidity|set(?:BusinessName|ContactName|Email|Phone|Vertical|Interests|Title|Description)\((?:""|\[\])\)/);
   }
   assert.match(forms[0], /Date &amp; time \(Central\)/);
-  assert.match(forms[2], /preparedDraft\.packageName === packageName/);
+  assert.match(forms[2], /preparedDraft\.packageName === effectivePackageName/);
   assert.match(forms[2], /preparedDraft\.inputKey === currentDraftKey/);
   assert.match(forms[2], /inputKey: currentDraftKey/);
   assert.match(forms[2], /type="email"/);
   assert.doesNotMatch(forms[2], /Buy leads/);
 });
 
-test('advertising actions remain inquiry-only without unsupported checkout, exclusivity or automated fulfillment claims', () => {
+test('every submit flow routes through the fail-closed payment step before any draft', () => {
+  for (const form of forms) {
+    assert.match(form, /<PaymentStep/);
+    assert.match(form, /setShowPayment\(true\)/);
+    assert.match(form, /not published/);
+  }
+  const paymentStep = readFileSync(new URL('../../src/site/paymentStep.tsx', import.meta.url), 'utf8');
+  assert.match(paymentStep, /Payments aren&rsquo;t enabled yet/);
+  assert.match(paymentStep, /won&rsquo;t be published without payment/);
+  assert.match(paymentStep, /paymentsEnabled\(tier\)/);
+});
+
+test('advertising presents the two paid tiers without unsupported checkout, exclusivity or automated fulfillment claims', () => {
   const pages = readFileSync(new URL('../../src/site/pages.tsx', import.meta.url), 'utf8');
   const concept = readFileSync(new URL('../../src/site/conceptA.tsx', import.meta.url), 'utf8');
-  assert.match(pages, /Inquiry only\. No payment or reservation/);
+  assert.match(pages, /Paid posting — goes live only after payment is confirmed/);
+  assert.match(pages, /any posting is \$5\/month, sponsored placement \$10\/month/);
   assert.match(pages, /\$\{pkg.cadence\}/);
   assert.doesNotMatch(pages, /· proposed/);
   assert.match(pages, /grid gap-6 md:grid-cols-2/);

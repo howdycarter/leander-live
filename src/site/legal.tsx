@@ -135,20 +135,21 @@ export function TermsPage() {
 
       <Section heading="Paid placements">
         <p>
-          We offer three paid placements at charter rates: Featured Listing
-          at $29 per month, Sponsored Event at $19 per event, and Featured
-          Job at $59 per 30 days. Paid placements are labeled as featured
-          or sponsored on the board.
+          Every posting on Leander Live is paid. We offer two posting
+          tiers: Standard Posting at $5 per month and Sponsored Posting at
+          $10 per month, for any posting type — business, event, or job.
+          A posting is published only after payment is confirmed.
+          Sponsored postings are labeled as sponsored on the board. There
+          is no free posting option.
         </p>
         <p>
-          <strong>How buying works today:</strong> there is no online
-          checkout, and no payment is collected on this site. Placements
-          are arranged by email — send an inquiry through the Advertise
-          page, and the placement, dates, and price are confirmed in
-          writing by email before any payment is due. Payment is then made
-          by the method stated in that written confirmation. A placement
-          runs for the agreed period once payment is received. An inquiry
-          by itself reserves nothing.
+          <strong>How buying works today:</strong> online checkout is not
+          yet enabled on this site, and no payment is collected here yet.
+          Until checkout is enabled, a posting cannot go live: preparing
+          an email draft or sending an inquiry holds your details, but it
+          reserves nothing and publishes nothing. Once checkout is
+          enabled, a posting runs for its month once payment is received
+          and the details are reviewed.
         </p>
         <p>
           We do not offer a lead-delivery service: no customer requests are
