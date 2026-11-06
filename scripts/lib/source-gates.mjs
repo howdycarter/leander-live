@@ -34,11 +34,6 @@ export const SOURCE_GATES = Object.freeze({
     reason: 'paused: rights pending, paid service',
     basis: 'Fetched through Firecrawl, a paid service. No LISD site terms found that permit commercial reuse.',
   },
-  'lisd-applitrack-jobs': {
-    flag: 'LEANDER_ENABLE_FIRECRAWL',
-    reason: 'paused: rights pending, paid service',
-    basis: 'Fetched through Firecrawl, a paid service. AppliTrack reuse terms not reviewed.',
-  },
   'leandertx-city-calendar': {
     flag: 'LEANDER_ENABLE_LEANDERTX',
     reason: 'paused: rights pending, site blocked',

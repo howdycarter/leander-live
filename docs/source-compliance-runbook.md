@@ -15,13 +15,12 @@ Each source below is off unless its flag is set to exactly `1`. Nothing sets the
 | google-news | LEANDER_ENABLE_GOOGLE_NEWS | scrape-signals.mjs |
 | lisd-board-agendas | LEANDER_ENABLE_FIRECRAWL | scrape-civic.mjs |
 | lisd-agenda-signals | LEANDER_ENABLE_FIRECRAWL | scrape-signals.mjs |
-| lisd-applitrack-jobs | LEANDER_ENABLE_FIRECRAWL | scrape-jobs.mjs |
 | leandertx-city-calendar | LEANDER_ENABLE_LEANDERTX | scrape-events.mjs |
 | leandertx-city-news | LEANDER_ENABLE_LEANDERTX | scrape-civic.mjs |
 
 The LISD calendar feeds (LEANDER_ENABLE_LISD_ICS, in the PR #11 to #13 stack) also stay off until a permission basis is verified.
 
-Sources not listed here (CivicClerk meetings, the Chamber, data.texas.gov, business data) are unchanged by this work.
+Sources not listed here (CivicClerk meetings, the Chamber, data.texas.gov, business data, and Leander ISD AppliTrack jobs) are unchanged by this work. Leander ISD jobs were removed from the Firecrawl gate in CHR-1757: they now read the official public noscript listing at `JobPostings/view.asp?all=1&embed=1`. That path is allowed by `https://www.applitrack.com/robots.txt` (only `/*/onlineapp/admin` is disallowed). Frontline website terms at `/terms/`, `/privacy-policy/`, and `/legal/` returned 404 on 2026-11-04; Forecast5 terms apply to a different logged-in product. The JS shell without `embed=1` is empty and fails the run instead of recording zero jobs.
 
 ## What happens when a source is paused
 
@@ -53,10 +52,17 @@ No scraping of NEOGOV in any form. The path forward is an official feed or writt
 
 No commercial permission is assumed, and none is claimed: nothing read grants commercial clearance.
 
-### Leander ISD board agendas and AppliTrack (Firecrawl)
+### Leander ISD board agendas (Firecrawl)
 
 - Firecrawl is a paid service. Paid calls are not allowed in the refresh.
 - https://www.leanderisd.org/terms-of-use/ returned 404 at 5:45 PM, and https://www.leanderisd.org/website/ (5:46 PM) has no copyright or reuse terms. Nothing found grants commercial reuse.
+
+### Leander ISD AppliTrack jobs (ungated public listing)
+
+- Public board: https://www.applitrack.com/leander/onlineapp/JobPostings/view.asp?all=1&embed=1
+- robots.txt, https://www.applitrack.com/robots.txt, fetched 2026-11-04, 3:29 PM CT: `User-agent: *` / `Disallow: /*/onlineapp/admin`. The job listing is not disallowed.
+- The JS board (`view.asp?all=1` without `embed=1`) is a shell that injects `Output.asp`. The same page publishes the noscript listing used here.
+- Frontline marketing terms URLs (`/terms/`, `/privacy-policy/`, `/legal/`) returned 404 the same day. No scrape prohibition was found on the public listing host. Admin paths stay untouched.
 
 ### City of Leander (leandertx.gov)
 

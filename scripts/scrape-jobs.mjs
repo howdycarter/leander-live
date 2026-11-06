@@ -1,11 +1,10 @@
 /**
  * Scrape job postings from:
- *   1. governmentjobs.com — City of Leander
- *   2. governmentjobs.com — Williamson County (filtered to Leander-area)
- *   3. Leander ISD AppliTrack — via Firecrawl (the board is JS-rendered and
- *      bot-walled to plain fetches; Firecrawl renders it to markdown, which
- *      this script parses). Replaced the old direct-fetch attempt that never
- *      parsed a single posting.
+ *   1. governmentjobs.com — City of Leander (off unless LEANDER_ENABLE_NEOGOV=1)
+ *   2. governmentjobs.com — Williamson County, Leander-area filter (same gate)
+ *   3. Leander ISD AppliTrack — the official noscript listing at
+ *      JobPostings/view.asp?all=1&embed=1 (robots allow this path; the JS
+ *      shell at all=1 without embed is empty and must fail loudly).
  *
  * Output: src/data/jobs.json (array of Job), newest first by postedAt.
  *
@@ -13,24 +12,23 @@
  * previous records for that source, and the script exits nonzero for an enabled-source failure.
  */
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
-import { recordStatus, recordPendingStatus, runGated } from "./lib/source-status-file.mjs";
+import { recordStatus, recordPendingStatus, runGated, runTracked } from "./lib/source-status-file.mjs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
-import { execFile } from "node:child_process";
 import * as cheerio from "cheerio";
+import {
+  APPLITRACK_LIST_URL,
+  ISD_MAX_AGE_DAYS,
+  ISD_MAX_JOBS,
+  parseAppliTrackListingHtml,
+  selectFreshIsdJobs,
+} from "./lib/applitrack-jobs.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const OUT = join(ROOT, "src/data/jobs.json");
 const UA = "LeanderLive-Scraper/1.0 (community-events-bot; contact chris@howdycarter.com)";
 const SLEEP_MS = 300;
 const MAX_DETAIL_PAGES = 40;
-const ISD_MAX_JOBS = 60;
-const ISD_MAX_AGE_DAYS = 150;
-
-const FIRECRAWL_BIN =
-  process.env.LL_FIRECRAWL_BIN ||
-  "/home/hatch/workspace/custom-connectors/custom.legacy-firecrawl/bin/firecrawl";
-const FIRECRAWL_PYTHONPATH = "/opt/muse/skills/custom-connector-setup/bin";
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -38,32 +36,6 @@ async function get(url) {
   const res = await fetch(url, { headers: { "User-Agent": UA } });
   if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
   return res.text();
-}
-
-/** Render a JS-heavy page to markdown via the Firecrawl connector CLI. */
-function firecrawlScrape(url) {
-  return new Promise((resolve, reject) => {
-    execFile(
-      FIRECRAWL_BIN,
-      ["scrape", "--url", url],
-      {
-        env: { ...process.env, PYTHONPATH: FIRECRAWL_PYTHONPATH },
-        maxBuffer: 32 * 1024 * 1024,
-        timeout: 240000,
-      },
-      (err, stdout, stderr) => {
-        if (err) {
-          reject(new Error(`firecrawl scrape failed: ${(stderr || err.message || "").slice(0, 200)}`));
-          return;
-        }
-        if (!stdout || stdout.length < 500) {
-          reject(new Error("firecrawl returned suspiciously little content"));
-          return;
-        }
-        resolve(stdout);
-      },
-    );
-  });
 }
 
 function loadPrevious() {
@@ -217,81 +189,13 @@ async function scrapeGovJobs(orgQuery, company, areaFilter) {
   return jobs;
 }
 
-/* ---------------- Leander ISD via Firecrawl ---------------- */
-
-const APPLITRACK_LIST = "https://www.applitrack.com/leander/onlineapp/JobPostings/view.asp?all=1";
-const APPLITRACK_DETAIL = (id) =>
-  `https://www.applitrack.com/leander/onlineapp/default.aspx?AppliTrackJobId=${id}`;
-
-function unescMd(s) {
-  return (s || "").replace(/\\(.)/g, "$1").replace(/\s+/g, " ").trim();
-}
-
-function parseAppliTrackMarkdown(md) {
-  const headerRe = /\|\s*(.+?)\s*\|\s*JobID:\s*(\d+)\s*\|/g;
-  const heads = [...md.matchAll(headerRe)];
-  if (heads.length === 0) throw new Error("no JobID blocks in AppliTrack markdown");
-  const jobs = [];
-  for (let i = 0; i < heads.length; i++) {
-    const [, rawTitle, jobId] = heads[i];
-    const segStart = heads[i].index + heads[i][0].length;
-    const segEnd = i + 1 < heads.length ? heads[i + 1].index : md.length;
-    const seg = md.slice(segStart, segEnd);
-    const pick = (re) => {
-      const m = seg.match(re);
-      return m ? unescMd(m[1]) : "";
-    };
-    const positionType = pick(/Position Type:\s+([^\n]+)/);
-    const datePostedStr = pick(/Date Posted:\s+([^\n]+)/);
-    const location = pick(/Location:\s+([^\n]+)/) || "Leander, TX";
-    const closingStr = pick(/Closing Date:\s+([^\n]+)/);
-    // Salary / full-part-time table (best effort; often blank).
-    let salary = "", ftpt = "";
-    const sm = seg.match(/Salary Range:\s*\|\s*Full\/Part-Time:[^|\n]*\|[^|\n]*\|\s*\n\|\s*([^|]*)\|\s*([^|]*)\|/);
-    if (sm) { salary = unescMd(sm[1]); ftpt = unescMd(sm[2]); }
-
-    const postedAt = datePostedStr ? Date.parse(datePostedStr) : NaN;
-    if (!Number.isFinite(postedAt)) continue; // can't freshness-rank it; skip
-    const closesAt = closingStr && /\d{1,2}\/\d{1,2}\/\d{4}/.test(closingStr)
-      ? Date.parse(closingStr.match(/\d{1,2}\/\d{1,2}\/\d{4}/)[0])
-      : undefined;
-
-    let type = "full-time";
-    if (/part/i.test(ftpt)) type = "part-time";
-    else if (/substitute|temporary/i.test(positionType)) type = "temporary";
-
-    const title = unescMd(rawTitle).replace(/^\|+\s*/, "").replace(/\|+\s*$/, "").trim();
-    jobs.push({
-      id: `applitrack-${jobId}`,
-      title,
-      company: "Leander ISD",
-      location,
-      type,
-      ...(salary ? { payRange: salary } : {}),
-      description:
-        `${positionType || "District"} position at Leander ISD — ${location}. ` +
-        `Posted ${datePostedStr}${closingStr ? `; closing: ${closingStr}` : ""}. ` +
-        `See the Leander ISD job board for the full posting and application.`,
-      applyUrl: APPLITRACK_DETAIL(jobId),
-      postedAt,
-      ...(closesAt && Number.isFinite(closesAt) ? { closesAt } : {}),
-      source: "applitrack",
-      sourceUrl: APPLITRACK_LIST,
-    });
-  }
-  return jobs;
-}
+/* ---------------- Leander ISD via the official AppliTrack listing ---------------- */
 
 async function scrapeAppliTrack() {
-  const md = await firecrawlScrape(APPLITRACK_LIST);
-  const all = parseAppliTrackMarkdown(md);
-  const cutoff = Date.now() - ISD_MAX_AGE_DAYS * 24 * 3600 * 1000;
-  const fresh = all
-    .filter((j) => j.postedAt >= cutoff)
-    .sort((a, b) => b.postedAt - a.postedAt)
-    .slice(0, ISD_MAX_JOBS);
+  const html = await get(APPLITRACK_LIST_URL);
+  const all = parseAppliTrackListingHtml(html);
+  const fresh = selectFreshIsdJobs(all);
   console.error(`Leander ISD: ${all.length} postings parsed, ${fresh.length} within ${ISD_MAX_AGE_DAYS}d (cap ${ISD_MAX_JOBS})`);
-  if (fresh.length === 0) throw new Error("no fresh ISD postings parsed");
   return fresh;
 }
 
@@ -303,15 +207,15 @@ async function main() {
     prevByCompany.get(j.company).push(j);
   }
 
-  // Source compliance: each automatic path is off unless its flag is "1".
-  // When off, the previous postings are kept as history and the status
-  // file says the source is paused. See docs/source-compliance-runbook.md.
+  // Source compliance: NEOGOV stays off unless LEANDER_ENABLE_NEOGOV=1.
+  // Leander ISD AppliTrack uses the official public listing (runTracked).
+  // See docs/source-compliance-runbook.md.
   const gated = [
     await runGated("governmentjobs-city-of-leander",
       () => scrapeGovJobs("City of Leander", "City of Leander", false), prevByCompany.get("City of Leander") || []),
     await runGated("governmentjobs-williamson-county",
       () => scrapeGovJobs("Williamson County", "Williamson County", true), prevByCompany.get("Williamson County") || []),
-    await runGated("lisd-applitrack-jobs", () => scrapeAppliTrack(), prevByCompany.get("Leander ISD") || []),
+    await runTracked("lisd-applitrack-jobs", () => scrapeAppliTrack(), prevByCompany.get("Leander ISD") || []),
   ];
   recordPendingStatus(gated.map((g) => g.row));
   if (gated.some((g) => g.row.state === "failed")) process.exitCode = 1;

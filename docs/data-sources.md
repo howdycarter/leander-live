@@ -74,12 +74,12 @@ Every scraper sends the user agent `LeanderLive-Scraper/1.0 (community-events-bo
 
 ### Leander ISD jobs (AppliTrack)
 
-- **URL:** `https://www.applitrack.com/leander/onlineapp/JobPostings/view.asp?all=1` (line 221).
+- **URL:** `https://www.applitrack.com/leander/onlineapp/JobPostings/view.asp?all=1&embed=1` (the official noscript listing; `scripts/lib/applitrack-jobs.mjs`).
 - **Owner:** Frontline Education (AppliTrack), for Leander ISD.
-- **Permission basis:** robots permits crawling; reuse terms pending. robots.txt only disallows `/*/onlineapp/admin`. That is a crawler instruction, not permission to republish, and the terms of use have not been reviewed.
-- **Fetch method:** rendered through Firecrawl, which is an outside paid service called through a local helper (`scripts/scrape-civic.mjs:29-41` shows the same helper). Its cost and credentials sit outside this repo.
-- **Limits:** at most 60 postings, published within 150 days (lines 26, 27 and 287).
-- **Failure behavior:** previous ISD postings are kept (line 327).
+- **Permission basis:** robots permits this path. `https://www.applitrack.com/robots.txt` only disallows `/*/onlineapp/admin`. Frontline website terms URLs returned 404 on 2026-11-04; no scrape prohibition was found for the public listing. That is a crawler instruction plus an absent marketing ToS, not a written license to republish.
+- **Fetch method:** one GET of the server-rendered embed HTML. The JS shell at `view.asp?all=1` (no embed) is empty and fails the source. No Firecrawl or other paid renderer.
+- **Limits:** at most 60 postings, published within 150 days (`ISD_MAX_JOBS` / `ISD_MAX_AGE_DAYS` in `scripts/lib/applitrack-jobs.mjs`).
+- **Failure behavior:** malformed or empty listings throw; previous ISD postings are kept and the jobs scraper exits nonzero.
 
 ## Civic (`src/data/civic.json` and `src/data/news.json`, written by `scripts/scrape-civic.mjs`)
 
