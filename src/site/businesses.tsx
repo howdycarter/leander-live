@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +12,8 @@ import {
 import { ArrowUpRight, Building2, ChevronRight, MapPin, Search, Star } from "lucide-react";
 import type { Business } from "../data/types";
 import businessesRaw from "../data/businesses.json";
+import { loadDataset } from "../data/runtime";
+import { BusinessChat } from "./businessChat";
 import { CompanyMark, FeaturedJobBadge, formatDate } from "./content";
 import { ChipGroup } from "@/components/arc/chip-group/chip-group";
 import { EmptyState } from "@/components/arc/empty-state/empty-state";
@@ -153,33 +155,38 @@ function BusinessDetailContent({ business }: { business: BusinessItem }) {
   );
 }
 
-export function BusinessesBoard() {
+export function BusinessesBoard({
+  businesses,
+  onSelect,
+}: {
+  businesses: BusinessItem[];
+  onSelect: (b: BusinessItem) => void;
+}) {
   const [searchParams] = useSearchParams();
   const [query, setQuery] = useState("");
   // Hero quick chips land here with ?cat= — honor a real category name
   // (e.g. "Restaurants & Food") as the initial filter, ignore the rest.
   const [category, setCategory] = useState<string>(() => {
     const cat = searchParams.get("cat");
-    return cat && ALL_BUSINESSES.some((b) => b.category === cat) ? cat : "All";
+    return cat && businesses.some((b) => b.category === cat) ? cat : "All";
   });
-  const [selected, setSelected] = useState<BusinessItem | null>(null);
 
   const categories = useMemo(() => {
     const counts = new Map<string, number>();
-    for (const b of ALL_BUSINESSES) counts.set(b.category, (counts.get(b.category) ?? 0) + 1);
+    for (const b of businesses) counts.set(b.category, (counts.get(b.category) ?? 0) + 1);
     return [...counts.entries()]
       .sort((a, b) => b[1] - a[1])
       .map(([c]) => c);
-  }, []);
+  }, [businesses]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return ALL_BUSINESSES.filter((b) => {
+    return businesses.filter((b) => {
       if (category !== "All" && b.category !== category) return false;
       if (q && !`${b.name} ${b.category} ${b.address}`.toLowerCase().includes(q)) return false;
       return true;
     });
-  }, [query, category]);
+  }, [query, category, businesses]);
 
   return (
     <div className="@container">
@@ -240,12 +247,55 @@ export function BusinessesBoard() {
             <BusinessRow
               key={business.id}
               business={business}
-              onSelect={() => setSelected(business)}
+              onSelect={() => onSelect(business)}
             />
           ))}
         </div>
       )}
+    </div>
+  );
+}
+/* ---------------- business directory page ---------------- */
 
+function sortBusinesses(rows: Business[]): Business[] {
+  return rows
+    .slice()
+    .sort(
+      (a, b) =>
+        Number(b.featured) - Number(a.featured) || a.name.localeCompare(b.name),
+    );
+}
+
+export function BusinessesPage() {
+  // Runtime-first data: the Dragon Automation pipeline publishes the
+  // directory to Convex; the baked JSON is the first paint + fallback.
+  const [businesses, setBusinesses] = useState<Business[]>(ALL_BUSINESSES);
+  const [selected, setSelected] = useState<BusinessItem | null>(null);
+
+  useEffect(() => {
+    let live = true;
+    loadDataset<Business>("businesses", ALL_BUSINESSES).then((rows) => {
+      if (live && rows !== ALL_BUSINESSES) setBusinesses(sortBusinesses(rows));
+    });
+    return () => {
+      live = false;
+    };
+  }, []);
+
+  return (
+    <>
+      <PageHero
+        eyebrow="Local directory"
+        title="Businesses in Leander"
+        subtitle="Ask a question or browse the directory — local storefronts, kitchens, salons, and services from Texas permit records. Confirm current details with each business."
+      />
+      <main id="main-content" tabIndex={-1} className="mx-auto max-w-6xl px-4 py-6">
+        <BusinessChat businesses={businesses} onSelect={setSelected} />
+        <h2 className="mb-3 text-lg font-extrabold tracking-tight text-navy">
+          Browse the full directory
+        </h2>
+        <BusinessesBoard businesses={businesses} onSelect={setSelected} />
+      </main>
       <Dialog
         open={selected !== null}
         onOpenChange={(open) => {
@@ -254,22 +304,6 @@ export function BusinessesBoard() {
       >
         {selected && <BusinessDetailContent business={selected} />}
       </Dialog>
-    </div>
-  );
-}
-/* ---------------- business directory page ---------------- */
-
-export function BusinessesPage() {
-  return (
-    <>
-      <PageHero
-        eyebrow="Local directory"
-        title="Businesses in Leander"
-        subtitle="Explore local storefronts, kitchens, salons, and services from Texas permit records. Confirm current details with each business."
-      />
-      <main id="main-content" tabIndex={-1} className="mx-auto max-w-6xl px-4 py-6">
-        <BusinessesBoard />
-      </main>
     </>
   );
 }
