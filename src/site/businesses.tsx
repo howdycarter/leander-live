@@ -17,6 +17,7 @@ import { ChipGroup } from "@/components/arc/chip-group/chip-group";
 import { EmptyState } from "@/components/arc/empty-state/empty-state";
 import { cn } from "@/lib/utils";
 import { PageHero } from "./conceptA";
+import { BusinessChat } from "./businessChat";
 
 /* Business directory data lives in this module on purpose: it is the site's
    largest dataset (800+ permit records) and this module is route-split, so
@@ -153,7 +154,13 @@ function BusinessDetailContent({ business }: { business: BusinessItem }) {
   );
 }
 
-export function BusinessesBoard() {
+export function BusinessesBoard({
+  selected,
+  onSelect,
+}: {
+  selected: BusinessItem | null;
+  onSelect: (business: BusinessItem | null) => void;
+}) {
   const [searchParams] = useSearchParams();
   const [query, setQuery] = useState("");
   // Hero quick chips land here with ?cat= — honor a real category name
@@ -162,7 +169,6 @@ export function BusinessesBoard() {
     const cat = searchParams.get("cat");
     return cat && ALL_BUSINESSES.some((b) => b.category === cat) ? cat : "All";
   });
-  const [selected, setSelected] = useState<BusinessItem | null>(null);
 
   const categories = useMemo(() => {
     const counts = new Map<string, number>();
@@ -240,7 +246,7 @@ export function BusinessesBoard() {
             <BusinessRow
               key={business.id}
               business={business}
-              onSelect={() => setSelected(business)}
+              onSelect={() => onSelect(business)}
             />
           ))}
         </div>
@@ -249,7 +255,7 @@ export function BusinessesBoard() {
       <Dialog
         open={selected !== null}
         onOpenChange={(open) => {
-          if (!open) setSelected(null);
+          if (!open) onSelect(null);
         }}
       >
         {selected && <BusinessDetailContent business={selected} />}
@@ -260,15 +266,26 @@ export function BusinessesBoard() {
 /* ---------------- business directory page ---------------- */
 
 export function BusinessesPage() {
+  const [selected, setSelected] = useState<BusinessItem | null>(null);
   return (
     <>
       <PageHero
         eyebrow="Local directory"
         title="Businesses in Leander"
-        subtitle="Explore local storefronts, kitchens, salons, and services from Texas permit records. Confirm current details with each business."
+        subtitle="Ask in plain language — answers name real businesses from Texas permit records (name, category, address, ZIP, and permit dates only). The full directory is below if you would rather browse."
       />
       <main id="main-content" tabIndex={-1} className="mx-auto max-w-6xl px-4 py-6">
-        <BusinessesBoard />
+        <BusinessChat
+          listings={ALL_BUSINESSES}
+          onSelectBusiness={(id) => {
+            const listing = ALL_BUSINESSES.find((business) => business.id === id) ?? null;
+            setSelected(listing);
+          }}
+        />
+        <h2 className="font-display mb-3 text-xl font-extrabold text-navy">
+          Browse the directory
+        </h2>
+        <BusinessesBoard selected={selected} onSelect={setSelected} />
       </main>
     </>
   );
