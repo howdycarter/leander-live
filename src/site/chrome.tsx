@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
-import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { AnnouncementBar } from "@/components/arc/announcement-bar/announcement-bar";
 import {
   Briefcase,
   CalendarDays,
@@ -20,7 +21,8 @@ import {
   openConsentBanner,
   setAnalyticsConsent,
 } from "./consent";
-import { ALL_EVENTS } from "./content";
+import { ALL_EVENTS, ALL_JOBS } from "./content";
+import { overlapsDateFilter } from "./eventTime";
 
 /* ---------------- brand ---------------- */
 
@@ -47,12 +49,80 @@ const NAV_LINKS = [
   { to: "/about", label: "About" },
 ];
 
+/* ---------------- town announcement bar (Arc UI) ---------------- */
+
+/** Slim Arc AnnouncementBar above the header, rotating real board
+    counts. It scrolls away with the page; the header below stays
+    sticky. Dismissal is remembered under the bar's id. */
+function TownAnnouncement() {
+  const navigate = useNavigate();
+  const { openSubmit } = useSiteActions();
+  const weekendCount = useMemo(
+    () => ALL_EVENTS.filter((e) => overlapsDateFilter(e, "This Weekend", Date.now())).length,
+    [],
+  );
+  return (
+    <AnnouncementBar
+      id="town-board-2026-11"
+      tone="inverted"
+      label="Town announcements"
+      messages={[
+        {
+          id: "events",
+          message: (
+            <>
+              <strong>{ALL_EVENTS.length} events</strong>&nbsp;coming up in Leander
+            </>
+          ),
+          action: { label: "Browse events", onClick: () => navigate("/events") },
+        },
+        ...(weekendCount > 0
+          ? [
+              {
+                id: "weekend",
+                message: (
+                  <>
+                    <strong>{weekendCount}</strong>&nbsp;
+                    {weekendCount === 1 ? "event" : "events"} this weekend
+                  </>
+                ),
+                action: { label: "See the weekend", onClick: () => navigate("/events?when=weekend") },
+              },
+            ]
+          : []),
+        {
+          id: "jobs",
+          message: (
+            <>
+              <strong>{ALL_JOBS.length} job listings</strong>&nbsp;collected around town
+            </>
+          ),
+          action: { label: "See jobs", onClick: () => navigate("/jobs") },
+        },
+        {
+          id: "submit",
+          message: <>Hosting something? Put it on the board.</>,
+          action: {
+            label: "Submit an event",
+            onClick: () => {
+              trackEvent("submit_event_opened");
+              openSubmit();
+            },
+          },
+        },
+      ]}
+    />
+  );
+}
+
 function Header() {
   const { openSubmit } = useSiteActions();
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/85">
-      <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-3 px-4">
-        <BrandLockup className="h-9" />
+    <>
+      <TownAnnouncement />
+      <header className="sticky top-0 z-40 border-b border-border bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/85">
+      <div className="mx-auto flex h-[4.25rem] max-w-6xl items-center justify-between gap-3 px-4 md:h-20">
+        <BrandLockup className="h-12 md:h-14" />
         {/* Nav appears at md (768px), not lg: the bottom TabBar is md:hidden,
             so gating the header nav to lg left 768–1023px viewports
             (unfolded foldables, small tablets) with no navigation at all. */}
@@ -88,7 +158,8 @@ function Header() {
           </Button>
         </div>
       </div>
-    </header>
+      </header>
+    </>
   );
 }
 
@@ -122,7 +193,7 @@ function Footer() {
       <div className="mx-auto grid max-w-6xl grid-cols-2 gap-x-6 gap-y-8 px-4 py-8 sm:py-12 lg:grid-cols-[1.4fr_1fr_1fr_1fr] lg:gap-10">
         <div className="col-span-2 lg:col-span-1">
           <span className="inline-flex rounded-xl bg-white px-2.5 py-1.5">
-            <BrandLockup className="h-9" />
+            <BrandLockup className="h-10" />
           </span>
           <p className="mt-3 max-w-xs text-body leading-relaxed text-white/75">
             Real events, local people, a stronger Leander — one community board for

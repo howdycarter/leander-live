@@ -16,6 +16,12 @@ import {
   Users,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { ChipGroup } from "@/components/arc/chip-group/chip-group";
+import { EmptyState } from "@/components/arc/empty-state/empty-state";
+import { MetricCard } from "@/components/arc/metric-card/metric-card";
+import { MetricTicker } from "@/components/arc/metric-ticker/metric-ticker";
+import civicRaw from "../data/civic.json";
+import newsRaw from "../data/news.json";
 import { overlapsDateFilter } from "./eventTime";
 import { ALL_EVENTS, ALL_JOBS, CompanyMark, EventCard, plainText, type EventItem, type JobItem } from "./content";
 import { useSavedEvents } from "./state";
@@ -226,6 +232,30 @@ export function IconTrio({ overlap = false }: { overlap?: boolean }) {
         </Link>
       ))}
     </div>
+  );
+}
+
+/* ---------------- town numbers ticker (Arc UI Pro) ---------------- */
+
+/** Arc MetricTicker band carrying the board's real counts — the same
+    numbers the hero and rail cite, drawn from the data files. */
+export function TownTicker() {
+  return (
+    <section aria-label="Leander by the numbers" className="mt-10 border-y border-border bg-white sm:mt-14">
+      <div className="mx-auto max-w-6xl px-4 py-2.5">
+        <MetricTicker
+          label="Leander by the numbers"
+          overflow="marquee"
+          speed={28}
+          metrics={[
+            { id: "events", label: "Upcoming events", value: ALL_EVENTS.length },
+            { id: "jobs", label: "Job listings collected", value: ALL_JOBS.length },
+            { id: "civic", label: "Civic meetings & boards", value: civicRaw.length },
+            { id: "news", label: "City news stories", value: newsRaw.length },
+          ]}
+        />
+      </div>
+    </section>
   );
 }
 
@@ -515,6 +545,18 @@ export function CommunityRail() {
               Be Part of It <ArrowRight className="h-4 w-4" />
             </Link>
           </Button>
+          <div className="mt-6 grid grid-cols-2 gap-3">
+            <MetricCard
+              label="Upcoming events"
+              value={ALL_EVENTS.length}
+              context="On the board right now"
+            />
+            <MetricCard
+              label="Job listings"
+              value={ALL_JOBS.length}
+              context="Collected around town"
+            />
+          </div>
           <ul className="mt-6 grid grid-cols-3 gap-2">
             {RAIL_VALUES.map(({ Icon, label }) => (
               <li
@@ -579,33 +621,23 @@ export function FeaturedEvents({
         )}
       >
       <div className="@container">
-      <div
-        className="-mx-4 mb-6 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0"
-        role="group"
-        aria-label="Filter events"
-      >
-        {FILTER_CHIPS.map((c) => (
-          <Button
-            key={c}
-            size="sm"
-            variant={chip === c ? "default" : "outline"}
-            className={cn(
-              "shrink-0 rounded-full",
-              chip === c
-                ? "bg-navy text-white hover:bg-navy/90"
-                : "border-border bg-white/70 hover:bg-white"
-            )}
-            onClick={() => setChip(c)}
-          >
-            {c}
-          </Button>
-        ))}
+      <div className="-mx-4 mb-6 overflow-x-auto px-4 pb-1 sm:mx-0 sm:overflow-visible sm:px-0 sm:pb-0">
+        <ChipGroup
+          label="Filter events"
+          multiple={false}
+          options={FILTER_CHIPS.map((c) => ({ value: c, label: c }))}
+          value={[chip]}
+          onValueChange={(v) =>
+            setChip((v[0] ?? "All") as (typeof FILTER_CHIPS)[number])
+          }
+        />
       </div>
 
       {filtered.length === 0 ? (
-        <Card className="border-dashed border-border">
-          <CardContent className="p-8 text-center text-sm text-stone-600">
-            Nothing in “{chip}” right now —{" "}
+        <EmptyState
+          title={`Nothing in “${chip}” right now`}
+          description="That filter is empty at the moment — the full board has more going on."
+          action={
             <Button
               variant="link"
               className="h-auto p-0 font-semibold text-primary underline"
@@ -613,9 +645,8 @@ export function FeaturedEvents({
             >
               show everything
             </Button>
-            .
-          </CardContent>
-        </Card>
+          }
+        />
       ) : (
         <div className="grid grid-cols-1 gap-3 @min-[40rem]:grid-cols-2 @min-[68rem]:grid-cols-3 pane-split sm:gap-5">
           {filtered.map((event: EventItem, i: number) => (

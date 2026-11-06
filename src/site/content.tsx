@@ -33,6 +33,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
+import SegmentedControl from "@/components/arc/segmented-control/segmented-control";
+import { ChipGroup } from "@/components/arc/chip-group/chip-group";
+import { EmptyState } from "@/components/arc/empty-state/empty-state";
 import {
   ArrowUpRight,
   Bell,
@@ -675,13 +678,14 @@ export function FeedFilters({
         label="Search events"
       />
 
-      {/* Desktop filter row */}
-      <div className="hidden items-center gap-2 md:flex" role="group" aria-label="Filter events">
-        {DATE_FILTERS.map((f) => (
-          <FilterPill key={f} active={dateFilter === f} onClick={() => setDateFilter(f)}>
-            {f}
-          </FilterPill>
-        ))}
+      {/* Desktop filter row — Arc SegmentedControl for the date range */}
+      <div className="hidden items-center gap-2 md:flex">
+        <SegmentedControl
+          label="Filter by date"
+          options={DATE_FILTERS.map((f) => ({ value: f, label: f }))}
+          value={dateFilter}
+          onValueChange={(v) => setDateFilter(v as DateFilter)}
+        />
         <Separator orientation="vertical" className="mx-2 h-6" />
         <Select value={category} onValueChange={setCategory}>
           <SelectTrigger
@@ -1205,34 +1209,33 @@ export function JobsBoard() {
         </Button>
       </div>
 
-      <div
-        className="-mx-4 mb-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:px-0"
-        role="group"
-        aria-label="Filter by job type"
-      >
-        {["All", ...JOB_TYPES].map((t) => (
-          <FilterPill
-            key={t}
-            active={typeFilter === t}
-            onClick={() => setTypeFilter(t)}
-            className="shrink-0"
-          >
-            {t === "All" ? "All types" : JOB_TYPE_LABEL[t]}
-          </FilterPill>
-        ))}
+      <div className="-mx-4 mb-4 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0">
+        <ChipGroup
+          label="Filter by job type"
+          multiple={false}
+          options={["All", ...JOB_TYPES].map((t) => ({
+            value: t,
+            label: t === "All" ? "All types" : JOB_TYPE_LABEL[t],
+          }))}
+          value={[typeFilter]}
+          onValueChange={(v) => setTypeFilter(v[0] ?? "All")}
+        />
       </div>
 
       {filtered.length === 0 ? (
-        <Card>
-          <CardContent className="pt-6">
-            <h3 className="font-semibold">No jobs here yet</h3>
-            <p className="text-sm text-muted-foreground">
-              {typeFilter !== "All"
-                ? "Try a different job type — or post the opening yourself."
-                : "Be the first to post a local opening."}
-            </p>
-          </CardContent>
-        </Card>
+        <EmptyState
+          title="No jobs here yet"
+          description={
+            typeFilter !== "All"
+              ? "Try a different job type — or post the opening yourself."
+              : "Be the first to post a local opening."
+          }
+          action={
+            <Button onClick={() => setPostOpen(true)} className="rounded-full font-bold">
+              <Plus className="h-4 w-4" /> Post a job
+            </Button>
+          }
+        />
       ) : (
         <div className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card shadow-[0_1px_2px_rgba(22,50,79,0.07)] @min-[42rem]:grid @min-[42rem]:grid-cols-2 @min-[42rem]:gap-3 @min-[42rem]:divide-y-0 @min-[42rem]:overflow-visible @min-[42rem]:rounded-none @min-[42rem]:border-0 @min-[42rem]:bg-transparent @min-[42rem]:shadow-none @min-[64rem]:grid-cols-3">
           {filtered.map((job) => (

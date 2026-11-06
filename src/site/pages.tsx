@@ -28,11 +28,13 @@ import {
   JobsPreview,
   NavyCtaBand,
   PageHero,
+  TownTicker,
   WeekendSpotlight,
 } from "./conceptA";
 import { CityHallPage } from "./cityHall";
 import { EventDetailPage } from "./eventDetail";
 import { useSavedEvents } from "./state";
+import { EmptyState } from "@/components/arc/empty-state/empty-state";
 
 /* ---------------- home — Concept A: Bright & Bold ---------------- */
 
@@ -41,6 +43,7 @@ export function HomePage() {
     <main id="main-content" tabIndex={-1}>
       <HomeHero />
       <IconTrio overlap />
+      <TownTicker />
       <WeekendSpotlight />
       <FeaturedEvents
         title="Upcoming in Leander"
@@ -140,18 +143,21 @@ export function EventsPage() {
         {hasFilters ? " matching your filters" : " upcoming"}
       </p>
       {filtered.length === 0 ? (
-        <Card>
-          <CardContent className="pt-6">
-            <h3 className="font-semibold">
-              {savedOnly ? "No saved events yet" : "No events match those filters"}
-            </h3>
-            <p className="text-sm text-muted-foreground">
-              {savedOnly
-                ? "Tap the heart on any event to save it here."
-                : "Try widening the dates or categories — or submit the event yourself."}
-            </p>
-          </CardContent>
-        </Card>
+        <EmptyState
+          title={savedOnly ? "No saved events yet" : "No events match those filters"}
+          description={
+            savedOnly
+              ? "Tap the heart on any event to save it here."
+              : "Try widening the dates or categories — or submit the event yourself."
+          }
+          action={
+            hasFilters ? (
+              <Button onClick={clearFilters} className="rounded-full font-bold">
+                View all events
+              </Button>
+            ) : undefined
+          }
+        />
       ) : (
         <div className="grid grid-cols-1 gap-3 @min-[40rem]:grid-cols-2 @min-[68rem]:grid-cols-3 pane-split sm:gap-5">
           {filtered.map((event) => (

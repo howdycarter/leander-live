@@ -1,7 +1,6 @@
 import { useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
   Dialog,
@@ -13,7 +12,9 @@ import {
 import { ArrowUpRight, Building2, ChevronRight, MapPin, Search, Star } from "lucide-react";
 import type { Business } from "../data/types";
 import businessesRaw from "../data/businesses.json";
-import { CompanyMark, FeaturedJobBadge, FilterPill, formatDate } from "./content";
+import { CompanyMark, FeaturedJobBadge, formatDate } from "./content";
+import { ChipGroup } from "@/components/arc/chip-group/chip-group";
+import { EmptyState } from "@/components/arc/empty-state/empty-state";
 import { cn } from "@/lib/utils";
 import { PageHero } from "./conceptA";
 
@@ -203,33 +204,36 @@ export function BusinessesBoard() {
         />
       </div>
 
-      <div
-        className="-mx-4 mb-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:px-0"
-        role="group"
-        aria-label="Filter by category"
-      >
-        {["All", ...categories].map((c) => (
-          <FilterPill
-            key={c}
-            active={category === c}
-            onClick={() => setCategory(c)}
-            className="shrink-0"
-          >
-            {c === "All" ? "All categories" : c}
-          </FilterPill>
-        ))}
+      <div className="-mx-4 mb-4 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0">
+        <ChipGroup
+          label="Filter by category"
+          multiple={false}
+          options={["All", ...categories].map((c) => ({
+            value: c,
+            label: c === "All" ? "All categories" : c,
+          }))}
+          value={[category]}
+          onValueChange={(v) => setCategory(v[0] ?? "All")}
+        />
       </div>
 
       {filtered.length === 0 ? (
-        <Card>
-          <CardContent className="pt-6">
-            <h3 className="font-semibold">No businesses match that</h3>
-            <p className="text-sm text-muted-foreground">
-              Try a different search or category — the directory covers every
-              storefront and service business with an active Leander sales-tax permit.
-            </p>
-          </CardContent>
-        </Card>
+        <EmptyState
+          title="No businesses match that"
+          description="Try a different search or category — the directory covers every storefront and service business with an active Leander sales-tax permit."
+          action={
+            <Button
+              variant="outline"
+              className="rounded-full font-semibold"
+              onClick={() => {
+                setQuery("");
+                setCategory("All");
+              }}
+            >
+              Clear search & filters
+            </Button>
+          }
+        />
       ) : (
         <div className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card shadow-[0_1px_2px_rgba(22,50,79,0.07)] @min-[42rem]:grid @min-[42rem]:grid-cols-2 @min-[42rem]:gap-3 @min-[42rem]:divide-y-0 @min-[42rem]:overflow-visible @min-[42rem]:rounded-none @min-[42rem]:border-0 @min-[42rem]:bg-transparent @min-[42rem]:shadow-none @min-[64rem]:grid-cols-3">
           {filtered.map((business) => (
