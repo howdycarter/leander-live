@@ -9,7 +9,8 @@
  * badges) read as a generic AI template, so v2 moves to:
  *   - warm paper-white surfaces with pure-white cards and real borders
  *   - navy as the structural color (headings, header/footer, chips)
- *   - burnt orange reserved for calls to action and links
+ *   - Leander blue as the primary color (calls to action and links) —
+ *     Chris's ruling, Nov 6, 2026, replacing the burnt orange primary
  *   - gold for featured/sponsored highlights
  *   - Archivo (geometric grotesque) for UI/body type; display headlines
  *     are Fraunces (serif) per the Oct 31, 2026 mockup-fidelity pass —
@@ -29,11 +30,14 @@
   --color-popover: #ffffff;
   --color-popover-foreground: #1d2733;
 
-  /* Burnt orange — CTAs and links only. */
-  --color-primary: #bc4519;
+  /* Leander blue — primary: CTAs and links. Sampled from the site's own
+   * logo lockup (public/brand/logo-leander-live.png): median of 43,678
+   * opaque blue pixels = #002454 (Chris's ruling, Nov 6, 2026). */
+  --color-primary: #002454;
   --color-primary-foreground: #ffffff;
 
-  /* Navy — structure: headings, footer, active states. */
+  /* Mid blue — secondary surfaces/buttons; a lighter tier of the same
+   * blue family so primary keeps its hierarchy. */
   --color-secondary: #16324f;
   --color-secondary-foreground: #ffffff;
 
@@ -49,10 +53,12 @@
 
   --color-border: #e2ddd2;
   --color-input: #cfc8b8;
-  --color-ring: #bc4519;
+  --color-ring: #002454;
 
   --color-cream: #fbfaf7;
-  --color-navy: #16324f;
+  /* Aligned to the logo lockup blue (#002454) this scale claims to
+   * derive from; previously the lighter #16324f (now --color-secondary). */
+  --color-navy: #002454;
   --color-navy-deep: #0e2236;
   --color-gold: #d98a1f;
 
@@ -147,14 +153,16 @@
   --border: #e2ddd2;
   --border-subtle: #efece5;
   --border-strong: #cfc8b8;
-  --accent: #bc4519;
-  --accent-strong: #a73c16;
-  --accent-subtle: #bc451914;
+  /* UIARC accent = the Leander blue primary (#002454, logo lockup).
+   * --accent-strong is a derived darker shade for hover/pressed states. */
+  --accent: #002454;
+  --accent-strong: #001a3e;
+  --accent-subtle: #00245414;
   --accent-foreground: #ffffff;
-  --control-on: #bc4519;
+  --control-on: #002454;
   --control-glyph: #ffffff;
   --control-track: #e2ddd2;
-  --focus-outline: #bc4519;
+  --focus-outline: #002454;
   --radius-control: .7rem;
   --radius-panel: 1rem;
   --radius-surface: 1rem;

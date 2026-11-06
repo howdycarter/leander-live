@@ -82,7 +82,10 @@ test('saved events keep original empty state and browser-local model',()=>{
 });
 test('original brand tokens and Archivo remain in product theme',async()=>{
  const css=await fs.readFile(new URL('../src/index.css',import.meta.url),'utf8');
- for(const s of ['--color-background: #f6f4f0','--color-primary: #bc4519','--color-navy: #16324f','--color-gold: #d98a1f','--font-sans: "Archivo"','--font-body: "Archivo"'])assert.ok(css.includes(s),s);
+ /* Primary/navy updated to Leander blue #002454 (logo lockup) per Chris's
+  * Nov 6, 2026 ruling, superseding the burnt-orange primary this test
+  * originally pinned. --color-secondary keeps the #16324f mid-blue tier. */
+ for(const s of ['--color-background: #f6f4f0','--color-primary: #002454','--color-navy: #002454','--color-secondary: #16324f','--color-gold: #d98a1f','--font-sans: "Archivo"','--font-body: "Archivo"'])assert.ok(css.includes(s),s);
 });
 
 test('compiled cascade preserves the original Tailwind heading scale against Arc token collisions',async()=>{

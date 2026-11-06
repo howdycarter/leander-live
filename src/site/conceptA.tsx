@@ -33,7 +33,8 @@ import { ListingStatus } from "./sourceStatus";
    Navy #16324f, amber #d98a1f, rust #b5431f on warm cream.
    ================================================================ */
 
-export const NAVY = "#16324f";
+/* Leander blue, sampled from the logo lockup (see src/index.css). */
+export const NAVY = "#002454";
 const SUNSET = "/brand/hero-old-town-sunset.jpg";
 
 /* ---------------- slim interior-page hero ---------------- */
