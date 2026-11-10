@@ -14,7 +14,9 @@
  *      new Leander outlets = business-opening radar; vanished outlets =
  *      possible closures. NAICS-gated so home-office LLC noise stays low.
  *   2. Diff of src/data/civic.json — newly posted City Council / Planning &
- *      Zoning / LISD Board meetings (agenda posted = decision coming).
+ *      Zoning / LISD Board meetings (agenda posted = decision coming), plus
+ *      minutesUrl / agenda URL changes that queue a summary-draft (never
+ *      auto-published). Drafts land in signals/summary-drafts.json.
  *   3. Diff of src/data/news.json — city News Flash items with emergency or
  *      decision keywords (closures, delays, votes, bonds).
  *   4. Google News RSS (Leander ISD / City of Leander / development queries),
@@ -31,6 +33,11 @@
  */
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
 import { signalGateRows, sourceEnabled } from "./lib/source-gates.mjs";
+import { detectMinutesSignals } from "./lib/minutes-detect.mjs";
+import {
+  draftFromMinutesSignal,
+  upsertDraft,
+} from "./lib/decision-summary.mjs";
 import { readStatus, recordStatus } from "./lib/source-status-file.mjs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
@@ -41,6 +48,7 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const SIG_DIR = join(ROOT, "signals");
 const QUEUE_OUT = join(SIG_DIR, "queue.json");
 const LASTRUN_OUT = join(SIG_DIR, "last-run.json");
+const SUMMARY_DRAFTS_OUT = join(SIG_DIR, "summary-drafts.json");
 const TAX_STATE = join(SIG_DIR, "state-sales-tax.json");
 const MISC_STATE = join(SIG_DIR, "state-misc.json");
 const UA = "LeanderLive-Scraper/1.0 (community-events-bot; contact chris@howdycarter.com)";
@@ -261,6 +269,21 @@ function scanDataDiffs(signals, misc) {
     }
   }
   misc.dataIds = { civic: civic.map((m) => m.id), news: news.map((n) => n.id) };
+
+  const minutes = detectMinutesSignals(misc.civicRecords || [], civic, Date.now());
+  if (!minutes.baseline) {
+    for (const signal of minutes.signals) {
+      signals.push(signal);
+      if (signal.kind === "summary-draft") {
+        const drafts = readJson(SUMMARY_DRAFTS_OUT, []);
+        writeJson(
+          SUMMARY_DRAFTS_OUT,
+          upsertDraft(drafts, draftFromMinutesSignal(signal)),
+        );
+      }
+    }
+  }
+  misc.civicRecords = minutes.snapshots;
 }
 
 /* ---------------- 4. Google News RSS ---------------- */

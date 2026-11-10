@@ -9,6 +9,11 @@ import { formatDate, formatTime } from "./content";
 import type { CivicMeeting, NewsItem } from "../data/types";
 import meetingsRaw from "../data/civic.json";
 import newsRaw from "../data/news.json";
+import summariesRaw from "../data/decision-summaries.json";
+import {
+  publishedSummaries,
+  type DecisionSummary,
+} from "./decisionSummaries";
 
 const MEETINGS: CivicMeeting[] = (meetingsRaw as CivicMeeting[])
   .filter((m) => m.startsAt >= Date.now() - 24 * 60 * 60 * 1000)
@@ -18,6 +23,10 @@ const NEWS: NewsItem[] = (newsRaw as NewsItem[])
   .slice()
   .sort((a, b) => b.publishedAt - a.publishedAt)
   .slice(0, 10);
+
+const PUBLISHED_SUMMARIES = publishedSummaries(
+  summariesRaw as DecisionSummary[],
+);
 
 function MeetingCard({ meeting }: { meeting: CivicMeeting }) {
   return (
@@ -165,6 +174,67 @@ export function CityHallPage() {
                     ))}
                   </div>
                 </div>
+              ))}
+            </div>
+          )}
+        </section>
+
+        <section aria-label="Decision summaries" className="mt-12">
+          <div className="mb-4">
+            <h2 className="font-display text-2xl font-bold text-navy">
+              After the meeting
+            </h2>
+            <p className="mt-1 text-[15px] text-stone-600">
+              Plain-English notes of what City Council and the LISD board
+              decided, published only after a person reviews the draft. Minutes
+              detection never posts these on its own.
+            </p>
+          </div>
+          {PUBLISHED_SUMMARIES.length === 0 ? (
+            <Card className="border-dashed border-border">
+              <CardContent className="p-8 text-sm text-stone-600">
+                No reviewed summaries are published yet. When minutes are
+                posted, a draft is queued for review — it will not appear here
+                until someone writes five bullets and publishes them.
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+              {PUBLISHED_SUMMARIES.map((summary) => (
+                <Card key={summary.id}>
+                  <CardHeader>
+                    <CardTitle className="text-lg">{summary.body}</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <p className="text-sm text-muted-foreground">{summary.title}</p>
+                    <ol className="list-decimal space-y-2 pl-5 text-[15px]">
+                      {summary.bullets.map((bullet) => (
+                        <li key={bullet}>
+                          {bullet}{" "}
+                          {summary.minutesUrl ? (
+                            <a
+                              href={summary.minutesUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="font-semibold text-primary underline"
+                            >
+                              Minutes
+                            </a>
+                          ) : summary.agendaUrl ? (
+                            <a
+                              href={summary.agendaUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="font-semibold text-primary underline"
+                            >
+                              Agenda
+                            </a>
+                          ) : null}
+                        </li>
+                      ))}
+                    </ol>
+                  </CardContent>
+                </Card>
               ))}
             </div>
           )}
