@@ -366,7 +366,7 @@ const ROUTE_META: Record<string, { title: string; description: string }> = {
   "/businesses": {
     title: "Businesses in Leander, TX — Leander Live",
     description:
-      "The Leander business directory — restaurants, shops, salons, services, and new openings, built from official Texas sales-tax permit records — confirm details with each business.",
+      "Ask in plain language, or browse Leander restaurants, shops, salons, and services from official Texas sales-tax permit records — confirm details with each business.",
   },
   "/city-hall": {
     title: "City Hall — Leander Live",
