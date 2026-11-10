@@ -44,7 +44,7 @@ function asStatus(value: string): OpeningStatus {
 function statusClass(status: OpeningStatus): string {
   switch (status) {
     case "opening":
-      return "font-bold text-[#bc4519]";
+      return "font-bold text-primary";
     case "permit filed":
       return "font-bold text-navy/70";
     default: {
