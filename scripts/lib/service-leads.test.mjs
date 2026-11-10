@@ -38,8 +38,17 @@ test("launch categories stay waitlisted and privacy/drawing gates stay off", () 
     ["cleaning", false],
     ["electrical", false],
   ]);
-  assert.equal(AD_PACKAGES.find((p) => p.id === "service-leads").unavailable, true);
-  assert.equal(AD_PACKAGES.find((p) => p.id === "service-leads").stripeUrl, "");
+  // Flat posting model (Chris, 2026-11-06; reaffirmed 2026-11-10): the
+  // retired "service-leads" package stays retired — the only packages are
+  // the two flat posting tiers, $5/month and $10/month.
+  assert.equal(AD_PACKAGES.find((p) => p.id === "service-leads"), undefined);
+  assert.deepEqual(
+    AD_PACKAGES.map((p) => [p.id, p.price, p.cadence]),
+    [
+      ["standard-posting", 5, "/month"],
+      ["sponsored-posting", 10, "/month"],
+    ],
+  );
 });
 
 test("service request validation requires a Leander ZIP and a real category", () => {
