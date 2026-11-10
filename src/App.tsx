@@ -14,6 +14,7 @@ import {
   HomePage,
   JobsPage,
   NotFoundPage,
+  OpeningsPage,
   PrivacyPage,
   RemindersPage,
   NewNearYouPage,
@@ -69,6 +70,7 @@ export default function App() {
                   </Suspense>
                 }
               />
+              <Route path="openings" element={<OpeningsPage />} />
               <Route path="city-hall" element={<CityHallPage />} />
               <Route path="community" element={<CommunityPage />} />
               <Route path="reminders" element={<RemindersPage />} />

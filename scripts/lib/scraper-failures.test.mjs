@@ -11,7 +11,7 @@ function fixture(t) {
   cpSync(new URL('../', import.meta.url), join(root,'scripts'), {recursive:true});
   symlinkSync(new URL('../../node_modules', import.meta.url).pathname, join(root,'node_modules'));
   mkdirSync(join(root,'src/data'), {recursive:true});
-  for (const name of ['events','jobs','civic','news','businesses','businesses-manual','source-status']) {
+  for (const name of ['events','jobs','civic','news','businesses','businesses-manual','openings','source-status']) {
     writeFileSync(join(root,`src/data/${name}.json`),'[]');
   }
   writeFileSync(join(root,'offline.mjs'), `globalThis.fetch = async () => { throw new Error('fixture offline'); };`);
@@ -237,3 +237,31 @@ for (const name of ['events','jobs','civic','businesses','signals']) {
     assert.equal(f.run(name).status,1);
   });
 }
+
+test('signals: empty permit feed publishes an empty openings radar instead of throwing', (t) => {
+  const f = fixture(t);
+  f.run('signals');
+  assert.deepEqual(f.read('openings'), []);
+});
+
+test('signals: a permit-only business is published as permit filed, never opening', (t) => {
+  const f = fixture(t);
+  const permitIssuedAt = Date.now() - 12 * 86400000;
+  f.write('businesses', [{
+    id: 'biz-32106877544-1',
+    name: 'Sodam Korean Restaurant',
+    address: '109 Parryi Cove',
+    zip: '78641',
+    category: 'Restaurants & Food',
+    permitIssuedAt,
+    firstSalesAt: permitIssuedAt + 9 * 86400000,
+    sourceUrl: 'https://data.texas.gov/dataset/Texas-Sales-and-Use-Tax-Permit-Holders',
+  }]);
+  f.run('signals');
+  const openings = f.read('openings');
+  assert.equal(openings.length, 1);
+  assert.equal(openings[0].name, 'Sodam Korean Restaurant');
+  assert.equal(openings[0].sources.length, 1);
+  assert.equal(openings[0].sources[0].kind, 'permit');
+  assert.equal(openings[0].sources.every((s) => s.kind !== 'chamber-ribbon' && s.kind !== 'press-opening'), true);
+});

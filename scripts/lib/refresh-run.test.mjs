@@ -12,7 +12,7 @@ function fixture(t, scripts = {}) {
   t.after(() => rmSync(root, { recursive: true, force: true }));
   for (const dir of ['scripts', 'src/data', 'signals']) mkdirSync(join(root, dir), { recursive: true });
   copyFileSync(new URL('../run-refresh.mjs', import.meta.url), join(root, 'scripts/run-refresh.mjs'));
-  for (const name of ['events', 'jobs', 'civic', 'news', 'businesses', 'source-status']) {
+  for (const name of ['events', 'jobs', 'civic', 'news', 'businesses', 'openings', 'source-status']) {
     writeFileSync(join(root, `src/data/${name}.json`), '[]\n');
   }
   for (const name of ['events', 'jobs', 'civic', 'businesses', 'signals']) {

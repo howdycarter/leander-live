@@ -33,6 +33,7 @@ import {
 } from "./conceptA";
 import { CityHallPage } from "./cityHall";
 import { EventDetailPage } from "./eventDetail";
+import { OpeningsPage, OpeningsPreview } from "./openings";
 import { useSavedEvents } from "./state";
 import { EmptyState } from "@/components/arc/empty-state/empty-state";
 
@@ -51,6 +52,7 @@ export function HomePage() {
         withRail
       />
       <JobsPreview />
+      <OpeningsPreview />
       <HowItWorks />
       <BusinessCtaBand />
       <NavyCtaBand />
@@ -58,7 +60,7 @@ export function HomePage() {
   );
 }
 
-export { EventDetailPage, CityHallPage };
+export { EventDetailPage, CityHallPage, OpeningsPage };
 export { WeekendRoundupPage, NewNearYouPage } from "./shareablePages";
 
 /* ---------------- events ---------------- */

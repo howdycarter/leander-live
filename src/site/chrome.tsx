@@ -209,6 +209,7 @@ function Footer() {
             <FooterLink to="/events">Events</FooterLink>
             <FooterLink to="/jobs">Jobs</FooterLink>
             <FooterLink to="/businesses">Businesses</FooterLink>
+            <FooterLink to="/openings">Coming soon</FooterLink>
             <FooterLink to="/city-hall">City Hall</FooterLink>
             <FooterLink to="/community">Community</FooterLink>
             <FooterLink to="/weekend">This weekend</FooterLink>
@@ -367,6 +368,11 @@ const ROUTE_META: Record<string, { title: string; description: string }> = {
     title: "Businesses in Leander, TX — Leander Live",
     description:
       "Ask in plain language, or browse Leander restaurants, shops, salons, and services from official Texas sales-tax permit records — confirm details with each business.",
+  },
+  "/openings": {
+    title: "Coming soon to Leander — Leander Live",
+    description:
+      "Recent Texas sales-tax permits for Leander storefronts. A permit is labeled permit filed until a second source confirms an opening.",
   },
   "/city-hall": {
     title: "City Hall — Leander Live",
