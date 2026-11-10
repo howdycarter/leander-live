@@ -9,7 +9,7 @@
  * badges) read as a generic AI template, so v2 moves to:
  *   - warm paper-white surfaces with pure-white cards and real borders
  *   - navy as the structural color (headings, header/footer, chips)
- *   - burnt orange reserved for calls to action and links
+ *   - Leander blue (logo lockup median #002454) for calls to action and links
  *   - gold for featured/sponsored highlights
  *   - Archivo (geometric grotesque) for UI/body type; display headlines
  *     are Fraunces (serif) per the Oct 31, 2026 mockup-fidelity pass —
@@ -29,8 +29,8 @@
   --color-popover: #ffffff;
   --color-popover-foreground: #1d2733;
 
-  /* Burnt orange — CTAs and links only. */
-  --color-primary: #bc4519;
+  /* Leander blue — CTAs and links only (logo lockup median). */
+  --color-primary: #002454;
   --color-primary-foreground: #ffffff;
 
   /* Navy — structure: headings, footer, active states. */
@@ -49,7 +49,7 @@
 
   --color-border: #e2ddd2;
   --color-input: #cfc8b8;
-  --color-ring: #bc4519;
+  --color-ring: #002454;
 
   --color-cream: #fbfaf7;
   --color-navy: #16324f;
@@ -147,14 +147,14 @@
   --border: #e2ddd2;
   --border-subtle: #efece5;
   --border-strong: #cfc8b8;
-  --accent: #bc4519;
-  --accent-strong: #a73c16;
-  --accent-subtle: #bc451914;
+  --accent: #002454;
+  --accent-strong: #00183a;
+  --accent-subtle: #00245414;
   --accent-foreground: #ffffff;
-  --control-on: #bc4519;
+  --control-on: #002454;
   --control-glyph: #ffffff;
   --control-track: #e2ddd2;
-  --focus-outline: #bc4519;
+  --focus-outline: #002454;
   --radius-control: .7rem;
   --radius-panel: 1rem;
   --radius-surface: 1rem;
