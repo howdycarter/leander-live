@@ -40,6 +40,7 @@
     "scrape": "node scripts/scrape-events.mjs && node scripts/scrape-jobs.mjs && node scripts/scrape-civic.mjs && node scripts/scrape-signals.mjs",
     "refresh": "node scripts/run-refresh.mjs",
     "test": "node --test scripts/lib/*.test.mjs",
+    "shareables": "node scripts/generate-shareables.mjs",
     "validate:listings": "node scripts/validate-listings.mjs",
     "test:uiarc": "node --test src/components/ui/__tests__/compat.test.mjs",
     "test:preservation": "node --test qa/preservation.test.mjs qa/weekend-visibility.test.mjs",
