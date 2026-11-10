@@ -19,6 +19,7 @@ import {
   RemindersPage,
   NewNearYouPage,
   WeekendRoundupPage,
+  ServiceRequestPage,
 } from "./site/pages";
 
 /* The business directory carries the site's largest dataset (800+ permit
@@ -76,6 +77,7 @@ export default function App() {
               <Route path="reminders" element={<RemindersPage />} />
               <Route path="weekend" element={<WeekendRoundupPage />} />
               <Route path="new-near-you" element={<NewNearYouPage />} />
+              <Route path="request" element={<ServiceRequestPage />} />
               <Route path="about" element={<AboutPage />} />
               <Route path="advertise" element={<AdvertisePage />} />
               <Route path="privacy" element={<PrivacyPage />} />
