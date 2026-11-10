@@ -78,12 +78,13 @@
   },
   "refreshExceptions": {
     "scripts/lib/source-compliance.test.mjs": "Regression coverage for tracked enabled sources and source-gate preservation.",
+    "scripts/lib/source-gates.mjs": "Ungate Leander ISD AppliTrack jobs; they use the official public listing, not Firecrawl.",
     "scripts/lib/source-status-file.mjs": "Track already-enabled sources, validate result arrays, preserve source gates.",
     "scripts/run-refresh.mjs": "Propagate failures, invalidate stale reports and detect status-only changes.",
     "scripts/scrape-businesses.mjs": "Persist verified source status and report failures with a nonzero exit.",
     "scripts/scrape-civic.mjs": "Track CivicClerk and apply existing six-hour expiry to retained meetings.",
     "scripts/scrape-events.mjs": "Track Chamber updates and report enabled-source/fatal failures.",
-    "scripts/scrape-jobs.mjs": "Apply existing ISD age policy to retained jobs and propagate failures.",
+    "scripts/scrape-jobs.mjs": "Fetch Leander ISD jobs from the official AppliTrack listing; keep the 150-day age policy and nonzero failure exits.",
     "scripts/scrape-signals.mjs": "Report partial/fatal failures with a nonzero exit while retaining review queue."
   }
 }

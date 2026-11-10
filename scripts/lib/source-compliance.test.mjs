@@ -97,12 +97,31 @@ test('ungated tracking cannot bypass any restricted or unknown source', async ()
 
 test('the committed status file lists every gated source as paused with no fake freshness', () => {
   const rows = readStatus(join(ROOT, 'src/data/source-status.json'));
-  assert.deepEqual(rows.map((r) => r.id).sort(), Object.keys(SOURCE_GATES).sort());
-  for (const r of rows) {
-    assert.equal(r.state, 'paused', r.id);
-    assert.equal(r.lastSuccessAt, null, r.id);
+  const byId = new Map(rows.map((r) => [r.id, r]));
+  for (const id of Object.keys(SOURCE_GATES)) {
+    const r = byId.get(id);
+    assert.ok(r, id);
+    assert.equal(r.state, 'paused', id);
+    assert.equal(r.lastSuccessAt, null, id);
     assert.match(r.reason, /^paused: rights pending/);
   }
+});
+
+test('Leander ISD AppliTrack jobs are fetched without a Firecrawl flag', async (t) => {
+  assert.equal(SOURCE_GATES['lisd-applitrack-jobs'], undefined);
+  const dir = mkdtempSync(join(tmpdir(), 'll-status-'));
+  t.after(() => rmSync(dir, { recursive: true, force: true }));
+  const statusPath = join(dir, 'status.json');
+  let called = false;
+  const { items, row } = await runTracked(
+    'lisd-applitrack-jobs',
+    async () => { called = true; return [{ id: 'applitrack-1' }]; },
+    [{ id: 'old' }],
+    { now: NOW, log: () => {}, statusPath },
+  );
+  assert.equal(called, true);
+  assert.equal(row.state, 'ok');
+  assert.deepEqual(items, [{ id: 'applitrack-1' }]);
 });
 
 const listing = (over = {}) => ({
